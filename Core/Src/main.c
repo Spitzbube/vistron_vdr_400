@@ -74,6 +74,43 @@ static void MX_FSMC_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+
+/* 800c7e0 - todo */
+void sub_800c7e0(uint16_t a)
+{
+   TIM_HandleTypeDef htim;
+
+   htim.Instance = TIM6;
+
+   HAL_TIM_Base_Start_IT(&htim);
+
+   while (a--)
+   {
+      while (!__HAL_TIM_GET_FLAG(&htim, TIM_FLAG_UPDATE)) // ((htim.Instance->SR & TIM_FLAG_UPDATE) != TIM_FLAG_UPDATE)
+      {
+         /* wait */
+      }
+
+      __HAL_TIM_CLEAR_FLAG(&htim, TIM_FLAG_UPDATE); //htim.Instance->SR = ~TIM_FLAG_UPDATE;
+   }
+
+   HAL_TIM_Base_Stop_IT(&htim);
+}
+
+
+/* 800c830 - todo */
+void sub_800c830()
+{
+
+}
+
+
+/* 800c88c - todo */
+void sub_800c88c(int a, uint16_t b)
+{
+
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -113,6 +150,8 @@ int main(void)
   MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_TIM_Base_Start_IT(&htim5);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -138,9 +177,9 @@ int main(void)
 	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 #endif
 
-	  extern int sub_8009a40(uint16_t a, uint16_t b);
+	  extern int sub_8008d14(uint8_t a);
 
-	  sub_8009a40(0, 0);
+	  sub_8008d14(0);
 
     /* USER CODE END WHILE */
 
