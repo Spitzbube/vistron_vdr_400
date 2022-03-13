@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "../../User/func_8001ae8.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,11 +71,13 @@ static void MX_USART2_UART_Init(void);
 static void MX_FSMC_Init(void);
 /* USER CODE BEGIN PFP */
 
+extern int sub_800b270(void);
+extern int sub_800a9a8(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 
 /* 800c7e0 - todo */
 void sub_800c7e0(uint16_t a)
@@ -111,6 +115,74 @@ void sub_800c88c(int a, uint16_t b)
 
 }
 
+
+struct
+{
+
+} Data_20000a5c; //20000a5c
+
+struct
+{
+   int fill_0[32]; //0
+   uint8_t bData_0x80; //0x80
+
+} Data_20000a78; //20000a78
+
+
+void sub_8005520()
+{
+
+}
+
+
+void sub_80055bc()
+{
+
+}
+
+
+void sub_8001a14()
+{
+
+}
+
+
+void sub_8001bd8()
+{
+
+}
+
+
+void sub_8001cc4()
+{
+
+}
+
+
+void sub_8001eb6()
+{
+
+}
+
+
+void sub_8001f04()
+{
+
+}
+
+
+void sub_8004560()
+{
+
+}
+
+
+void sub_8005198()
+{
+
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -120,6 +192,29 @@ void sub_800c88c(int a, uint16_t b)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	typedef struct
+	{
+	   uint32_t Data_0; //0
+	   uint32_t Data_4; //4
+	   int fill8[4]; //8
+	   uint16_t wData_24; //24
+	   //28
+	} struct_8008d84;
+
+	extern struct_8008d84 Data_20000be8[8]; //20000be8 +224
+	extern struct_8008d84 Data_20000cc8[200]; //20000cc8 +5600
+    extern uint8_t bData_20000057; //20000057
+    extern int Data_20000a4c; //20000a4c
+    extern uint8_t bData_20000a50; //20000a50
+    extern uint16_t wData_20000a56; //20000a56
+    extern uint8_t bData_20000a58; //20000a58
+    extern /*struct_8001ae8*/RTC_TimeTypeDef Data_20000a70; //20000a70
+    extern int Data_20000a74; //20000a74
+    extern void sub_800173c(/*struct_8001ae8*/RTC_TimeTypeDef a, void* b, uint8_t c, void* d, uint8_t e, void* f, int g, uint16_t h);
+
+
+  struct_8008d84* r7_c = (wData_20000a56 & 4)? Data_20000be8: Data_20000cc8;
+  uint16_t r7_a = 0x2a30;
 
   /* USER CODE END 1 */
 
@@ -152,12 +247,48 @@ int main(void)
 
   HAL_TIM_Base_Start_IT(&htim5);
 
+  sub_800b270();
+
+  if (0 != sub_800a9a8())
+  {
+     sub_800173c(Data_20000a70,
+                 r7_c[bData_20000a58].fill8,
+				 bData_20000057,
+				 &Data_20000a78,
+				 //?
+				 wData_20000a56,
+				 &Data_20000a5c,
+				 bData_20000a58,
+				 Data_20000a78.bData_0x80
+			 );
+  }
+  else
+  {
+     //loc_800c99c
+     sub_80045f8(Data_20000a70, Data_20000a74, &Data_20000a4c, /*TODO*/((bData_20000a50 & 1) << 1));
+  }
+  //loc_800c9b4
+  __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      //loc_800c9c4
+
+      if (0 == HAL_RTC_GetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
+      {
+         sub_8001ae8(Data_20000a70);
+      }
+      //loc_800ca06
+
+
+	  sub_800ae28();
+
+	  //Tryouts....
+
 #if 0
 	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 	  HAL_Delay(500);
@@ -176,10 +307,6 @@ int main(void)
 	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
 	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 #endif
-
-	  extern int sub_8008d14(uint8_t a);
-
-	  sub_8008d14(0);
 
     /* USER CODE END WHILE */
 
