@@ -79,6 +79,13 @@ extern int sub_800a9a8(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+/* 800c33c - todo */
+void sub_800c33c(void)
+{
+
+}
+
+
 /* 800c7e0 - todo */
 void sub_800c7e0(uint16_t a)
 {
@@ -205,11 +212,17 @@ int main(void)
 	extern struct_8008d84 Data_20000cc8[200]; //20000cc8 +5600
     extern uint8_t bData_20000057; //20000057
     extern int Data_20000a4c; //20000a4c
-    extern uint8_t bData_20000a50; //20000a50
+    extern struct
+    {
+    	int b0: 1;
+    	uint8_t b1: 1;
+    	int a: 6;
+    	int b: 6;
+    } Data_20000a50; //20000a50
     extern uint16_t wData_20000a56; //20000a56
     extern uint8_t bData_20000a58; //20000a58
     extern /*struct_8001ae8*/RTC_TimeTypeDef Data_20000a70; //20000a70
-    extern int Data_20000a74; //20000a74
+    extern RTC_DateTypeDef Data_20000a74; //20000a74
     extern void sub_800173c(/*struct_8001ae8*/RTC_TimeTypeDef a, void* b, uint8_t c, void* d, uint8_t e, void* f, int g, uint16_t h);
 
 
@@ -265,7 +278,8 @@ int main(void)
   else
   {
      //loc_800c99c
-     sub_80045f8(Data_20000a70, Data_20000a74, &Data_20000a4c, /*TODO*/((bData_20000a50 & 1) << 1));
+	  extern void sub_80045f8(RTC_TimeTypeDef, RTC_DateTypeDef, void*, uint8_t);
+     sub_80045f8(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
   }
   //loc_800c9b4
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
@@ -307,6 +321,7 @@ int main(void)
 	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
 	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 #endif
+
 
     /* USER CODE END WHILE */
 

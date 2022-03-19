@@ -2,7 +2,7 @@
 #include "stm32f1xx_hal.h"
 
 
-const uint8_t Data_8018af4[943] = //8018af4
+const uint8_t si46xx_image_data[943] = //8018af4
 {
 #if 0
 		08018af4                        db  0x00 ; '.'                                  ; DATA XREF=sub_8009bb8+230, 0x8009e70
