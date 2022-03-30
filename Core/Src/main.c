@@ -143,27 +143,26 @@ struct
 } Data_20000afc;
 
 
-void sub_8005520()
+/* 800dd74 - todo */
+void RTC_IRQHandler(void)
 {
+   wData_20000a56 |= 0x10;
 
+   sub_801050c(&hrtc);
 }
 
 
-void sub_80055bc()
+/* 800dd98 - todo */
+void RTC_Alarm_IRQHandler(void)
 {
+   wData_20000a56 |= 0x08;
 
+   HAL_RTC_AlarmIRQHandler(&hrtc);
 }
 
 
 /* 8001802 - todo */
 uint8_t sub_8001802(uint16_t a, uint16_t b)
-{
-
-}
-
-
-/* 8001a14 - todo */
-void sub_8001a14(void* a)
 {
 
 }
@@ -211,54 +210,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-	typedef struct
-	{
-	   int a;
-	   int b;
-
-	} struct_8008d84_Inner8;
-
-	typedef struct
-	{
-	   uint32_t Data_0; //0
-	   uint32_t Data_4; //4
-	   struct_8008d84_Inner8 Data_8; //8
-	   int fill16[2]; //16
-	   uint16_t wData_24; //24
-	   //28
-	} struct_8008d84;
-
-	extern struct_8008d84 Data_20000be8[8]; //20000be8 +224
-	extern struct_8008d84 Data_20000cc8[200]; //20000cc8 +5600
-    extern uint8_t bData_20000057; //20000057
-    extern uint8_t bData_20000a48[2]; //20000a48, size?
-    extern int Data_20000a4c; //20000a4c
-    extern struct
-    {
-    	int b0: 1;
-    	uint8_t b1: 1;
-    	int a: 6;
-    	int b: 6;
-    } Data_20000a50; //20000a50
-    extern uint16_t wData_20000a56; //20000a56
-    extern uint8_t bData_20000a58; //20000a58
-    extern uint8_t bData_20000a6c; //20000a6c
-    extern uint8_t bData_20000a6d; //20000a6d
-    extern /*struct_8001ae8*/RTC_TimeTypeDef Data_20000a70; //20000a70
-    extern RTC_DateTypeDef Data_20000a74; //20000a74
-    extern uint8_t bData_20000b7d; //20000b7d
-    extern struct
-	{
-    	uint8_t bData_0; //0
-    	uint16_t wData_2; //2
-    	uint16_t wData_4; //4
-
-	} Data_20000bc0;
-    extern struct_8008d84* Data_200023e0; //200023e0
-    extern void sub_800173c(/*struct_8001ae8*/RTC_TimeTypeDef a, void* b, uint8_t c, void* d, uint8_t e, void* f, int g, uint16_t h);
-	extern void sub_80045f8(RTC_TimeTypeDef, RTC_DateTypeDef, void*, uint8_t);
-
-
   struct_8008d84* r7_c = (wData_20000a56 & 4)? Data_20000be8: Data_20000cc8;
   uint16_t r7_a = 10800;
   uint8_t r7_9;
@@ -293,7 +244,7 @@ int main(void)
   MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
 
-  sub_8005238();
+  ili9341_init();
 
   sub_8006434();
 
@@ -307,11 +258,10 @@ int main(void)
                  &r7_c[bData_20000a58].Data_8,
 				 bData_20000057,
 				 &Data_20000a78,
-				 //?
-				 wData_20000a56,
-				 &Data_20000a5c,
+				 Data_20000a78.bData_0x80,
 				 bData_20000a58,
-				 Data_20000a78.bData_0x80
+				 &Data_20000a5c,
+  				 wData_20000a56
 			 );
   }
   else
@@ -339,7 +289,7 @@ int main(void)
                sub_8001ae8(Data_20000a70);
             }
             //loc_800ca06
-            if ((Data_200023e0->wData_24 < 41) && (Data_200023e0->Data_0 != 0))
+            if ((Data_200023e0->wData_24 < 41) && (Data_200023e0->service_id != 0))
             {
                if (((wData_20000a56 & 0x80) == 0) &&
             		   (0 != sub_8008ed8(&Data_20000a70, &Data_20000a74)))
@@ -434,7 +384,7 @@ int main(void)
          //loc_800cc42
          if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
          {
-            if ((Data_200023e0->wData_24 < 41) && (Data_200023e0->Data_0 != 0))
+            if ((Data_200023e0->wData_24 < 41) && (Data_200023e0->service_id != 0))
             {
                if (0 == sub_800a76c(&Data_20000a78, &Data_20000af8))
                {
@@ -540,11 +490,10 @@ int main(void)
                  &r7_c[bData_20000a58].Data_8,
    				 bData_20000057,
    				 &Data_20000a78,
-   				 //?
-   				 wData_20000a56,
-   				 &Data_20000a5c,
-   				 bData_20000a58,
-   				 Data_20000a78.bData_0x80
+				 Data_20000a78.bData_0x80,
+				 bData_20000a58,
+				 &Data_20000a5c,
+  				 wData_20000a56
             	);
 
             Data_20000bc0.bData_0 = 1;
@@ -594,11 +543,10 @@ int main(void)
                            &r7_c[bData_20000a58].Data_8,
           				 bData_20000057,
           				 &Data_20000a78,
-          				 //?
-          				 wData_20000a56,
-          				 &Data_20000a5c,
-          				 bData_20000a58,
-          				 Data_20000a78.bData_0x80
+						 Data_20000a78.bData_0x80,
+						 bData_20000a58,
+						 &Data_20000a5c,
+          				 wData_20000a56
           			 );
             }
             //loc_800c9c4
