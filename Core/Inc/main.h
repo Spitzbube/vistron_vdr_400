@@ -44,7 +44,7 @@ typedef struct
    uint16_t width; //0
    uint16_t height; //2
 
-} Struct_20000024;
+} Screen_Resolution;
 
 typedef struct
 {
@@ -57,12 +57,12 @@ typedef struct
 
 typedef struct
 {
-   int Data_0; //0
-   int Data_4; //4
+   int fg_color; //0
+   int bg_color; //4
    Struct_2000002c_Inner8* pFont; //8;
    uint8_t bData_12; //12
 
-} Struct_2000002c;
+} Text_Attributes;
 
 typedef struct
 {
@@ -103,6 +103,30 @@ typedef struct
 	uint8_t b: 6;
 } Struct_20000a50;
 
+
+typedef struct
+{
+   int Data_0; //0
+   uint16_t wData_4; //4
+   uint16_t wData_6; //6
+   uint16_t wData_8; //8
+   uint16_t wData_10; //19
+   int Data_12; //12
+   int Data_16; //16
+   int Data_20; //20
+   int Data_24; //24
+   int Data_28; //28
+   int Data_32; //32
+   uint16_t wData_36; //36
+   uint16_t wData_38; //38
+   uint16_t wData_40; //40
+   uint16_t wData_42; //42
+   uint16_t wData_44; //44
+   uint16_t wData_46; //46
+
+} Struct_20000b90;
+
+
 typedef struct
 {
 	uint8_t bData_0; //0
@@ -112,13 +136,22 @@ typedef struct
 } Struct_20000bc0;
 
 
+typedef struct
+{
+   uint8_t bData_0; //0
+   uint8_t bData_1; //1
+
+} Struct_20000a48;
+
+
 typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
 
 
 extern Func_20000000 Funcs_20000000[]; //0x20000000
-extern Struct_20000024 Data_20000024; //20000024 (801941C)
-extern Struct_2000002c Data_2000002c; //2000002c
+extern Screen_Resolution ScreenResolution; //20000024 (801941C)
+extern Text_Attributes TextAttributes; //2000002c
 extern Struct_2000002c_Inner8 Data_2000003c; //2000003c
+extern Struct_2000002c_Inner8 Data_20000044; //20000044
 extern Struct_2000002c_Inner8 Data_2000004c; //2000004c
 extern uint8_t bData_20000054; //20000054 (801944C)
 extern uint8_t bData_20000055; //20000055 (801944D)
@@ -127,16 +160,17 @@ extern uint8_t bData_20000057; //20000057 (801944F)
 extern uint32_t SystemCoreClock; //20000058
 extern uint32_t uwTickPrio; //2000005C
 extern HAL_TickFreqTypeDef uwTickFreq; //20000060
-extern Struct_200000e4 Data_200000e4; //200000e4
+extern Struct_200000e4 TextCursor; //200000e4
 extern uint8_t bData_200000e8; //200000e8
 extern uint8_t bData_200000e9; //200000e9
 extern uint8_t bData_200000ea; //200000ea
 extern uint8_t bData_200000eb; //200000eb
-
+extern char Data_200000ec[]; //200000ec
+extern uint16_t wData_200001ec; //200001ec
+extern uint16_t wData_200001ee; //200001ee
 extern uint8_t Data_200001f0[]; //200001f0
 
-//extern uint8_t bData_20000a48; //20000a48
-extern uint8_t bData_20000a48[]; //20000a48, size?
+extern Struct_20000a48 Data_20000a48; //20000a48
 //extern int Data_20000a4c; //20000a4c
 extern Struct_20000a4c Data_20000a4c; //20000a4c
 extern Struct_20000a50 Data_20000a50; //20000a50
@@ -148,6 +182,7 @@ extern uint8_t bData_20000a6d; //20000a6d
 extern RTC_TimeTypeDef Data_20000a70; //20000a70
 extern RTC_DateTypeDef Data_20000a74; //20000a74
 extern uint8_t bData_20000b7d; //20000b7d
+extern Struct_20000b90 Data_20000b90; //20000b90
 extern Struct_20000bc0 Data_20000bc0;
 extern char strFMVersion[]; //20000bcc
 extern char strDABVersion[]; //20000bd8
@@ -170,6 +205,8 @@ extern UART_HandleTypeDef huart2; //20002438
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 
+#define TEXT_ID_NO_CHANNEL                  8
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -178,6 +215,7 @@ extern UART_HandleTypeDef huart2; //20002438
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
+int sub_8001224(char* a);
 void Error_Handler(void);
 void sub_8004be8(uint16_t, uint16_t, int, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
@@ -193,11 +231,12 @@ void ili9341_init(void);
 void ili9341_fill_screen(uint16_t a);
 void ili9341_draw_vert_line(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
 void ili9341_draw_hor_line(uint16_t a, uint16_t b, uint16_t c, uint16_t e);
+void ili9341_draw_format_string(const char * format, ...);
 void ili9341_draw_string(char* a, uint8_t len);
 void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
 void ili9341_draw_rect(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t color);
 void ili9341_set_font(Struct_2000002c_Inner8* a);
-void sub_80060c8(uint16_t a, uint16_t b);
+void ili9341_set_text_color(uint16_t fg, uint16_t bg);
 void ili9341_set_cursor(uint16_t x, uint16_t y);
 void ili9341_set_address(uint16_t a, uint16_t b, uint16_t c, uint16_t d);
 void ili9341_setup_interface(void);
@@ -210,9 +249,12 @@ void sub_800651c(void);
 void sub_8006618(void);
 void sub_8006624(void);
 void sub_8006694(uint8_t a);
+void sub_8006730(void);
+uint8_t sub_8006838(void);
 void sub_80068e4(uint8_t a);
 void sub_800691c(uint8_t a);
 void sub_8006950(uint8_t a);
+int sub_800699c(void);
 uint16_t sub_80069b4(int a);
 void sub_8006a70(int a);
 
@@ -224,6 +266,8 @@ int si46xx_set_dab_config(void);
 int si46xx_set_config(void);
 int si46xx_set_audio_output(uint8_t a);
 int si46xx_set_property(uint16_t name, uint16_t value);
+
+void sub_800c7e0(uint16_t a);
 
 /* USER CODE BEGIN EFP */
 

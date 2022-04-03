@@ -8,7 +8,6 @@ extern RTC_HandleTypeDef hrtc;
 extern SPI_HandleTypeDef hspi2;
 
 extern void Error_Handler(void);
-extern void sub_800c7e0(int);
 int sub_800b2ac(void* a, void* b);
 
 
@@ -26,14 +25,14 @@ Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
    sub_8004fc4,
    sub_8005074
 };
-Struct_20000024 Data_20000024 = //20000024 (801941C)
+Screen_Resolution ScreenResolution = //20000024 (801941C)
 {
    320, 240
 };
 //20000028 (8019420)
-Struct_2000002c Data_2000002c = //2000002c (8019424)
+Text_Attributes TextAttributes = //2000002c (8019424)
 {
-   0x0000ffe0,
+   0xffe0,
    0,
    &Data_2000003c, //0x2000003c,
    1
@@ -44,7 +43,20 @@ Struct_2000002c_Inner8 Data_2000003c = //2000003c (8019434)
    7,
    12
 };
-
+Struct_2000002c_Inner8 Data_20000044 = //20000044 (801943c)
+{
+   0, //8013404
+   11,
+   16
+};
+#if 0 //->font1.c
+Struct_2000002c_Inner8 Data_2000004c = //2000004c (8019444)
+{
+   0, //8014ec4
+   17,
+   24
+};
+#endif
 uint8_t bData_20000054 = 1; //20000054 (801944C)
 uint8_t bData_20000055 = 0xff; //20000055 (801944D)
 uint8_t bData_20000056 = 4; //20000056 (801944E)
@@ -54,15 +66,16 @@ uint8_t bData_20000057 = 31; //20000057 (801944F)
 //HAL_TickFreqTypeDef uwTickFreq; //20000060 (8019458)
 //_impure_ptr; //?? //20000064 (801945C)
 //impure_data; //?? //20000068 (8019460 -> 80194C0?)
-Struct_200000e4 Data_200000e4; //200000e4
+Struct_200000e4 TextCursor; //200000e4
 uint8_t bData_200000e8; //200000e8
 uint8_t bData_200000e9; //200000e9
 uint8_t bData_200000ea; //200000ea
 uint8_t bData_200000eb; //200000eb
-
+char Data_200000ec[256]; //200000ec, size?
+uint16_t wData_200001ec; //200001ec
+uint16_t wData_200001ee; //200001ee
 uint8_t Data_200001f0[100]; //200001f0 size?
-//uint8_t bData_20000a48; //20000a48
-uint8_t bData_20000a48[2]; //20000a48, size?
+Struct_20000a48 Data_20000a48; //20000a48
 Struct_20000a4c Data_20000a4c; //20000a4c
 Struct_20000a50 Data_20000a50; //20000a50
 uint16_t wData_20000a56; //20000a56
@@ -73,29 +86,9 @@ uint8_t bData_20000a6d; //20000a6d
 RTC_TimeTypeDef Data_20000a70; //20000a70
 RTC_DateTypeDef Data_20000a74; //20000a74
 uint8_t bData_20000b7d; //20000b7d
-struct
-{
-   int Data_0; //0
-   uint16_t wData_4; //4
-   uint16_t wData_6; //6
-   uint16_t wData_8; //8
-   uint16_t wData_10; //19
-   int Data_12; //12
-   int Data_16; //16
-   int Data_20; //20
-   int Data_24; //24
-   int Data_28; //28
-   int Data_32; //32
-   uint16_t wData_36; //36
-   uint16_t wData_38; //38
-   uint16_t wData_40; //40
-   uint16_t wData_42; //42
-   uint16_t wData_44; //44
-   uint16_t wData_46; //46
-
-} Data_20000b90; //20000b90
+Struct_20000b90 Data_20000b90; //20000b90
 Struct_20000bc0 Data_20000bc0;
-int* Data_20000bc8; //20000bc8
+char** CurrentTextTable; //20000bc8
 char strFMVersion[12]; //20000bcc
 char strDABVersion[12]; //20000bd8
 uint8_t bData_20000be4; //20000be4
@@ -137,53 +130,59 @@ void sub_800173c(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8
 
 
 /* 8001224 - todo */
-int sub_8001224(int a)
+int sub_8001224(char* a)
 {
-
+   char* b = a;
+   while (b++) {}
+   return b-a-1;
 }
 
 
 /* 8001a14 - todo */
 void sub_8001a14(void* a)
 {
-   uint16_t r7_e;
+#if 0
+   uint16_t len;
 
    if (bData_200022a8 != 0)
    {
       ili9341_set_font(&Data_2000004c);
       ili9341_draw_box(0, 63, 320, 24, 0xffff);
-      sub_80060c8(0, 0xffff);
-      r7_e = sub_800c88c(a, 0x10);
-      ili9341_set_cursor(160 - (r7_e * Data_2000004c.width) / 2, 63);
-      ili9341_draw_string(a, r7_e);
+      ili9341_set_text_color(0, 0xffff);
+      len = sub_800c88c(a, 0x10);
+      ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 63);
+      ili9341_draw_string(a, len);
    }
    else
    {
-      r7_e = sub_8001224(Data_20000bc8[8]);
+      len = sub_8001224(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
       ili9341_set_font(&Data_2000004c);
-      sub_80060c8(0, 0xffff);
-      ili9341_set_cursor(160 - (r7_e * Data_2000004c.width) / 2, 63);
-      sub_8005edc(Data_20000bc8[8]);
+      ili9341_set_text_color(0, 0xffff);
+      ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 63);
+      ili9341_draw_format_string(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
    }
+#endif
 }
 
 
 /* 8003038 - todo */
-void sub_8003038(uint16_t a, Struct_2000002c_Inner8* b)
+void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
 {
-   uint16_t r7_e;
+#if 0
+   uint16_t len;
 
-   ili9341_set_font(b);
+   ili9341_set_font(font);
 
    ili9341_draw_box(0, 23, 320, 24, 0xffff);
 
-   sub_80060c8(0, 0xffff);
+   ili9341_set_text_color(0, 0xffff);
 
-   r7_e = sub_8001224(Data_20000bc8[a]);
+   len = sub_8001224(CurrentTextTable[textId]);
 
-   ili9341_set_cursor(160 - (r7_e * b->width) / 2, 0x18);
+   ili9341_set_cursor(160 - (len * font->width) / 2, 24);
 
-   sub_8005edc(Data_20000bc8[a]);
+   ili9341_draw_format_string(CurrentTextTable[textId]);
+#endif
 }
 
 
@@ -257,11 +256,141 @@ void sub_8005198(uint16_t x, uint16_t y, uint16_t color, uint8_t r7_1)
    ili9341_draw_rect(x, y, 36, 36, 0);
 }
 
+char* EnglishTextTable[] = //8012dc0
+{
+	"CHAN.UP",
+	"CHAN.DOWN",
+	"VOL.UP",
+	"VOL.DOWN",
+	"MUX.UP",
+	"MUX.DOWN",
+	"No new channel found!",
+	"No signal!",
+	"No channel", //TEXT_ID_NO_CHANNEL
+	"FAV-list full!",
+	"OK",
+	"Exit",
+	"Menu",
+	"Main menu",
+	"Up",
+	"Down",
+	"Delete",
+	"Next",
+	"Channel list",
+	"Settings",
+	"Factory reset",
+	"Alarm",
+	"Information",
+	"Automatic search",
+	"Manual search",
+	"Delete channel",
+	"Manual search DAB",
+	"Manual search FM",
+	"Language",
+	"Sleep-Timer",
+	"Auto-Standby",
+	"Continue?",
+	"NO",
+	"YES",
+	"Deutsch",
+	"English",
+	"Volume",
+	"Off",
+	"On",
+	"Signal information",
+	"Channel:",
+	"Multiplex:",
+	"Frequency:",
+	"Level:",
+	"SNR:",
+	"Error rate:",
+	"Multipath:",
+	"Freq.offset:",
+	"Audio information",
+	"Data rate:",
+	"Sampl.frequency:",
+	"Audio mode:",
+	"Stereo separation:",
+	"Product:",
+	"Hardware:",
+	"Software:",
+	"DAB Firmware:",
+	"FM Firmware:",
+};
+
+char* GermanTextTable[] = //8012ea8
+{
+	"KAN.OBEN",
+	"KAN.NIEDER",
+	"LAUT.OBEN",
+	"LAUT.NIEDER",
+	"MUX.OBEN",
+	"MUX.NIEDER",
+	"Kein neuer Sender gefunden",
+	"Kein Signal!",
+	"Kein Sender",
+	"FAV-Liste voll!",
+	"OK",
+	"Zurück",
+	"Menü",
+	"Hauptmenü",
+	"Ab",
+	"Auf",
+	"Löschen",
+	"N.hste",
+	"Senderliste",
+	"Einstellungen",
+	"Werkzustand",
+	"Wecker",
+	"Information",
+	"Automatische Suche",
+	"Manuelle Suche",
+	"Sender löschen",
+	"Manuelle Suche DAB",
+	"Manuelle Suche FM",
+	"Sprache",
+	"Sleep-Timer",
+	"Autom. Abschaltung",
+	"Weiter?",
+	"NEIN",
+	"JA",
+	"Deutsch",
+	"English",
+	"Lautstärke",
+	"Aus",
+	"Ein",
+	"Empfang",
+	"Sendername:",
+	"Multiplex:",
+	"Frequenz:",
+	"Pegel:",
+	"SNR:",
+	"Fehlerrate:",
+	"Mehrweg:",
+	"Frek.offset:",
+	"Audio Information",
+	"Datenrate:",
+	"Abtastfreq.:",
+	"Audio Modus:",
+	"Stereo Tren:",
+	"Produkt:",
+	"Hardware:",
+	"Software:",
+	"DAB Firmware:",
+	"FM Firmware:",
+};
 
 /* 8005204 - todo */
 void sub_8005204(uint8_t a)
 {
-
+   if (a == 1)
+   {
+      CurrentTextTable = EnglishTextTable;
+   }
+   else
+   {
+      CurrentTextTable = GermanTextTable;
+   }
 }
 
 
@@ -469,6 +598,36 @@ void sub_8006624(void)
 }
 
 
+/* 8006630 - todo */
+void sub_8006630(void)
+{
+   uint8_t r7_7 = 1;
+
+   if (0 == sub_800699c())
+   {
+      r7_7 = 0;
+   }
+   else
+   {
+      r7_7 = 1;
+   }
+
+   if (r7_7 == 0)
+   {
+      sub_8006694(1);
+      sub_8006730();
+      if ((0 == sub_8006838()) && (Data_20000bc0.bData_0 != 0))
+      {
+         Data_20000bc0.bData_0 = 0;
+      }
+   }
+   else if (Data_20000bc0.bData_0 != 0)
+   {
+      Data_20000bc0.bData_0 = 1;
+   }
+}
+
+
 /* 8006694 - todo */
 void sub_8006694(uint8_t a)
 {
@@ -499,6 +658,99 @@ void sub_8006694(uint8_t a)
       Data_20000b90.wData_4 = r7_10 / 4;
       Data_20000b90.wData_6 = r7_c / 4;
    }
+}
+
+
+/* 8006730 - todo */
+void sub_8006730(void)
+{
+   int r7_24;
+   int r7_20;
+   int r7_1c = sub_80013a0(Data_20000b90.wData_4);
+   int r7_18 = sub_80013a0(Data_20000b90.wData_6);
+   int r7_14 = sub_8001450(r7_1c, Data_20000b90.Data_12);
+   int r7_10 = sub_80016f0(r7_14);
+   int r7_c = sub_8001450(r7_18, Data_20000b90.Data_16);
+   int r7_8 = sub_80016f0(r7_c);
+   int r7_4 = sub_80016f0(Data_20000b90.Data_20);
+   r7_24 = r7_10 + r7_8 + r7_4;
+
+   r7_14 = sub_8001450(r7_1c, Data_20000b90.Data_24);
+   r7_10 = sub_80016f0(r7_14);
+   r7_c = sub_8001450(r7_18, Data_20000b90.Data_28);
+   r7_8 = sub_80016f0(r7_c);
+   r7_4 = sub_80016f0(Data_20000b90.Data_32);
+   r7_20 = r7_10 + r7_8 + r7_4;
+
+   if (r7_24 >= 320)
+   {
+      r7_24 = 319;
+   }
+
+   if (r7_24 < 0)
+   {
+      r7_24 = 0;
+   }
+
+   if (r7_20 > 239)
+   {
+      r7_20 = 239;
+   }
+
+   if (r7_20 < 0)
+   {
+      r7_20 = 0;
+   }
+
+   Data_20000b90.wData_8 = r7_24;
+   Data_20000b90.wData_10 = r7_20;
+}
+
+
+/* 8006838 - todo */
+uint8_t sub_8006838(void)
+{
+   uint8_t r7_7 = 0;
+   uint16_t r7_4;
+
+   if (Data_20000b90.wData_8 >= wData_200001ec)
+   {
+      r7_4 = Data_20000b90.wData_8 - wData_200001ec;
+   }
+   else
+   {
+      r7_4 = wData_200001ec - Data_20000b90.wData_8;
+   }
+
+   if (r7_4 > 30)
+   {
+      r7_7 = 1;
+   }
+
+   if (Data_20000b90.wData_10 >= wData_200001ee)
+   {
+      r7_4 = Data_20000b90.wData_10 - wData_200001ee;
+   }
+   else
+   {
+      r7_4 = wData_200001ee - Data_20000b90.wData_10;
+   }
+
+   if (r7_4 > 30)
+   {
+      r7_7 = 1;
+   }
+
+   wData_200001ec = Data_20000b90.wData_8;
+   wData_200001ee = Data_20000b90.wData_10;
+
+   if (r7_7 == 0)
+   {
+      Data_20000bc0.wData_2 = Data_20000b90.wData_8;
+      Data_20000bc0.wData_4 = Data_20000b90.wData_10;
+   }
+
+   return r7_7;
 }
 
 
@@ -551,7 +803,7 @@ int sub_8006984(void)
 }
 
 
-/* sub_800699c - todo */
+/* 800699c - todo */
 int sub_800699c(void)
 {
    return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);

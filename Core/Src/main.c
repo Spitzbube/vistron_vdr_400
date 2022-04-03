@@ -438,14 +438,14 @@ int main(void)
                   //loc_800cd5e
                }
             }
-         }
+         } //if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
          //loc_800cd5e
          bData_20000a6d = 0;
 
-         if (bData_20000a48[0] == 0)
+         if (Data_20000a48.bData_0 == 0)
          {
-            bData_20000a6d = bData_20000a48[1];
-            bData_20000a48[0] = 1;
+            bData_20000a6d = Data_20000a48.bData_1;
+            Data_20000a48.bData_0 = 1;
          }
          //loc_800cd7a
          bData_20000a6c = 0;
@@ -462,11 +462,59 @@ int main(void)
 
             switch (bData_20000a6c | bData_20000a6d)
             {
-               default:
-                  //loc_800d114
-                  Data_20000bc0.bData_0 = 1;
-                  //goto loc_800c9c4;
-                  break;
+            case 2:
+               //800ce78
+               break;
+
+            case 3:
+               //800ceb2
+               break;
+
+            case 1:
+               //800ceec
+               break;
+
+            case 4:
+               //800cefc
+               break;
+
+            case 14:
+               //800cf0c
+               break;
+
+            case 6:
+               //800cf2a
+               sub_800bd2c();
+
+               Data_20000a78.bData_0x80 = 0;
+#if 0
+               sub_800173c(Data_20000a70,
+            		   r7_C());
+#endif
+               //->800D116
+               break;
+
+            case 20:
+               //800cf7a
+               break;
+
+            case 21:
+               //800d010
+               break;
+
+            case 22:
+               //800d084
+               break;
+
+            case 23:
+               //800d0cc
+               break;
+
+            default:
+               //loc_800d114
+               Data_20000bc0.bData_0 = 1;
+               //goto loc_800c9c4;
+               break;
             }
          }
          //goto loc_800c9c4;
@@ -475,7 +523,7 @@ int main(void)
 	  {
          //loc_800d154
          if ((Data_20000bc0.bData_0 == 0) ||
-        		 (bData_20000a48[0] == 0))
+        		 (Data_20000a48.bData_0 == 0))
          {
             //loc_800d164
             r7_a = 10800;

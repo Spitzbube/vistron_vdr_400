@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+#include <stdarg.h>
 #include "stm32f1xx_hal.h"
 #include "main.h"
 
@@ -132,9 +134,9 @@ void ili9341_fill_screen(uint16_t a)
 {
    uint32_t count;
 
-   ili9341_set_address(0, 0, Data_20000024.width - 1, Data_20000024.height - 1);
+   ili9341_set_address(0, 0, ScreenResolution.width - 1, ScreenResolution.height - 1);
 
-   count = Data_20000024.width * Data_20000024.height;
+   count = ScreenResolution.width * ScreenResolution.height;
    while (count--)
    {
       ili9341_write_data(a);
@@ -145,8 +147,8 @@ void ili9341_fill_screen(uint16_t a)
 /* 8005574 - todo */
 void ili9341_draw_pixel(uint16_t a, uint16_t b, uint16_t c)
 {
-   if ((a >= Data_20000024.width) ||
-		   (b >= Data_20000024.height))
+   if ((a >= ScreenResolution.width) ||
+		   (b >= ScreenResolution.height))
    {
 	   return;
    }
@@ -168,14 +170,14 @@ void ili9341_draw_hor_line(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color)
       x2 = r7_a;
    }
 
-   if (x2 >= Data_20000024.width)
+   if (x2 >= ScreenResolution.width)
    {
-      x2 = Data_20000024.width - 1;
+      x2 = ScreenResolution.width - 1;
    }
 
-   if (x1 >= Data_20000024.width)
+   if (x1 >= ScreenResolution.width)
    {
-      x1 = Data_20000024.width - 1;
+      x1 = ScreenResolution.width - 1;
    }
 
    ili9341_set_address(x1, y, x2, y);
@@ -199,19 +201,19 @@ void ili9341_draw_vert_line(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color
       y2 = r7_a;
    }
 
-   if (x >= Data_20000024.width)
+   if (x >= ScreenResolution.width)
    {
-      x = Data_20000024.width - 1;
+      x = ScreenResolution.width - 1;
    }
 
-   if (y1 >= Data_20000024.height)
+   if (y1 >= ScreenResolution.height)
    {
-      y1 = Data_20000024.height - 1;
+      y1 = ScreenResolution.height - 1;
    }
 
-   if (y2 >= Data_20000024.height)
+   if (y2 >= ScreenResolution.height)
    {
-      y2 = Data_20000024.height - 1;
+      y2 = ScreenResolution.height - 1;
    }
 
    ili9341_set_address(x, y1, x, y2);
@@ -238,20 +240,20 @@ void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint1
 {
    int16_t line;
 
-   if ((x >= Data_20000024.width) ||
-		   (y >= Data_20000024.height))
+   if ((x >= ScreenResolution.width) ||
+		   (y >= ScreenResolution.height))
    {
       return;
    }
 
-   if ((x - 1 + width) >= Data_20000024.width)
+   if ((x - 1 + width) >= ScreenResolution.width)
    {
-      width = Data_20000024.width - x;
+      width = ScreenResolution.width - x;
    }
 
-   if ((y - 1 + height) >= Data_20000024.height)
+   if ((y - 1 + height) >= ScreenResolution.height)
    {
-      height = Data_20000024.height - y;
+      height = ScreenResolution.height - y;
    }
 
    for (line = y; line <= (y + height); line++)
@@ -271,22 +273,22 @@ void ili9341_draw_char(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
    uint8_t bit;
    uint8_t num_bytes;
 
-   if ((x >= Data_20000024.width) ||
-		   (y >= Data_20000024.height) ||
-		   ((x + Data_2000002c.pFont->width) < 0) ||
-		   ((y + Data_2000002c.pFont->height) < 0))
+   if ((x >= ScreenResolution.width) ||
+		   (y >= ScreenResolution.height) ||
+		   ((x + TextAttributes.pFont->width) < 0) ||
+		   ((y + TextAttributes.pFont->height) < 0))
    {
 	   return;
    }
 
-   num_bytes = Data_2000002c.pFont->height / 8;
+   num_bytes = TextAttributes.pFont->height / 8;
    col = 0;
 
-   for (row = 0; row < Data_2000002c.pFont->height; row++)
+   for (row = 0; row < TextAttributes.pFont->height; row++)
    {
       for (bytes = 0; bytes < num_bytes; bytes++)
       {
-         pixels = Data_2000002c.pFont->Data_0[((c - ' ') * Data_2000002c.pFont->height + row) * num_bytes + bytes];
+         pixels = TextAttributes.pFont->Data_0[((c - ' ') * TextAttributes.pFont->height + row) * num_bytes + bytes];
 
          for (bit = 0; bit < 8; bit++)
          {
@@ -311,9 +313,53 @@ void ili9341_draw_char(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
 
 
 /* 8005edc - todo */
-void sub_8005edc(int a)
+void ili9341_draw_format_string(const char * format, ...)
 {
+   va_list args;
+   va_start(args, format);
+   vsprintf(Data_200000ec, format, args);
 
+   for (char* pch = Data_200000ec; *pch; )
+   {
+      if (*pch == 10)
+      {
+         TextCursor.y += TextAttributes.pFont->height;
+         TextCursor.x = 0;
+      }
+      else if (*pch != 13)
+      {
+         if (*pch == 9)
+         {
+            TextCursor.x += TextAttributes.pFont->width * 4;
+         }
+         else
+         {
+            ili9341_draw_char(TextCursor.x,
+            		TextCursor.y,
+					*pch,
+					TextAttributes.fg_color,
+					TextAttributes.bg_color);
+
+            TextCursor.x += TextAttributes.pFont->width;
+
+            if (TextAttributes.bData_12 != 0)
+            {
+            	if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->width))
+            	{
+                   TextCursor.y += TextAttributes.pFont->height;
+                   TextCursor.x = 0;
+            	}
+            }
+         }
+      }
+
+      pch++;
+
+      if (TextCursor.y >= ScreenResolution.height)
+      {
+         TextCursor.y = 0;
+      }
+   }
 }
 
 
@@ -327,28 +373,28 @@ void ili9341_draw_string(char* a, uint8_t len)
    while (i++ < len)
    {
       ili9341_draw_char(
-    		  Data_200000e4.x,
-			  Data_200000e4.y,
+    		  TextCursor.x,
+			  TextCursor.y,
 			  r7_c[0],
-			  Data_2000002c.Data_0,
-			  Data_2000002c.Data_4);
+			  TextAttributes.fg_color,
+			  TextAttributes.bg_color);
 
-      Data_200000e4.x += Data_2000002c.pFont->width;
+      TextCursor.x += TextAttributes.pFont->width;
 
-      if (Data_2000002c.bData_12 != 0)
+      if (TextAttributes.bData_12 != 0)
       {
-         if (Data_200000e4.x > (Data_20000024.width - Data_2000002c.pFont->width))
+         if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->width))
          {
-            Data_200000e4.y += Data_2000002c.pFont->height;
-            Data_200000e4.x = 0;
+            TextCursor.y += TextAttributes.pFont->height;
+            TextCursor.x = 0;
          }
       }
 
       r7_c++;
 
-      if (Data_200000e4.y >= Data_20000024.height)
+      if (TextCursor.y >= ScreenResolution.height)
       {
-         Data_200000e4.y = 0;
+         TextCursor.y = 0;
       }
    }
 }
@@ -357,23 +403,23 @@ void ili9341_draw_string(char* a, uint8_t len)
 /* 80060ac - todo */
 void ili9341_set_font(Struct_2000002c_Inner8* a)
 {
-   Data_2000002c.pFont = a;
+   TextAttributes.pFont = a;
 }
 
 
 /* 80060c8 - todo */
-void sub_80060c8(uint16_t a, uint16_t b)
+void ili9341_set_text_color(uint16_t fg, uint16_t bg)
 {
-   Data_2000002c.Data_0 = a;
-   Data_2000002c.Data_4 = b;
+   TextAttributes.fg_color = fg;
+   TextAttributes.bg_color = bg;
 }
 
 
 /* 80060f4 - todo */
 void ili9341_set_cursor(uint16_t x, uint16_t y)
 {
-   Data_200000e4.x = x;
-   Data_200000e4.y = y;
+   TextCursor.x = x;
+   TextCursor.y = y;
 
    ili9341_set_address(x, y, x, y);
 }

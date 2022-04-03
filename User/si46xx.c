@@ -731,7 +731,7 @@ int sub_800a9a8(void)
    HAL_RTC_SetDate(&hrtc, &Data_20000a74, RTC_FORMAT_BIN);
 
    Data_20000bc0.bData_0 = 1;
-   bData_20000a48[0] = 1;
+   Data_20000a48.bData_0 = 1;
 
    if (0 != sub_800b2ac(&Data_20000a4c, &Data_20000a50))
    {
