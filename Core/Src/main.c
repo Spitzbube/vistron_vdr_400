@@ -168,7 +168,8 @@ uint8_t sub_8001802(uint16_t a, uint16_t b)
 }
 
 
-void sub_8001bd8()
+/* 8001bd8 - todo */
+void sub_8001bd8(int a, int b, uint8_t c, uint8_t d)
 {
 
 }
@@ -463,19 +464,32 @@ int main(void)
             switch (bData_20000a6c | bData_20000a6d)
             {
             case 2:
-               //800ce78
+               //800ce78 - green
+               sub_800ac74();
+               sub_8001bd8(0x0c, 0x06, bData_20000a58, wData_20000a56 & 0x04);
+               sub_8001a14(&r7_c[bData_20000a58].Data_8);
+               //->800D116
                break;
 
             case 3:
-               //800ceb2
+               //800ceb2 - blue
+               sub_800acf0();
+               sub_8001bd8(0x0c, 0x06, bData_20000a58, wData_20000a56 & 0x04);
+               sub_8001a14(&r7_c[bData_20000a58].Data_8);
+               //->800D116
                break;
 
             case 1:
-               //800ceec
+               //800ceec - red
+               sub_800adb8();
+               sub_8001eb6(bData_20000057);
+               //->800D116
                break;
 
             case 4:
-               //800cefc
+               //800cefc - yellow
+               sub_800ad68();
+               sub_8001eb6(bData_20000057);
                break;
 
             case 14:

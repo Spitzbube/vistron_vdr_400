@@ -215,8 +215,12 @@ extern UART_HandleTypeDef huart2; //20002438
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
-int sub_8001224(char* a);
 void Error_Handler(void);
+
+/* USER CODE BEGIN EFP */
+
+int sub_8001224(char* a);
+void sub_8001bd8(int a, int b, uint8_t c, uint8_t d);
 void sub_8004be8(uint16_t, uint16_t, int, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
 void sub_8004cb0(uint16_t, uint16_t, int, uint16_t);
@@ -267,9 +271,12 @@ int si46xx_set_config(void);
 int si46xx_set_audio_output(uint8_t a);
 int si46xx_set_property(uint16_t name, uint16_t value);
 
+void sub_800ac74(void);
+void sub_800acf0(void);
+void sub_800ad68(void);
+void sub_800adb8(void);
+void button_gpio_check(void);
 void sub_800c7e0(uint16_t a);
-
-/* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
 

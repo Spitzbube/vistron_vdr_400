@@ -110,7 +110,6 @@ void sub_800173c(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8
    sub_8001a14(r7_8);
    sub_8001f04(r7, r7_18);
 
-   extern void sub_8001bd8(int, int, void*, uint8_t);
    sub_8001bd8(0x0c, 6, f, h & 4);
 
    sub_8001cc4(0x8e, 0x2a, g);

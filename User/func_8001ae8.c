@@ -167,8 +167,22 @@ void sub_800acf0(void)
 }
 
 
+/* 800ad68 - todo */
+void sub_800ad68(void)
+{
+
+}
+
+
+/* 800adb8 - todo */
+void sub_800adb8(void)
+{
+
+}
+
+
 /* 800b1c8 - todo */
-void sub_800b1c8(void)
+void button_gpio_check(void)
 {
    if (Data_20000a48.bData_0 != 1)
    {
@@ -186,25 +200,25 @@ void sub_800b1c8(void)
    if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5))
    {
       Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 4;
+      Data_20000a48.bData_1 = 4; //yellow
    }
 
    if (0 == HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
    {
       Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 1;
+      Data_20000a48.bData_1 = 1; //red
    }
 
    if (0 == HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
    {
       Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 2;
+      Data_20000a48.bData_1 = 2; //green
    }
 
    if (0 == HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4))
    {
       Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 3;
+      Data_20000a48.bData_1 = 3; //blue
    }
 }
 
@@ -526,16 +540,5 @@ void sub_800bd2c(void)
       //loc_800c312 -> loc_800bda8
    } //while (r7_1f != 0)
    //loc_800c31a
-}
-
-
-/* 800ddbc - todo */
-void TIM5_IRQHandler(void)
-{
-   Data_20000b90.Data_0++;
-
-   sub_8006630();
-   sub_800b1c8();
-   HAL_TIM_IRQHandler(&htim5);
 }
 
