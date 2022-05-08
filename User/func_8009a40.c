@@ -15,11 +15,11 @@ int sub_800b2ac(void* a, void* b);
 
 Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
 {
-   sub_8004be8,
-   sub_8004c4c,
-   sub_8004cb0,
-   sub_8004d14,
-   sub_8004d78,
+   sub_8004be8, //arrow up
+   sub_8004c4c, //arrow down
+   sub_8004cb0, //arrow left
+   sub_8004d14, //arrow right
+   sub_8004d78, //three horizontal lines
    sub_8004e74,
    sub_8004f24,
    sub_8004fc4,
@@ -116,15 +116,15 @@ void sub_800173c(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8
 
    sub_8001eb6(r7_7);
 
-   sub_8001ae8(r7_c);
+   sub_8001ae8(r7_c); //Clock display
 
-   sub_8004560(0x123, 0xd6);
+   draw_on_off_icon(291, 214); //On-Off icon display (low right corner - red)
 
-   sub_8005198(8, 196, 0x1f, 1);
-   sub_8005198(61, 196, 0x7e0, 0); //x+53
-   sub_8005198(114, 196, 0xf800, 2);
-   sub_8005198(167, 196, 0xffe0, 3);
-   sub_8005198(79, 6, 0xfd20, 4);
+   sub_8005198(8, 196, 0x1f, 1); //blue touch area, 1 = black arrow down
+   sub_8005198(61, 196, 0x7e0, 0); //x+53 green touch area, 0 = black arrow up
+   sub_8005198(114, 196, 0xf800, 2); //red touch area, 2 = black arrow left
+   sub_8005198(167, 196, 0xffe0, 3); //yellow touch area, 3 = black arrow right
+   sub_8005198(79, 6, 0xfd20, 4); //orange touch area, 4 = three horizontal lines
 }
 
 
@@ -185,45 +185,122 @@ void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
 }
 
 
-void sub_80045f8()
+/* 8004560 - todo */
+void draw_on_off_icon(uint16_t a, uint16_t b)
 {
-
+   ili9341_draw_box(a - 16, b - 11, 32, 40, 0xffff);
+   ili9341_draw_circle(a, b, 13, 0xf800);
+   ili9341_draw_circle(a, b, 9, 0xffff);
+   ili9341_draw_box(a - 4, b - 20, 9, 16, 0xffff);
+   ili9341_draw_box(a - 1, b - 15, 3, 12, 0xf800);
 }
 
 
-void sub_8004be8(uint16_t a, uint16_t b, int c, uint16_t d)
+/* 80045f8 - todo */
+void sub_80045f8(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3)
 {
+   HAL_GPIO_WritePin(GPIOA/*todo*/, GPIO_PIN_5, GPIO_PIN_SET);
 
+   ili9341_fill_screen(0);
+   ili9341_draw_hor_line(0, 320, 48, 0xffff);
+   ili9341_draw_hor_line(0, 320, 192, 0xffff);
+   sub_8001b60(r7_c);
+   sub_800465c(r7_8);
+
+   if (r7_3 != 0)
+   {
+	   sub_80046d8(r7_4);
+   }
 }
 
 
+/* 800465c - todo */
+void sub_800465c(RTC_DateTypeDef a)
+{
+   char buf[10];
+   uint8_t len = 0;
+
+   len = sprintf(buf, "%d.%d.%d", a.Date, a.Month, a.Year + 2000);
+
+   ili9341_set_font(&Data_2000004c);
+   ili9341_set_text_color(0xffff, 0);
+
+   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 72);
+   ili9341_draw_string(buf, len);
+}
+
+
+/* 80046d8 - todo */
+void sub_80046d8(Struct_20000a4c* a)
+{
+   char buf[10];
+   uint8_t len = 0;
+
+   len = sprintf(buf, "%s %d:%02d", CurrentTextTable[TEXT_ID_ALARM], a->a, a->b);
+
+   ili9341_draw_box(0, 120, 320, 23, 0);
+   ili9341_set_font(&Data_2000004c);
+   ili9341_set_text_color(0xffff, 0);
+   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 120);
+   ili9341_draw_string(buf, len);
+}
+
+
+/* 8004be8 - todo */
+void sub_8004be8(uint16_t a, uint16_t b, uint16_t c, uint16_t d)
+{
+   sub_8005af0(a - 9, b + 9, a + 9, b + 9, a, b - 9, c);
+}
+
+
+/* 8004c4c - todo */
 void sub_8004c4c(uint16_t a, uint16_t b, int c, uint16_t d)
 {
-
+   sub_8005af0(a - 9, b - 9, a + 9, b - 9, a, b + 9, c);
 }
 
 
+/* 8004cb0 - todo */
 void sub_8004cb0(uint16_t a, uint16_t b, int c, uint16_t d)
 {
-
+   sub_8005af0(a - 9, b, a + 9, b - 9, a + 9, b + 9, c);
 }
 
 
+/* 8004d14 - todo */
 void sub_8004d14(uint16_t a, uint16_t b, int c, uint16_t d)
 {
-
+   sub_8005af0(a - 9, b - 9, a - 9, b + 9, a + 9, b, c);
 }
 
 
-void sub_8004d78(uint16_t a, uint16_t b, int c, uint16_t d)
+/* 8004d78 - todo */
+void sub_8004d78(uint16_t r7_6, uint16_t r7_4, uint16_t color, uint16_t d)
 {
-
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 9, color); //      *--------+
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 10, color); //    *---------+
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 8, color); //       *-------+
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4, color); //                   *
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 1, color); //              *+
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 1, color); //               +*
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 9, color); //               +--------*
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 8, color); //               +-------*
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 10, color); //              +---------*
 }
 
 
-void sub_8004e74(uint16_t a, uint16_t b, int c, uint16_t d)
+/* 8004e74 - todo */
+void sub_8004e74(uint16_t r7_6, uint16_t r7_4, int r7_2, uint16_t r7)
 {
+   uint16_t r7_e;
+   char r7_8[] = "FAV"; //0x564146;
 
+   ili9341_set_text_color(r7_2, r7);
+   ili9341_set_font(&Data_20000044);
+   r7_e = sub_8001224(r7_8);
+   ili9341_set_cursor(r7_6 - (r7_e * Data_20000044.width) / 2/*??*/, r7_4 - Data_20000044.height / 2);
+   ili9341_draw_string(r7_8, r7_e);
+   ili9341_draw_box(r7_6 + 18, r7_4 - 18, 4, 36, 0xffff);
 }
 
 
@@ -233,9 +310,13 @@ void sub_8004f24(uint16_t a, uint16_t b, int c, uint16_t d)
 }
 
 
-void sub_8004fc4(uint16_t a, uint16_t b, int c, uint16_t d)
+/* 8004fc4 - todo */
+void sub_8004fc4(uint16_t r7_6, uint16_t r7_4, int r7_2, uint16_t r7)
 {
-
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 9, r7_2);
+   ili9341_draw_vert_line(r7_6 + 9, r7_4 - 9, r7_4 + 9, r7_2);
+   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 9, r7_2);
+   sub_8005af0(r7_6 - 9, r7_4 - 9, r7_6 - 5, r7_4 - 11, r7_6 - 5, r7_4 - 7, r7_2);
 }
 
 
@@ -278,7 +359,7 @@ char* EnglishTextTable[] = //8012dc0
 	"Channel list",
 	"Settings",
 	"Factory reset",
-	"Alarm",
+	"Alarm",  //TEXT_ID_ALARM
 	"Information",
 	"Automatic search",
 	"Manual search",
@@ -433,7 +514,7 @@ uint8_t sub_8006254(uint8_t r7_7, uint8_t r7_6, uint8_t r7_5, uint8_t r7_4, uint
 
 
 /* 80062d8 - todo */
-void sub_80062d8(void)
+void ili9341_configure_gpio(void)
 {
    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -462,7 +543,7 @@ void sub_80062d8(void)
 
 
 /* 80063a4 - todo */
-void sub_80063a4(void)
+void ili9341_configure_fsmc(void)
 {
    SRAM_HandleTypeDef hsram;
    FSMC_NORSRAM_TimingTypeDef Timing = {0};
@@ -497,7 +578,7 @@ void sub_80063a4(void)
 
 
 /* 8006434 - todo */
-int sub_8006434(void)
+int touch_init(void)
 {
    uint8_t r7_7 = 1;
 
@@ -523,8 +604,8 @@ int sub_8006434(void)
    Data_20000b90.wData_44 = 0xddb;
    Data_20000b90.wData_46 = 0xd7d;
 
-   sub_800651c();
-   sub_8006694(1);
+   touch_configure_gpio();
+   touch_read_xy(1);
 
    if ((Data_20000b90.wData_4 < 0x1000) &&
 		   (Data_20000b90.wData_6 < 0x1000))
@@ -540,46 +621,51 @@ int sub_8006434(void)
 
 
 /* 800651c - todo */
-void sub_800651c(void)
+void touch_configure_gpio(void)
 {
    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
    __HAL_RCC_GPIOA_CLK_ENABLE();
    __HAL_RCC_GPIOB_CLK_ENABLE();
 
+   // CLK
    GPIO_InitStruct.Pin = GPIO_PIN_12;
    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
    GPIO_InitStruct.Pull = GPIO_NOPULL;
    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+   // MOSI
    GPIO_InitStruct.Pin = GPIO_PIN_7;
    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
    GPIO_InitStruct.Pull = GPIO_NOPULL;
    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+   // MISO
    GPIO_InitStruct.Pin = GPIO_PIN_6;
    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
    GPIO_InitStruct.Pull = GPIO_PULLUP;
    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+   // CS
    GPIO_InitStruct.Pin = GPIO_PIN_7;
    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
    GPIO_InitStruct.Pull = GPIO_NOPULL;
    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+   // IRQ
    GPIO_InitStruct.Pin = GPIO_PIN_6;
    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
    GPIO_InitStruct.Pull = GPIO_PULLUP;
    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-   sub_800691c(1);
-   sub_80068e4(0);
-   sub_8006950(0);
+   touch_toggle_cs_line(1);
+   touch_toggle_clk_line(0);
+   touch_toggle_mosi_line(0);
 }
 
 
@@ -598,11 +684,11 @@ void sub_8006624(void)
 
 
 /* 8006630 - todo */
-void sub_8006630(void)
+void touch_poll(void)
 {
    uint8_t r7_7 = 1;
 
-   if (0 == sub_800699c())
+   if (0 == touch_read_irq())
    {
       r7_7 = 0;
    }
@@ -613,7 +699,7 @@ void sub_8006630(void)
 
    if (r7_7 == 0)
    {
-      sub_8006694(1);
+      touch_read_xy(1);
       sub_8006730();
       if ((0 == sub_8006838()) && (Data_20000bc0.bData_0 != 0))
       {
@@ -628,34 +714,34 @@ void sub_8006630(void)
 
 
 /* 8006694 - todo */
-void sub_8006694(uint8_t a)
+void touch_read_xy(uint8_t a)
 {
    uint16_t i;
-   uint32_t r7_10 = 0;
-   uint32_t r7_c = 0;
-   uint16_t r7_a;
+   uint32_t x = 0;
+   uint32_t y = 0;
+   uint16_t data;
 
    if (a == 0)
    {
-      Data_20000b90.wData_4 = sub_80069b4(0x900000);
-      Data_20000b90.wData_6 = sub_80069b4(0xd00000);
+      Data_20000b90.wData_4 = touch_spi_transfer(0x900000);
+      Data_20000b90.wData_6 = touch_spi_transfer(0xd00000);
    }
    else
    {
-      sub_80069b4(0x900000);
+      touch_spi_transfer(0x900000);
 
-      for (i = 0; i < 3; i++)
+      for (i = 0; i < 4; i++)
       {
          //loc_80066dc
-         r7_a = sub_80069b4(0x900000);
-         r7_10 += r7_a;
+         data = touch_spi_transfer(0x900000);
+         x += data;
 
-         r7_a = sub_80069b4(0xd00000);
-         r7_c += r7_a;
+         data = touch_spi_transfer(0xd00000);
+         y += data;
       }
 
-      Data_20000b90.wData_4 = r7_10 / 4;
-      Data_20000b90.wData_6 = r7_c / 4;
+      Data_20000b90.wData_4 = x / 4;
+      Data_20000b90.wData_6 = y / 4;
    }
 }
 
@@ -754,7 +840,7 @@ uint8_t sub_8006838(void)
 
 
 /* 80068e4 - todo */
-void sub_80068e4(uint8_t a)
+void touch_toggle_clk_line(uint8_t a)
 {
    if (a == 1)
    {
@@ -768,7 +854,7 @@ void sub_80068e4(uint8_t a)
 
 
 /* 800691c - todo */
-void sub_800691c(uint8_t a)
+void touch_toggle_cs_line(uint8_t a)
 {
    if (a == 1)
    {
@@ -782,7 +868,7 @@ void sub_800691c(uint8_t a)
 
 
 /* 8006950 - todo */
-void sub_8006950(uint8_t a)
+void touch_toggle_mosi_line(uint8_t a)
 {
    if (a == 1)
    {
@@ -796,66 +882,66 @@ void sub_8006950(uint8_t a)
 
 
 /* 8006984 - todo */
-int sub_8006984(void)
+int touch_read_miso_line(void)
 {
    return HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6);
 }
 
 
 /* 800699c - todo */
-int sub_800699c(void)
+int touch_read_irq(void)
 {
    return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);
 }
 
 
 /* 80069b4 - todo */
-uint16_t sub_80069b4(int a)
+uint16_t touch_spi_transfer(int cmd)
 {
    uint16_t i;
-   uint32_t r7_10 = 0x800000;
-   uint16_t r7_e = 0x800;
-   uint16_t r7_c = 0;
+   uint32_t mosi_bits = 0x800000;
+   uint16_t miso_bits = 0x800;
+   uint16_t data = 0;
 
    sub_8006a70(100);
-   sub_800691c(0);
+   touch_toggle_cs_line(0);
    sub_8006a70(500);
 
    for (i = 0; i < 24; i++)
    {
-      if ((a & r7_10) == 0)
+      if ((cmd & mosi_bits) == 0)
       {
-         sub_8006950(0);
+         touch_toggle_mosi_line(0);
       }
       else
       {
-         sub_8006950(1);
+         touch_toggle_mosi_line(1);
       }
 
-      sub_80068e4(1);
+      touch_toggle_clk_line(1);
 
       if ((i > 8) && (i < 21))
       {
-         if (0 != sub_8006984())
+         if (0 != touch_read_miso_line())
          {
-            r7_c |= r7_e;
+            data |= miso_bits;
          }
 
-         r7_e >>= 1;
+         miso_bits >>= 1;
       }
 
       sub_8006a70(500);
-      sub_80068e4(0);
+      touch_toggle_clk_line(0);
       sub_8006a70(500);
 
-      r7_10 >>= 1;
+      mosi_bits >>= 1;
    }
 
    sub_8006a70(500);
-   sub_800691c(1);
+   touch_toggle_cs_line(1);
    sub_8006a70(500);
 
-   return r7_c;
+   return data;
 }
 
 

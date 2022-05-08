@@ -116,6 +116,269 @@ Default_Handler:
 Infinite_Loop:
   b Infinite_Loop
   .size Default_Handler, .-Default_Handler
+
+
+.global sub_80013a0
+sub_80013a0:
+         mov.w      r3, #0x0
+         b          loc_80013b0
+         nop
+         ands       r3, r0, #0x80000000
+         it         mi
+         rsbsmi     r0, r0, #0x0
+
+loc_80013b0:
+         movs.w     ip, r0
+         it         eq
+         bxeq       lr
+         orr        r3, r3, #0x4b000000
+         mov        r1, r0
+         mov.w      r0, #0x0
+         b          loc_80013fe
+         orrs.w     r2, r0, r1
+         it         eq
+         bxeq       lr
+         mov.w      r3, #0x0
+         b          loc_80013E8 /*sub_80013a0+72*/
+         nop
+         orrs.w     r2, r0, r1
+         it         eq
+         bxeq       lr
+         ands       r3, r1, #0x80000000
+         bpl        loc_80013E8 /*sub_80013a0+72*/
+         rsbs       r0, r0, #0x0
+         sbc.w      r1, r1, r1, lsl #1
+loc_80013E8:
+         movs.w     ip, r1
+         ittt       eq
+         moveq      ip, r0
+         moveq      r1, r0
+         movseq     r0, #0x0
+         orr        r3, r3, #0x5b000000
+         it         eq
+         subeq.w    r3, r3, #0x10000000
+
+loc_80013fe:
+         sub.w      r3, r3, #0x800000
+         clz        r2, ip
+         subs       r2, #0x8
+         sub.w      r3, r3, r2, lsl #23
+         blt        loc_8001430
+
+         lsl.w      ip, r1, r2
+         add        r3, ip
+         lsl.w      ip, r0, r2
+         rsb.w      r2, r2, #0x20
+         cmp.w      ip, #0x80000000
+         lsr.w      r2, r0, r2
+         adc.w      r0, r3, r2
+         it         eq
+         biceq      r0, r0, #0x1
+         bx         lr
+
+loc_8001430:
+         add.w      r2, r2, #0x20
+         lsl.w      ip, r1, r2
+         rsb.w      r2, r2, #0x20
+         orrs.w     r0, r0, ip, lsl #1
+         lsr.w      r2, r1, r2
+         adc.w      r0, r3, r2
+         it         eq
+         biceq.w    r0, r0, ip, lsr #31
+         bx         lr
+
+.global sub_8001450
+sub_8001450:
+         mov.w      ip, #0xff
+         ands.w     r2, ip, r0, lsr #23
+         ittt       ne
+         andsne.w   r3, ip, r1, lsr #23
+         teqne.w    r2, ip
+         teqne.w    r3, ip
+         beq        loc_8001548
+
+loc_8001468:
+         add        r2, r3
+         eor.w      ip, r0, r1
+         lsls       r0, r0, #0x9
+         it         ne
+         lslsne.w   r1, r1, #0x9
+         beq        loc_80014b6
+
+         mov.w      r3, #0x8000000
+         orr.w      r0, r3, r0, lsr #5
+         orr.w      r1, r3, r1, lsr #5
+         umull      r3, r1, r0, r1
+         and        r0, ip, #0x80000000
+         cmp.w      r1, #0x800000
+         ittt       lo
+         lslslo     r1, r1, #0x1
+         orrlo.w    r1, r1, r3, lsr #31
+         lslslo     r3, r3, #0x1
+         orr.w      r0, r0, r1
+         sbc        r2, r2, #0x7f
+         cmp        r2, #0xfd
+         bhi        loc_80014e2
+
+         cmp.w      r3, #0x80000000
+         adc.w      r0, r0, r2, lsl #23
+         it         eq
+         biceq      r0, r0, #0x1
+         bx         lr
+
+loc_80014b6:
+         teq.w      r0, #0x0
+         and        ip, ip, #0x80000000
+         it         eq
+         lslseq     r1, r1, #0x9
+         orr.w      r0, ip, r0, lsr #9
+         orr.w      r0, r0, r1, lsr #9
+         subs       r2, #0x7f
+         ittt       gt
+         rsbsgt.w   r3, r2, #0xff
+         orrgt.w    r0, r0, r2, lsl #23
+         bxgt       lr
+         orr        r0, r0, #0x800000
+         mov.w      r3, #0x0
+         subs       r2, #0x1
+
+loc_80014e2:
+         bgt        loc_80015a0
+
+         cmn.w      r2, #0x19
+         itt        le
+         andle      r0, r0, #0x80000000
+         bxle       lr
+         rsb.w      r2, r2, #0x0
+         lsls       r1, r0, #0x1
+         lsr.w      r1, r1, r2
+         rsb.w      r2, r2, #0x20
+         lsl.w      ip, r0, r2
+         rrxs       r0, r1
+         adc        r0, r0, #0x0
+         orrs.w     r3, r3, ip, lsl #1
+         it         eq
+         biceq.w    r0, r0, ip, lsr #31
+         bx         lr
+
+loc_8001516:
+         teq.w      r2, #0x0
+         and        ip, r0, #0x80000000
+
+loc_800151e:
+         ittt       eq
+         lslseq     r0, r0, #0x1
+         tsteq.w    r0, #0x800000
+         subseq     r2, #0x1
+         beq        loc_800151e
+
+         orr.w      r0, r0, ip
+         teq.w      r3, #0x0
+         and        ip, r1, #0x80000000
+
+loc_8001536:
+         ittt       eq
+         lslseq     r1, r1, #0x1
+         tsteq.w    r1, #0x800000
+         subseq     r3, #0x1
+         beq        loc_8001536
+
+         orr.w      r1, r1, ip
+         b          loc_8001468
+
+loc_8001548:
+         and.w      r3, ip, r1, lsr #23
+         teq.w      r2, ip
+         it         ne
+         teqne.w    r3, ip
+         beq        loc_800156e
+
+         bics       ip, r0, #0x80000000
+         it         ne
+         bicsne     ip, r1, #0x80000000
+         bne        loc_8001516
+
+         eor.w      r0, r0, r1
+         and        r0, r0, #0x80000000
+         bx         lr
+
+loc_800156e:
+         teq.w      r0, #0x0
+         itett      ne
+         teqne.w    r0, #0x80000000
+         moveq      r0, r1
+         teqne.w    r1, #0x0
+         teqne.w    r1, #0x80000000
+         beq        loc_80015ae
+
+         teq.w      r2, ip
+         bne        loc_800158e
+
+         lsls       r2, r0, #0x9
+         bne        loc_80015ae
+
+loc_800158e:
+         teq.w      r3, ip
+         bne        loc_800159c
+
+         lsls       r3, r1, #0x9
+         it         ne
+         movne      r0, r1
+         bne        loc_80015ae
+
+loc_800159c:
+         eor.w      r0, r0, r1
+
+loc_80015a0:
+         and        r0, r0, #0x80000000
+         orr        r0, r0, #0x7f000000
+         orr        r0, r0, #0x800000
+         bx         lr
+
+loc_80015ae:
+         orr        r0, r0, #0x7f000000
+         orr        r0, r0, #0xc00000
+         bx         lr
+
+.global sub_80016f0
+sub_80016f0:
+         lsl.w      r2, r0, #0x1
+         cmp.w      r2, #0x7f000000
+         blo        loc_800171a
+
+         mov.w      r3, #0x9e
+         subs.w     r2, r3, r2, lsr #24
+         bls        loc_8001720
+
+         lsl.w      r3, r0, #0x8
+         orr        r3, r3, #0x80000000
+         tst.w      r0, #0x80000000
+         lsr.w      r0, r3, r2
+         it         ne
+         rsbsne       r0, r0, #0x0
+         bx         lr
+
+             loc_800171a:
+         mov.w      r0, #0x0
+         bx         lr
+
+loc_8001720:
+         cmn.w      r2, #0x61
+         bne        loc_800172a
+
+         lsls       r2, r0, #0x9
+         bne        loc_8001736
+
+loc_800172a:
+         ands       r0, r0, #0x80000000
+         it         eq
+         mvneq      r0, #0x80000000
+         bx         lr
+
+loc_8001736:
+         mov.w      r0, #0x0
+         bx         lr
+
 /******************************************************************************
 *
 * The minimal vector table for a Cortex M3.  Note that the proper constructs

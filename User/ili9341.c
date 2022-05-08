@@ -235,6 +235,52 @@ void ili9341_draw_rect(int16_t x, int16_t y, int16_t width, int16_t height, uint
 }
 
 
+/* 8005898 - todo */
+void ili9341_draw_circle(int16_t a, int16_t b, uint16_t c, uint16_t color)
+{
+   ili9341_draw_vert_line(a, b - c, b + c, color);
+   sub_80058f0(a, b, c, 1|2, 0, color);
+}
+
+
+/* 80058f0 - todo */
+void sub_80058f0(int16_t r7_6, int16_t r7_4, int16_t r7_2, uint8_t r7_1, int16_t r7_28, uint16_t color)
+{
+   int16_t r7_16 = 1 - r7_2;
+   uint16_t r7_14 = 1;
+   uint16_t r7_12 = r7_2 * 65534;
+   uint16_t r7_10 = 0;
+   uint16_t r7_e = r7_2;
+   //->loc_8005a20
+   while (r7_10 < r7_e)
+   {
+      //loc_8005934
+      if (r7_16 >= 0)
+      {
+         r7_e--;
+         r7_12 += 2;
+         r7_16 += r7_12;
+      }
+      //loc_800595a
+      r7_10++;
+      r7_14 += 2;
+      r7_16 += (r7_14 + 1);
+
+      if (r7_1 & 1) //right side
+      {
+         ili9341_draw_vert_line(r7_6 + r7_10, r7_4 - r7_e, r7_4 + r7_e + r7_28, color);
+         ili9341_draw_vert_line(r7_6 + r7_e, r7_4 - r7_10, r7_4 + r7_10 + r7_28, color);
+      }
+      //loc_80059ce
+      if (r7_1 & 2) //left side
+      {
+         ili9341_draw_vert_line(r7_6 - r7_10, r7_4 - r7_e, r7_4 + r7_e + r7_28, color);
+         ili9341_draw_vert_line(r7_6 - r7_e, r7_4 - r7_10, r7_4 + r7_10 + r7_28, color);
+      }
+   }
+}
+
+
 /* 8005a34 - todo */
 void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color)
 {
@@ -259,6 +305,150 @@ void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint1
    for (line = y; line <= (y + height); line++)
    {
       ili9341_draw_hor_line(x, x + width, line, color);
+   }
+}
+
+
+/* 8005af0 - todo */
+void sub_8005af0(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, int16_t r7_48, int16_t r7_4c, uint16_t g/*r7_50*/)
+{
+   int16_t r7_36;
+   int16_t r7_34;
+   int16_t r7_32;
+   int16_t r7_30;
+   int r7_2c;
+   int r7_28;
+   int16_t r7_26;
+   int16_t r7_24;
+   int16_t r7_22;
+   int16_t r7_20;
+   int16_t r7_1e;
+   int16_t r7_1c;
+   int16_t r7_1a;
+   int16_t r7_18;
+   int16_t r7_16;
+   int16_t r7_14;
+   int16_t r7_12;
+   int16_t r7_10;
+   int16_t r7_e;
+   int16_t r7_c;
+
+   if (r7_4 > r7)
+   {
+      r7_26 = r7_4;
+      r7_4 = r7;
+      r7 = r7_26;
+      r7_24 = r7_6;
+      r7_6 = r7_2;
+      r7_2 = r7_24;
+   }
+
+   if (r7 > r7_4c)
+   {
+	  r7_22 = r7_4c;
+	  r7_4c = r7;
+	  r7 = r7_22;
+	  r7_20 = r7_48;
+	  r7_48 = r7_2;
+	  r7_2 = r7_20;
+   }
+
+   if (r7_4 > r7)
+   {
+	  r7_1e = r7_4;
+	  r7_4 = r7;
+	  r7 = r7_1e;
+	  r7_1c = r7_6;
+	  r7_6 = r7_2;
+	  r7_2 = r7_1c;
+   }
+
+   if (r7_4 == r7_4c)
+   {
+      r7_34 = r7_6;
+      r7_36 = r7_34;
+
+      if (r7_2 < r7_36)
+      {
+         r7_36 = r7_2;
+      }
+      //loc_8005ba8
+      else if (r7_2 > r7_34)
+      {
+         r7_34 = r7_2;
+      }
+      //loc_8005bb8
+      if (r7_48 < r7_36)
+      {
+         r7_36 = r7_48;
+      }
+      else if (r7_48 > r7_34)
+      {
+         r7_34 = r7_48;
+      }
+      //loc_8005bde
+      ili9341_draw_hor_line(r7_36, r7_34 + 1, r7_4, g);
+      //->loc_8005d84
+   }
+   else
+   {
+      //loc_8005bf2
+      r7_1a = r7_2 - r7_6;
+      r7_18 = r7 - r7_4;
+      r7_16 = r7_48 - r7_6;
+      r7_14 = r7_4c - r7_4;
+      r7_12 = r7_48 - r7_2;
+      r7_10 = r7_4c - r7;
+      r7_2c = 0;
+      r7_28 = 0;
+
+      if (r7 == r7_4c)
+      {
+         r7_30 = r7;
+      }
+      else
+      {
+         r7_30 = r7 - 1;
+      }
+      //->loc_8005cd0
+      for (r7_32 = r7_4; r7_32 <= r7_30; r7_32++)
+      {
+         //loc_8005c5e
+         r7_36 = r7_2c / r7_18 + r7_6;
+         r7_34 = r7_28 / r7_14 + r7_6;
+         r7_2c += r7_1a;
+         r7_28 += r7_16;
+
+         if (r7_36 > r7_34)
+         {
+            r7_c = r7_36;
+            r7_36 = r7_34;
+            r7_34 = r7_c;
+         }
+         //loc_8005cb2
+         ili9341_draw_hor_line(r7_36, r7_34 + 1, r7_32, g);
+      }
+      //08005cdc
+      r7_2c = (r7_32 - r7) * r7_12;
+      r7_28 = (r7_32 - r7_4) * r7_16;
+      //->loc_8005d78
+      for (; r7_32 <= r7_4c; r7_32++)
+      {
+         //loc_8005d06
+         r7_36 = r7_2c / r7_10 + r7_2;
+         r7_34 = r7_28 / r7_14 + r7_6;
+         r7_2c += r7_12;
+         r7_28 += r7_16;
+
+         if (r7_36 > r7_34)
+         {
+            r7_e = r7_36;
+            r7_36 = r7_34;
+            r7_34 = r7_e;
+         }
+         //loc_8005d5a
+         ili9341_draw_hor_line(r7_36, r7_34 + 1, r7_32, g);
+      }
    }
 }
 
@@ -451,8 +641,8 @@ void ili9341_set_address(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 /* 80061c0 - todo */
 void ili9341_setup_interface(void)
 {
-   sub_80062d8();
-   sub_80063a4();
+   ili9341_configure_gpio();
+   ili9341_configure_fsmc();
 
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
    sub_800c7e0(100);

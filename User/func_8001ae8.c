@@ -5,12 +5,12 @@
 #include "func_8001ae8.h"
 
 
+#if 0
 /* 80013a0 - todo */
 int sub_80013a0(uint16_t a)
 {
 
 }
-
 
 /* 8001450 - todo */
 int sub_8001450(int a, int b)
@@ -24,6 +24,7 @@ int sub_80016f0(int a)
 {
 
 }
+#endif
 
 
 /* 8001ae8 - todo */

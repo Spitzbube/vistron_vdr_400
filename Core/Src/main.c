@@ -164,7 +164,81 @@ void RTC_Alarm_IRQHandler(void)
 /* 8001802 - todo */
 uint8_t sub_8001802(uint16_t a, uint16_t b)
 {
+   if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
+   {
+      //blue
+      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(8, 196, 0x1f, 1);
+      return 3;
+   }
+   //loc_8001852
+   if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
+   {
+      //green
+      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(61, 196, 0x7e0, 0);
+      return 2;
+   }
+   //loc_8001894
+   if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
+   {
+      //red
+      ili9341_draw_box(114, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(114, 196, 0xf800, 2);
+      return 1;
+   }
+   //loc_80018d6
+   if ((a > 166) && (a < 203) && (b > 195) && (b < 233))
+   {
+      //yellow
+      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(167, 196, 0xffe0, 3);
+      return 4;
+   }
+   //loc_8001918
+   if ((a > 78) && (a < 116) && (b > 5) && (b < 43))
+   {
+      //orange
+      ili9341_draw_box(79, 6, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(79, 6, 0xfd20, 4);
+      return 21;
+   }
+   //loc_800195a
+   if ((a < 320) && (b > 47) && (b < 97))
+   {
+      return 6;
+   }
+   //loc_8001972
+   if ((a > 274) && (a < 308) && (b > 197) && (b < 231))
+   {
+      //On-Off
+      ili9341_draw_circle(291, 214, 16, 0xce59);
+      sub_800c7e0(200);
+      draw_on_off_icon(291, 214);
+      return 14;
+   }
+   //loc_80019b2
+   if ((a > 11) && (a < 63) && (b > 5) && (b < 43))
+   {
+      return 20;
+   }
+   //loc_80019ce
+   if ((a > 141) && (a < 213) && (b > 6) && (b < 78))
+   {
+      return 22;
+   }
+   //loc_80019ea
+   if ((a > 241) && (a < 307) && (b > 5) && (b < 43))
+   {
+      return 23;
+   }
 
+   return 0;
 }
 
 
@@ -190,12 +264,6 @@ void sub_8001eb6()
 
 /* 8001f04 - todo */
 void sub_8001f04(void* a, int b)
-{
-
-}
-
-
-void sub_8004560()
 {
 
 }
@@ -247,7 +315,7 @@ int main(void)
 
   ili9341_init();
 
-  sub_8006434();
+  touch_init();
 
   HAL_TIM_Base_Start_IT(&htim5);
 
@@ -493,7 +561,10 @@ int main(void)
                break;
 
             case 14:
-               //800cf0c
+               //800cf0c - OnOff
+               sub_800aed0();
+               sub_80045f8(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+               //->800D116
                break;
 
             case 6:
@@ -513,7 +584,7 @@ int main(void)
                break;
 
             case 21:
-               //800d010
+               //800d010 - orange (Menu)
                break;
 
             case 22:
@@ -526,10 +597,11 @@ int main(void)
 
             default:
                //loc_800d114
-               Data_20000bc0.bData_0 = 1;
                //goto loc_800c9c4;
                break;
             }
+
+            Data_20000bc0.bData_0 = 1;
          }
          //goto loc_800c9c4;
 	  }

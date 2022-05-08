@@ -205,7 +205,11 @@ extern UART_HandleTypeDef huart2; //20002438
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 
+#define TOUCH_CMD_RDX                       0xD0
+#define TOUCH_CMD_RDY                       0x90
+
 #define TEXT_ID_NO_CHANNEL                  8
+#define TEXT_ID_ALARM                       21
 
 /* USER CODE END EC */
 
@@ -221,11 +225,12 @@ void Error_Handler(void);
 
 int sub_8001224(char* a);
 void sub_8001bd8(int a, int b, uint8_t c, uint8_t d);
-void sub_8004be8(uint16_t, uint16_t, int, uint16_t);
+void draw_on_off_icon(uint16_t a, uint16_t b);
+void sub_8004be8(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
 void sub_8004cb0(uint16_t, uint16_t, int, uint16_t);
 void sub_8004d14(uint16_t, uint16_t, int, uint16_t);
-void sub_8004d78(uint16_t, uint16_t, int, uint16_t);
+void sub_8004d78(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004e74(uint16_t, uint16_t, int, uint16_t);
 void sub_8004f24(uint16_t, uint16_t, int, uint16_t);
 void sub_8004fc4(uint16_t, uint16_t, int, uint16_t);
@@ -239,6 +244,9 @@ void ili9341_draw_format_string(const char * format, ...);
 void ili9341_draw_string(char* a, uint8_t len);
 void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
 void ili9341_draw_rect(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t color);
+void ili9341_draw_circle(int16_t a, int16_t b, uint16_t c, uint16_t d);
+void sub_80058f0(int16_t a, int16_t b, int16_t c, uint8_t d, int16_t e, uint16_t color);
+void sub_8005af0(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, uint16_t g);
 void ili9341_set_font(Struct_2000002c_Inner8* a);
 void ili9341_set_text_color(uint16_t fg, uint16_t bg);
 void ili9341_set_cursor(uint16_t x, uint16_t y);
@@ -247,18 +255,24 @@ void ili9341_setup_interface(void);
 void ili9341_write_command(uint8_t a);
 void ili9341_write_data(uint16_t a);
 uint8_t sub_8006254(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f);
-void sub_80062d8(void);
-void sub_80063a4(void);
-void sub_800651c(void);
+void touch_toggle_clk_line(uint8_t a);
+void touch_toggle_cs_line(uint8_t a);
+void touch_toggle_mosi_line(uint8_t a);
+int touch_read_miso_line(void);
+int touch_read_irq(void);
+uint16_t touch_spi_transfer(int cmd);
+void ili9341_configure_gpio(void);
+void ili9341_configure_fsmc(void);
+int touch_init(void);
+void touch_configure_gpio(void);
 void sub_8006618(void);
 void sub_8006624(void);
-void sub_8006694(uint8_t a);
+void touch_read_xy(uint8_t a);
 void sub_8006730(void);
 uint8_t sub_8006838(void);
 void sub_80068e4(uint8_t a);
 void sub_800691c(uint8_t a);
 void sub_8006950(uint8_t a);
-int sub_800699c(void);
 uint16_t sub_80069b4(int a);
 void sub_8006a70(int a);
 

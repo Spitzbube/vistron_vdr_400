@@ -207,7 +207,7 @@ void TIM5_IRQHandler(void)
   /* USER CODE BEGIN TIM5_IRQn 0 */
   Data_20000b90.Data_0++;
 
-  sub_8006630();
+  touch_poll();
   button_gpio_check();
 
   /* USER CODE END TIM5_IRQn 0 */
