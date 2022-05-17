@@ -209,7 +209,22 @@ extern UART_HandleTypeDef huart2; //20002438
 #define TOUCH_CMD_RDY                       0x90
 
 #define TEXT_ID_NO_CHANNEL                  8
+#define TEXT_ID_MAIN_MENU                   13
+#define TEXT_ID_CHANNEL_LIST                18
+#define TEXT_ID_SETTINGS                    19
 #define TEXT_ID_ALARM                       21
+#define TEXT_ID_AUTOMATIC_SEARCH            23
+#define TEXT_ID_LANGUAGE                    28
+#define TEXT_ID_GERMAN                      34
+
+#define TEXT_ID_MAIN_MENU_FIRST             TEXT_ID_CHANNEL_LIST
+#define TEXT_ID_MAIN_MENU_ITEMS             5
+#define TEXT_ID_SETTINGS_FIRST              TEXT_ID_LANGUAGE
+#define TEXT_ID_SETTINGS_ITEMS              3
+#define TEXT_ID_LANGUAGE_FIRST              TEXT_ID_GERMAN
+#define TEXT_ID_LANGUAGE_ITEMS              2
+#define TEXT_ID_CHANNEL_LIST_FIRST          TEXT_ID_AUTOMATIC_SEARCH
+#define TEXT_ID_CHANNEL_LIST_ITEMS          3
 
 /* USER CODE END EC */
 
@@ -226,6 +241,11 @@ void Error_Handler(void);
 int sub_8001224(char* a);
 void sub_8001bd8(int a, int b, uint8_t c, uint8_t d);
 void draw_on_off_icon(uint16_t a, uint16_t b);
+void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18);
+int sub_8002976(uint16_t a, uint16_t b);
+void sub_80029da(uint16_t r7_6, uint16_t r7_4, uint16_t r7_2, uint16_t r7);
+void sub_8002c04(uint16_t a);
+void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
 void sub_8004be8(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
 void sub_8004cb0(uint16_t, uint16_t, int, uint16_t);
@@ -245,6 +265,7 @@ void ili9341_draw_string(char* a, uint8_t len);
 void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
 void ili9341_draw_rect(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t color);
 void ili9341_draw_circle(int16_t a, int16_t b, uint16_t c, uint16_t d);
+void sub_800581e(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t e);
 void sub_80058f0(int16_t a, int16_t b, int16_t c, uint8_t d, int16_t e, uint16_t color);
 void sub_8005af0(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, uint16_t g);
 void ili9341_set_font(Struct_2000002c_Inner8* a);
@@ -275,6 +296,18 @@ void sub_800691c(uint8_t a);
 void sub_8006950(uint8_t a);
 uint16_t sub_80069b4(int a);
 void sub_8006a70(int a);
+int sub_8006a8e(uint32_t addr, uint16_t data[], uint16_t r7_6);
+int sub_8006af4(uint32_t addr);
+void menu_main(void);
+int menu_settings(void);
+int sub_8007114(void);
+int sub_80073c0(void);
+int sub_8007415(void);
+int sub_80075e9(void);
+int menu_language(void);
+int sub_8008200(void);
+int sub_800837c(void);
+int sub_80088cc(void);
 
 int si46xx_send_command(uint16_t numTxBytes, uint16_t b, uint16_t c);
 int si46xx_read_stc_reply(uint16_t a, uint16_t b);
@@ -284,13 +317,29 @@ int si46xx_set_dab_config(void);
 int si46xx_set_config(void);
 int si46xx_set_audio_output(uint8_t a);
 int si46xx_set_property(uint16_t name, uint16_t value);
-
+int si46xx_dab_tune_freq(uint8_t index);
+int si46xx_fm_tune_freq(uint16_t khz);
+int si46xx_dab_search(uint8_t* r7_4);
+int si46xx_fm_search(uint8_t* r7_4);
+int sub_8009868(uint8_t r7_4[]);
+int sub_8009f1c(uint8_t a);
+int sub_8009f70(uint8_t* a);
+int sub_8009fb0(int r7, uint8_t r7_7);
+int sub_800a174(void);
+int sub_800a1a4(uint8_t r7_7, uint8_t r7_6);
 void sub_800ac74(void);
 void sub_800acf0(void);
 void sub_800ad68(void);
 void sub_800adb8(void);
+int sub_800b398(uint16_t a, void* b);
+int sub_800b43c(uint16_t a);
 void button_gpio_check(void);
+int sub_800bbbc(void);
+int menu_automatic_search(void);
+void sub_800c460(void);
 void sub_800c7e0(uint16_t a);
+uint32_t calculate_crc(uint32_t r7_c, void* r7_8, uint32_t r7_4);
+uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 
 /* USER CODE END EFP */
 

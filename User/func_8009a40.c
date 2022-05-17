@@ -43,12 +43,14 @@ Struct_2000002c_Inner8 Data_2000003c = //2000003c (8019434)
    7,
    12
 };
+#if 0 //->font2.c
 Struct_2000002c_Inner8 Data_20000044 = //20000044 (801943c)
 {
    0, //8013404
    11,
    16
 };
+#endif
 #if 0 //->font1.c
 Struct_2000002c_Inner8 Data_2000004c = //2000004c (8019444)
 {
@@ -131,8 +133,8 @@ void sub_800173c(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8
 /* 8001224 - todo */
 int sub_8001224(char* a)
 {
-   char* b = a;
-   while (b++) {}
+   char* b;
+   for (b = a; *b != 0; b++) {}
    return b-a-1;
 }
 
@@ -140,7 +142,6 @@ int sub_8001224(char* a)
 /* 8001a14 - todo */
 void sub_8001a14(void* a)
 {
-#if 0
    uint16_t len;
 
    if (bData_200022a8 != 0)
@@ -148,7 +149,7 @@ void sub_8001a14(void* a)
       ili9341_set_font(&Data_2000004c);
       ili9341_draw_box(0, 63, 320, 24, 0xffff);
       ili9341_set_text_color(0, 0xffff);
-      len = sub_800c88c(a, 0x10);
+      len = sub_800c88c(a, 16);
       ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 63);
       ili9341_draw_string(a, len);
    }
@@ -160,28 +161,128 @@ void sub_8001a14(void* a)
       ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 63);
       ili9341_draw_format_string(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
    }
-#endif
+}
+
+
+/* 8002cac - todo */
+void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus)
+{
+   uint8_t i;
+   uint8_t r7_e = (focus > 5)? focus - 2: 0;
+   uint8_t r7_d = (lines < 5)? lines + 1: 5;
+
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+
+   for (i = 0; (i < r7_d) && ((r7_e + i) < lines); )
+   {
+      //loc_8002cf4
+      if ((r7_e + i) == focus)
+      {
+         ili9341_set_text_color(0xffff, 0);
+      }
+      else
+      {
+         ili9341_set_text_color(0, 0xffff);
+      }
+
+      ili9341_set_cursor(0, 72 + 24 * i);
+      ili9341_draw_format_string(CurrentTextTable[firstTextId + i]);
+      i++;
+   }
+}
+
+
+/* 8002d70 - todo */
+void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
+{
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
+   sub_8003038(textId, &Data_2000004c);
+   sub_8002cac(r7_4, r7_3, r7_2);
+   sub_8005198(8, 196, 0x1f, 1); //blue box / down arrow
+   sub_8005198(61, 196, 0x7e0, 0); // green box / up arrow
+   sub_8005198(167, 196, 0xffe0, 6); //yellow box
+   sub_8005198(273, 196, 0xffff, 7); //white box / back arrow
+}
+
+
+/* 8002e98 - todo */
+uint8_t sub_8002e98(uint16_t a, uint16_t b)
+{
+   if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
+   {
+      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(8, 196, 0x1f, 1);
+      return 3;
+   }
+
+   if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
+   {
+      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(61, 196, 0x7e0, 0);
+      return 2;
+   }
+
+   if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
+   {
+      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(167, 196, 0xffe0, 6);
+      return 4;
+   }
+
+   if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
+   {
+      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(273, 196, 0xffff, 7);
+      return 5;
+   }
+
+   if ((a < 320) && (b > 71) && (b < 97))
+   {
+      return 25;
+   }
+
+   if ((a < 320) && (b > 95) && (b < 121))
+   {
+      return 26;
+   }
+
+   if ((a < 320) && (b > 119) && (b < 145))
+   {
+      return 27;
+   }
+
+   if ((a < 320) && (b > 143) && (b < 169))
+   {
+      return 28;
+   }
+
+   if ((a < 320) && (b > 167) && (b < 193))
+   {
+      return 29;
+   }
+
+   return 0;
 }
 
 
 /* 8003038 - todo */
 void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
 {
-#if 0
    uint16_t len;
 
    ili9341_set_font(font);
-
    ili9341_draw_box(0, 23, 320, 24, 0xffff);
-
    ili9341_set_text_color(0, 0xffff);
-
    len = sub_8001224(CurrentTextTable[textId]);
-
    ili9341_set_cursor(160 - (len * font->width) / 2, 24);
-
    ili9341_draw_format_string(CurrentTextTable[textId]);
-#endif
 }
 
 
@@ -351,28 +452,28 @@ char* EnglishTextTable[] = //8012dc0
 	"OK",
 	"Exit",
 	"Menu",
-	"Main menu",
+	"Main menu", //TEXT_ID_MAIN_MENU
 	"Up",
 	"Down",
 	"Delete",
 	"Next",
-	"Channel list",
-	"Settings",
+	"Channel list", //TEXT_ID_CHANNEL_LIST
+	"Settings", //TEXT_ID_SETTINGS
 	"Factory reset",
 	"Alarm",  //TEXT_ID_ALARM
 	"Information",
-	"Automatic search",
+	"Automatic search", //TEXT_ID_AUTOMATIC_SEARCH
 	"Manual search",
 	"Delete channel",
 	"Manual search DAB",
 	"Manual search FM",
-	"Language",
+	"Language", //TEXT_ID_LANGUAGE
 	"Sleep-Timer",
 	"Auto-Standby",
 	"Continue?",
 	"NO",
 	"YES",
-	"Deutsch",
+	"Deutsch", //TEXT_ID_GERMAN
 	"English",
 	"Volume",
 	"Off",
@@ -953,5 +1054,668 @@ void sub_8006a70(int a)
 		/* delay */
 	}
 }
+
+
+/* 8006d40 - todo */
+int menu_channel_list(void)
+{
+   typedef int (*funcs)(void);
+   funcs r7_4[] = //8012c68
+   {
+	  menu_automatic_search, //Automatic search
+	  sub_8007415, //Manual search
+	  sub_80075e9 //Delete channel
+   };
+   uint8_t r7_17 = 0;
+   uint8_t r7_16 = 1;
+   uint8_t itemSelected = 0;
+   uint8_t itemIndex = 0;
+   uint8_t oldItem = 0;
+   uint8_t r7_12;
+   uint8_t r7_11;
+
+   sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
+
+   Data_20000bc0.bData_0 = 1;
+   Data_20000a48.bData_0 = 1;
+   //->loc_8006f00
+   while (r7_16 != 0)
+   {
+      //loc_8006d7e
+      r7_12 = 0;
+      if (Data_20000a48.bData_0 == 0)
+      {
+         r7_12 = Data_20000a48.bData_1;
+         Data_20000a48.bData_0 = 1;
+      }
+      //loc_8006d96
+      r7_11 = 0;
+      if (Data_20000bc0.bData_0 == 0)
+      {
+         r7_11 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+      }
+      //loc_8006db6
+      if ((r7_11 | r7_12) != 0)
+      {
+         switch (r7_11 | r7_12)
+         {
+            case 3:
+               //0x08006e41
+               itemIndex++;
+               if (itemIndex == TEXT_ID_CHANNEL_LIST_ITEMS) itemIndex = 0;
+               break;
+
+            case 2:
+               //0x08006e53
+               itemIndex--;
+               if (itemIndex == 0xff) itemIndex = 2;
+               break;
+
+            case 4:
+               //0x08006e65
+               itemSelected = 1;
+               break;
+
+            case 5:
+               //0x08006e6b
+               r7_16 = 0;
+               break;
+
+            case 25:
+               //0x08006e71
+               itemIndex = 0;
+               itemSelected = 1;
+               break;
+
+            case 26:
+               //0x08006e7b
+               itemIndex = 1;
+               itemSelected = 1;
+               break;
+
+            case 27:
+               //0x08006e85
+               itemIndex = 2;
+               itemSelected = 1;
+               break;
+
+            default:
+               //0x08006e8f
+               break;
+         }
+      }
+      //loc_8006ea4
+      if (itemSelected != 0)
+      {
+         itemSelected = 0;
+
+         if (0 != r7_4[itemIndex]())
+         {
+            wData_20000a56 |= 0x02;
+            r7_16 = 0;
+            r7_17 = 1;
+         }
+         else
+         {
+            //loc_8006edc
+            Data_20000bc0.bData_0 = 1;
+            Data_20000a48.bData_0 = 1;
+
+            sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
+         }
+      }
+      //loc_8006ee8
+      if (itemIndex != oldItem)
+      {
+         oldItem = itemIndex;
+
+         sub_8002cac(TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
+      }
+   }
+
+   return r7_17;
+}
+
+
+/* 8006b3c - todo */
+void menu_main(void)
+{
+   typedef int (*funcs)(void);
+   funcs r7_4[] = //8012c54
+   {
+      menu_channel_list, //Channel list
+	  menu_settings, //Settings
+	  sub_80088cc, //Factory reset
+	  sub_8007114, //Alarm
+	  sub_80073c0 //Information
+   };
+   uint8_t r7_1f = 1;
+   uint8_t itemSelected = 0;
+   uint8_t itemIndex = 0;
+   uint8_t oldItem = 0;
+   uint8_t r7_1b;
+   uint8_t r7_1a;
+
+   Data_20000bc0.bData_0 = 1;
+   Data_20000a48.bData_0 = 1;
+
+   sub_8002d70(TEXT_ID_MAIN_MENU, TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
+   //->loc_8006d20
+   while (r7_1f != 0)
+   {
+      //loc_8006b7a
+      r7_1b = 0;
+      if (Data_20000a48.bData_0 == 0)
+      {
+         r7_1b = Data_20000a48.bData_1;
+         Data_20000a48.bData_0 = 1;
+      }
+      //loc_8006b92
+      r7_1a = 0;
+      if (Data_20000bc0.bData_0 == 0)
+      {
+         r7_1a = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+      }
+      //loc_8006bb2
+      if ((r7_1a | r7_1b) != 0)
+      {
+         switch (r7_1a | r7_1b)
+         {
+            case 3:
+               //0x08006c45: blue
+               itemIndex++;
+               if (itemIndex == TEXT_ID_MAIN_MENU_ITEMS) itemIndex = 0;
+               //->8006CAA
+               break;
+
+            case 2:
+               //0x08006c57: green
+               itemIndex--;
+               if (itemIndex == 0xff) itemIndex = TEXT_ID_MAIN_MENU_ITEMS - 1;
+               //->8006CAE
+               break;
+
+            case 4:
+               //0x08006c69: yellow
+               itemSelected = 1;
+               //->8006CB0
+               break;
+
+            case 5:
+               //0x08006c6f: white (back)
+               r7_1f = 0;
+               //->8006CB0
+               break;
+
+            case 25:
+               //0x08006c75
+               itemIndex = 0;
+               itemSelected = 1;
+               break;
+
+            case 26:
+               //0x08006c7f
+               itemIndex = 1;
+               itemSelected = 1;
+               break;
+
+            case 27:
+               //0x08006c89
+               itemIndex = 2;
+               itemSelected = 1;
+               break;
+
+            case 28:
+               //0x08006c93
+               itemIndex = 3;
+               itemSelected = 1;
+               break;
+
+            case 29:
+               //0x08006c9d
+               itemIndex = 4;
+               itemSelected = 1;
+               break;
+
+            default:
+               //0x08006ca7
+               //->loc_8006cb0
+               break;
+         }
+         //loc_8006cb0
+         Data_20000bc0.bData_0 = 1;
+         Data_20000a48.bData_0 = 1;
+      }
+      //loc_8006cbc
+      if (itemSelected != 0)
+      {
+         itemSelected = 0;
+
+         if (0 != r7_4[itemIndex]())
+         {
+            wData_20000a56 |= 0x02;
+            r7_1f = 0;
+         }
+         else
+         {
+            //loc_8006cf0
+            Data_20000bc0.bData_0 = 1;
+            Data_20000a48.bData_0 = 1;
+
+            sub_8002d70(TEXT_ID_MAIN_MENU, TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
+         }
+      }
+      //loc_8006d08
+      if (itemIndex != oldItem)
+      {
+         oldItem = itemIndex;
+
+         sub_8002cac(TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
+      }
+      //loc_8006d20
+   }
+}
+
+
+/* 8006f24 - todo */
+int menu_settings(void)
+{
+   typedef int (*funcs)(void);
+   funcs r7_4[] = //8012c74
+   {
+	  menu_language, //Language
+	  sub_8008200, //Sleep-Timer
+	  sub_800837c, //Auto-Standby
+   };
+   uint8_t r7_17 = 0;
+   uint8_t r7_16 = 1;
+   uint8_t itemSelected = 0;
+   uint8_t itemIndex = 0;
+   uint8_t oldItem = 0;
+   uint8_t r7_12;
+   uint8_t r7_11;
+
+   sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
+
+   Data_20000bc0.bData_0 = 1;
+   Data_20000a48.bData_0 = 1;
+   //->loc_80070f0
+   while (r7_16 != 0)
+   {
+      //loc_8006f62
+	  r7_12 = 0;
+	  if (Data_20000a48.bData_0 == 0)
+	  {
+         r7_12 = Data_20000a48.bData_1;
+         Data_20000a48.bData_0 = 1;
+	  }
+
+	  r7_11 = 0;
+	  if (Data_20000bc0.bData_0 == 0)
+	  {
+         r7_11 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+	  }
+
+	  if ((r7_11 | r7_12) != 0)
+	  {
+         switch (r7_11 | r7_12)
+         {
+            case 3:
+               //0x08007025
+               itemIndex++;
+               if (itemIndex == 3) itemIndex = 0;
+               break;
+
+            case 2:
+               //0x08007037
+               itemIndex--;
+               if (itemIndex == 0xff) itemIndex = 2;
+               break;
+
+            case 4:
+               //0x08007049
+               itemSelected = 1;
+               break;
+
+            case 5:
+               //0x0800704f
+               r7_16 = 0;
+               break;
+
+            case 25:
+               //0x08007055
+               itemIndex = 0;
+               itemSelected = 1;
+               break;
+
+            case 26:
+               //0x0800705f
+               itemIndex = 1;
+               itemSelected = 1;
+               break;
+
+            case 27:
+               //0x08007069
+               itemIndex = 2;
+               itemSelected = 1;
+               break;
+
+            default:
+               //0x08007073
+               //->loc_800707c
+               break;
+         }
+         //loc_800707c
+         Data_20000bc0.bData_0 = 1;
+         Data_20000a48.bData_0 = 1;
+	  }
+	  //loc_8007088
+	  if (itemSelected != 0)
+	  {
+         itemSelected = 0;
+
+         if (0 != r7_4[itemIndex]())
+         {
+            wData_20000a56 |= 0x02;
+            r7_16 = 0;
+            r7_17 = 1;
+         }
+         else
+         {
+            //loc_80070c0
+            sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
+
+            Data_20000bc0.bData_0 = 1;
+            Data_20000a48.bData_0 = 1;
+         }
+	  }
+	  //loc_80070d8
+	  if (itemIndex != oldItem)
+	  {
+         oldItem = itemIndex;
+
+         sub_8002cac(TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
+	  }
+	  //loc_80070f0
+   }
+
+   return r7_17;
+}
+
+
+/* 8007114 - todo */
+int sub_8007114(void)
+{
+
+}
+
+
+/* 80073c0 - todo */
+int sub_80073c0(void)
+{
+
+}
+
+
+/* 8007415 - todo */
+int sub_8007415(void)
+{
+
+}
+
+
+/* 80075e9 - todo */
+int sub_80075e9(void)
+{
+
+}
+
+
+/* 8008030 - todo */
+int menu_language(void)
+{
+   uint8_t r7_7 = 1;
+   uint8_t itemIndex = Data_20000a50.b2;
+   uint8_t oldItem = Data_20000a50.b2;
+   uint8_t r7_4;
+   uint8_t r7_3;
+   uint8_t r7_2 = Data_20000a50.b2;
+
+   sub_8002d70(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
+
+   Data_20000bc0.bData_0 = 1;
+   Data_20000a48.bData_0 = 1;
+   //->loc_80081d4
+   while (r7_7 != 0)
+   {
+      //loc_8008078
+      r7_4 = 0;
+      if (Data_20000a48.bData_0 == 0)
+      {
+         r7_4 = Data_20000a48.bData_1;
+         Data_20000a48.bData_0 = 1;
+      }
+      //loc_8008090
+      r7_3 = 0;
+      if (Data_20000bc0.bData_0 == 0)
+      {
+         r7_3 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+      }
+      //loc_80080b0
+      if ((r7_3 | r7_4) != 0)
+      {
+         switch (r7_3 | r7_4)
+         {
+            case 2:
+               //0x08008135
+               itemIndex++;
+               if (itemIndex == 2) itemIndex = 0;
+               break;
+
+            case 3:
+               //0x08008147
+               itemIndex--;
+               if (itemIndex == 0xff) itemIndex = 1;
+               break;
+
+            case 4:
+               //0x08008159
+               r7_3 = itemIndex + 25;
+               //break; //fall through
+
+            case 25:
+            case 26:
+               //0x0800815f
+               if (r7_2 != (r7_3 - 25))
+               {
+                  Data_20000a50.b2 = (r7_3 - 25) & 1;
+                  sub_8005204(Data_20000a50.b2);
+                  sub_800ba74(Data_20000cc8, Data_20000be8, &Data_20000a4c, &Data_20000a50);
+               }
+               //800819A
+               r7_7 = 0;
+               break;
+
+            case 5:
+               //0x080081a1
+               r7_7 = 0;
+               break;
+
+            default:
+               //0x080081a7
+               //->loc_80081b0
+               break;
+         }
+         //loc_80081b0
+         Data_20000bc0.bData_0 = 1;
+         Data_20000a48.bData_0 = 1;
+      }
+      //loc_80081bc
+      if (itemIndex != oldItem)
+      {
+         oldItem = itemIndex;
+
+         sub_8002cac(TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
+      }
+      //loc_80081d4
+   }
+
+   return 0;
+}
+
+
+/* 8008200 - todo */
+int sub_8008200(void)
+{
+
+}
+
+
+/* 800837c - todo */
+int sub_800837c(void)
+{
+
+}
+
+
+/* 80088cc - todo */
+int sub_80088cc(void)
+{
+
+}
+
+
+/* 800b494 - todo */
+int sub_800b494(struct_8008d84* r7_4)
+{
+   uint8_t r7_f = 0xff;
+   uint8_t r7_e = 0;
+
+   for (; r7_e < bData_200022a8; r7_e++)
+   {
+      //loc_800b4a6
+      if (0 == memcmp(&Data_20000cc8[r7_e], r7_4, sizeof(struct_8008d84)))
+      {
+         r7_f = r7_e;
+         break;
+      }
+   }
+
+   return r7_f;
+}
+
+
+/* 800b53c - todo */
+int sub_800b53c(uint8_t r7_7)
+{
+   uint8_t r7_f;
+   uint8_t r7_e = 0;
+
+   if (r7_7 < 8)
+   {
+      for (r7_f = r7_7; r7_f < 7; r7_f++)
+      {
+         memcpy(&Data_20000be8[r7_f], &Data_20000be8[r7_f + 1], sizeof(struct_8008d84));
+      }
+
+      memset(&Data_20000be8[7], 0xff, sizeof(struct_8008d84));
+
+      bData_20000be4++;
+   }
+
+   return r7_e;
+}
+
+
+/* 800c33c - todo */
+int menu_automatic_search(void)
+{
+   uint8_t r7_17;
+   uint8_t r7_16;
+   uint8_t r7_15 = 1;
+   uint8_t r7_14 = 0;
+   struct
+   {
+	   int fill[4];
+   } r7_4;
+
+   r7_17 = 0;
+   r7_16 = 0;
+
+   Data_20000bc0.bData_0 = 1;
+
+   sub_800b5e0();
+
+   sub_80028f2(Data_20000cc8, 0, bData_200022a8, 0, 0x29, &r7_4, 0);
+
+   si46xx_mute(1);
+
+   si46xx_start_dab(bData_20000057);
+
+   if (0 != si46xx_dab_search(&r7_14))
+   {
+      r7_16 &= ~1;
+   }
+   else
+   {
+      //loc_800c3a0
+      r7_16 |= 1;
+      r7_17 += r7_14;
+   }
+   //loc_800c3b0
+   sub_80028f2(Data_20000cc8, 0, bData_200022a8, 0, 0x7f8, &r7_4, 0x222e);
+
+   si46xx_start_fm(bData_20000057);
+
+   si46xx_mute(1);
+
+   if (0 != si46xx_fm_search(&r7_14))
+   {
+      r7_16 &= ~2;
+   }
+   else
+   {
+      //loc_800c3f8
+      r7_16 |= 2;
+      r7_17 += r7_14;
+   }
+   //loc_800c408
+   si46xx_mute(0);
+
+   if (r7_16 != 0)
+   {
+      sub_800c460();
+      sub_800ba74(Data_20000cc8, Data_20000be8, &Data_20000a4c, &Data_20000a50);
+   }
+   else
+   {
+      //loc_800c426
+      sub_800b2ac(&Data_20000a4c, &Data_20000a50);
+   }
+   //loc_800c42e
+   bData_20000a58 = 0;
+
+   return r7_15;
+}
+
+
+/* 800c460 - todo */
+void sub_800c460(void)
+{
+   uint8_t r7_7 = 0;
+   uint8_t r7_6 = bData_20000be4;
+
+   for (r7_7 = 0; r7_7 < r7_6; r7_7++)
+   {
+      if (0xff == sub_800b494(&Data_20000be8[r7_7]))
+      {
+         sub_800b53c(r7_7);
+      }
+   }
+}
+
+
+
+
 
 

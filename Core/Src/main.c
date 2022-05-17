@@ -80,13 +80,6 @@ extern int sub_800a9a8(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-/* 800c33c - todo */
-void sub_800c33c(void)
-{
-
-}
-
-
 /* 800c7e0 - todo */
 void sub_800c7e0(uint16_t a)
 {
@@ -110,17 +103,36 @@ void sub_800c7e0(uint16_t a)
 }
 
 
-/* 800c830 - todo */
-void sub_800c830()
-{
-
-}
-
-
 /* 800c88c - todo */
-void sub_800c88c(int a, uint16_t b)
+uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
 {
+   uint16_t r7_e = 0;
+   uint8_t r7_d = 0;
 
+   while (r7_e++ < r7_2)
+   {
+      //loc_800c8a2
+      if (r7_4[r7_e] == 0)
+      {
+         return r7_e;
+      }
+      //loc_800c8b2
+      if (r7_4[r7_e] == ' ')
+      {
+         r7_d++;
+         if (r7_d > 1)
+         {
+        	 return r7_e - 1;
+         }
+      }
+      else
+      {
+         //loc_800c8d2
+         r7_d = 0;
+      }
+   }
+
+   return r7_e - 1;
 }
 
 
@@ -585,6 +597,19 @@ int main(void)
 
             case 21:
                //800d010 - orange (Menu)
+               menu_main();
+
+               if (((wData_20000a56 & 0x04) != 0) && (bData_20000be4 == 0))
+               {
+                  bData_20000a58 = 0;
+                  r7_c = Data_20000cc8;
+                  wData_20000a56 &= ~0x04;
+               }
+               //800D040
+               sub_800173c(Data_20000a70, &r7_c[bData_20000a58].Data_8, bData_20000057,
+            		   &Data_20000a78, Data_20000a78.bData_0x80, bData_20000a58,
+					   &Data_20000a5c, wData_20000a56);
+               //->800D116
                break;
 
             case 22:
@@ -690,9 +715,6 @@ int main(void)
       }
 
 	  //Tryouts....
-
-	  sub_8003038();
-
 #if 0
 	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 	  HAL_Delay(500);
