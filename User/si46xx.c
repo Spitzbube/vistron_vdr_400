@@ -110,14 +110,7 @@ int si46xx_dab_search(uint8_t* r7_4)
    r7_26 = bData_200022a8;
    r7_25 = 0;
 
-   struct
-   {
-	   int fill_0; //0 r7_8
-	   int fill_4; //4 r7_c
-	   int fill_8; //8 r7_10
-	   int fill_12; //12 r7_14
-	   //16
-   } r7_8 = {0};
+   Tuner_Values r7_8 = {0};
 
    Data_20000bc0.bData_0 = 1;
    Data_20000a48.bData_0 = 1;
@@ -157,8 +150,8 @@ int si46xx_dab_search(uint8_t* r7_4)
 			 //loc_8008bce
 		  }
 		  //loc_8008bce
-		  sub_8002c04(r7_27);
-		  sub_80029da(242, 42, r7_27, 41);
+		  draw_freq_mux_label(r7_27);
+		  draw_progress_bar(242, 42, r7_27, 41);
 
 		  if (bData_200022a8 != r7_26)
 		  {
@@ -167,9 +160,9 @@ int si46xx_dab_search(uint8_t* r7_4)
 			 sub_8002a60(Data_20000cc8, bData_200022a8);
 		  }
 		  //loc_8008c0a
-		  sub_800a6ec(&r7_8);
-		  draw_signal_strength_bars(142, 42, &r7_8);
-		  if (0 != sub_8009e7c())
+		  si46xx_get_dab_values(&r7_8);
+		  draw_signal_strength_bars(142, 42, &r7_8.rssi);
+		  if (0 != si46xx_get_dab_status())
 		  {
 			 return 1;
 		  }
@@ -392,7 +385,7 @@ int si46xx_fm_search(uint8_t* r7_4)
    uint8_t r7_29;
    uint8_t r7_28;
    uint8_t r7_1c[8];
-   Struct_800a68c r7_c;
+   Tuner_Values r7_c;
 
    Data_20000bc0.bData_0 = 1;
    Data_20000a48.bData_0 = 1;
@@ -429,10 +422,10 @@ int si46xx_fm_search(uint8_t* r7_4)
          }
       }
       //loc_800920e
-      sub_800a68c(&r7_c);
+      si46xx_get_fm_values(&r7_c);
       draw_signal_strength_bars(142, 42, &r7_c.rssi);
-      sub_8002c04(r7_2e);
-      sub_80029da(242, 42, r7_2e - 8750, 0x7f8);
+      draw_freq_mux_label(r7_2e);
+      draw_progress_bar(242, 42, r7_2e - 8750, 2040 /*10790-8750*/);
 
       if (bData_200022a8 != r7_2d)
       {
@@ -885,7 +878,7 @@ int si46xx_load_and_boot(uint8_t a)
 
 
 /* 8009e7c - todo */
-int sub_8009e7c(void)
+int si46xx_get_dab_status(void)
 {
    Data_200001f0[0] = SI46XX_DAB_DIGRAD_STATUS;
    Data_200001f0[1] = 0;
@@ -1113,7 +1106,7 @@ int si46xx_set_config(void)
 
 
 /* 800a68c - todo */
-int sub_800a68c(Struct_800a68c* r7_4)
+int si46xx_get_fm_values(Tuner_Values* r7_4)
 {
    int8_t rssi;
    int8_t snr;
@@ -1129,7 +1122,7 @@ int sub_800a68c(Struct_800a68c* r7_4)
    r7_4->rssi = rssi;
    r7_4->snr = snr;
    r7_4->multipath = Data_200001f0[11];
-   r7_4->freq = Data_200001f0[6] | (Data_200001f0[7] << 8);
+   r7_4->frequency = Data_200001f0[6] | (Data_200001f0[7] << 8);
    r7_4->freq_offset = Data_200001f0[8];
 
    return 0;
@@ -1137,9 +1130,25 @@ int sub_800a68c(Struct_800a68c* r7_4)
 
 
 /* 800a6ec - todo */
-int sub_800a6ec(void* a)
+int si46xx_get_dab_values(Tuner_Values* a)
 {
+   int8_t rssi;
+   int8_t snr;
 
+   if (0 != si46xx_get_dab_status())
+   {
+      return 1;
+   }
+
+   rssi = Data_200001f0[6];
+   snr = Data_200001f0[7];
+
+   a->rssi = rssi;
+   a->snr = snr;
+   a->fib_error_count = Data_200001f0[10] | (Data_200001f0[11] << 8);
+   a->freq_index = Data_200001f0[16];
+   a->frequency = Data_200001f0[12] | (Data_200001f0[13] << 8) |
+		 (Data_200001f0[14] << 16)  | (Data_200001f0[15] << 24);
 }
 
 

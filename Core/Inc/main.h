@@ -148,12 +148,13 @@ typedef struct
 {
    int8_t rssi; //0
    int8_t snr; //1
-   int fill_4; //4
-   uint32_t freq; //8
+   uint16_t fib_error_count; //2
+   uint8_t freq_index; //4
+   uint32_t frequency; //8
    uint8_t multipath; //12
    uint8_t freq_offset; //13
 
-} Struct_800a68c;
+} Tuner_Values;
 
 
 typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
@@ -253,14 +254,18 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 
 int sub_8001224(char* a);
+void sub_8001eb6(uint8_t r7_7);
 void draw_channel_name(void* a);
 void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7);
 void draw_on_off_icon(uint16_t a, uint16_t b);
+void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6);
+void draw_snr_indicator(uint16_t r7_e, uint16_t r7_c, Tuner_Values* r7_8, uint8_t r7_7);
+void draw_channel_freq_mux_label(struct_8008d84* r7_4, uint8_t r7_3);
 void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18);
 int sub_8002976(uint16_t a, uint16_t b);
-void sub_80029da(uint16_t r7_6, uint16_t r7_4, uint16_t r7_2, uint16_t r7);
-void sub_8002c04(uint16_t a);
+void draw_progress_bar(uint16_t r7_6, uint16_t r7_4, uint16_t r7_2, uint16_t r7);
+void draw_freq_mux_label(uint16_t a);
 void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
 void sub_8004be8(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
@@ -329,6 +334,7 @@ int si46xx_send_command(uint16_t numTxBytes, uint16_t b, uint16_t c);
 int si46xx_read_stc_reply(uint16_t a, uint16_t b);
 uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes);
 int si46xx_load_and_boot(uint8_t a);
+int si46xx_get_dab_status(void);
 int si46xx_set_dab_config(void);
 int si46xx_set_config(void);
 int si46xx_set_audio_output(uint8_t a);
@@ -344,15 +350,18 @@ int sub_8009f70(uint8_t* a);
 int sub_8009fb0(int r7, uint8_t r7_7);
 int sub_800a174(void);
 int sub_800a1a4(uint8_t r7_7, uint8_t r7_6);
-int sub_800a68c(Struct_800a68c* r7_4);
+int si46xx_get_fm_values(Tuner_Values* r7_4);
+int si46xx_get_dab_values(Tuner_Values* a);
 void channel_next(void);
 void channel_previous(void);
+void sub_800abb0(struct_8008d84* a);
 void sub_800ad68(void);
 void sub_800adb8(void);
 int sub_800b398(uint16_t a, void* b);
 int sub_800b43c(uint16_t a);
 void button_gpio_check(void);
 int sub_800bbbc(void);
+void menu_channel_select(void);
 int menu_automatic_search(void);
 void sub_800c460(void);
 void sub_800c7e0(uint16_t a);

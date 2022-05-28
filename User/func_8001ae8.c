@@ -60,9 +60,34 @@ void sub_8001b60(RTC_TimeTypeDef a)
 
 
 /* 8002054 - todo */
-void sub_8002054(struct_8008d84* a, uint8_t b, uint8_t c, void* d, uint8_t e)
+void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18)
 {
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
 
+   sub_80023d0(r7_c, r7_b, r7_a);
+
+   sub_8005198(8, 196, 0x1f, 1);
+   sub_8005198(61, 196, 0x7e0, 0);
+
+   if ((wData_20000a56 & 0x04) == 0)
+   {
+	   sub_8005198(114, 196, 0xf800, 5);
+   }
+   //loc_80020ca
+   sub_8005198(167, 196, 0xffe0, 6);
+   sub_8005198(273, 196, 0xffff, 7);
+
+   draw_scroll_bar(r7_b, r7_a);
+
+   draw_signal_strength_bars(142, 42, r7_4);
+
+   draw_snr_indicator(222, 7, r7_4, 1);
+
+   sub_8001eb6(r7_18);
+
+   draw_channel_freq_mux_label(r7_c, r7_b);
 }
 
 
@@ -154,14 +179,63 @@ int sub_8002128(uint16_t a, uint16_t b)
 }
 
 
+/* 80023d0 - todo */
+void sub_80023d0(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a)
+{
+
+}
+
+
+/* 8002658 - todo */
+void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6)
+{
+   ili9341_draw_box(296, 49, 24, 142, 0xffff);
+   ili9341_draw_vert_line(320, 48, 192, 0);
+   ili9341_draw_vert_line(296, 48, 192, 0);
+   ili9341_draw_hor_line(296, 320, 72, 0);
+   ili9341_draw_hor_line(296, 320, 168, 0);
+   sub_8005af0(308, 52, 300, 68, 316, 68, 0);
+   sub_8005af0(308, 188, 300, 172, 316, 172, 0);
+   ili9341_draw_box(296, r7_7 * 92 / r7_6 + 72, 24, 8, 0);
+}
+
+
+/* 80027b8 - todo */
+void draw_channel_freq_mux_label(struct_8008d84* r7_4, uint8_t r7_3)
+{
+   ili9341_draw_box(0, 24, Data_20000044.width * 11, 23, 0xffff);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 24);
+
+   if ((r7_4[r7_3].wData_24 < 42) && (r7_4[r7_3].service_id != 0))
+   {
+      ili9341_draw_format_string(" MUX:%s", Data_8012cdc[r7_4[r7_3].wData_24 + 10]);
+   }
+   else
+   {
+      ili9341_draw_format_string(" %3u.%02uMHz", r7_4[r7_3].wData_24 / 100, r7_4[r7_3].wData_24 % 100);
+   }
+}
+
+
+/* 80028b8 - todo */
+void sub_80028b8(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2)
+{
+   sub_80023d0(r7_4, r7_3, r7_2);
+   draw_scroll_bar(r7_3, r7_2);
+   draw_channel_freq_mux_label(r7_4, r7_3);
+}
+
+
 /* 80028f2 - todo */
 void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
 {
    ili9341_fill_screen(0xffff);
    ili9341_draw_hor_line(0, 320, 48, 0);
    ili9341_draw_hor_line(0, 320, 192, 0);
-   sub_8002c04(r7_18);
-   sub_80029da(242, 42, r7, r7_10);
+   draw_freq_mux_label(r7_18);
+   draw_progress_bar(242, 42, r7, r7_10);
 
    if (r7_2 != 0)
    {
@@ -181,13 +255,13 @@ int sub_8002976(uint16_t a, uint16_t b)
 
 
 /* 80029da - todo */
-void sub_80029da(uint16_t r7_6, uint16_t r7_4, uint16_t r7_2, uint16_t r7)
+void draw_progress_bar(uint16_t x, uint16_t y, uint16_t currentValue, uint16_t maxValue)
 {
-   uint32_t r7_c = r7_2 * 64 / r7;
+   uint32_t width = currentValue * 64 / maxValue;
 
-   ili9341_draw_box(r7_c + r7_6, r7_4 - 36, 64, 36, 0xffff);
-   sub_800581e(r7_6, r7_4 - 36, 64, 36, 0x00);
-   ili9341_draw_box(r7_6, r7_4 - 36, r7_c, 35, 0x00);
+   ili9341_draw_box(width + x, y - 36, 64, 36, 0xffff);
+   sub_800581e(x, y - 36, 64, 36, 0x00);
+   ili9341_draw_box(x, y - 36, width, 35, 0x00);
 }
 
 
@@ -285,7 +359,7 @@ const char* Data_8012cdc[] = //8012cdc
 };
 
 /* 8002c04 - todo */
-void sub_8002c04(uint16_t r7_6)
+void draw_freq_mux_label(uint16_t r7_6)
 {
    ili9341_draw_box(0, 24, Data_20000044.width * 10, 23, 0xffff);
    ili9341_set_font(&Data_20000044);
@@ -298,10 +372,8 @@ void sub_8002c04(uint16_t r7_6)
    }
    else
    {
-      //loc_8002c7c
       ili9341_draw_format_string(" MUX:%s", Data_8012cdc[r7_6 + 10]);
    }
-   //loc_8002c8e
 }
 
 
@@ -372,16 +444,38 @@ void button_gpio_check(void)
 
 
 /* 8002722 - todo */
-void sub_8002722(int a, int b, void* c, int d)
+void draw_snr_indicator(uint16_t r7_e, uint16_t r7_c, Tuner_Values* r7_8, uint8_t r7_7)
 {
+   uint8_t r7_17;
+   uint8_t r7_16;
+   uint16_t r7_14;
 
-}
+   if (r7_7 == 0)
+   {
+      r7_17 = 20;
+      r7_16 = 20;
+   }
+   else
+   {
+      r7_17 = 35;
+      r7_16 = 10;
+   }
 
+   if (r7_8->snr < 1)
+   {
+      r7_14 = 0xf800;
+   }
+   else if (r7_8->snr < 4)
+   {
+      r7_14 = 0xffe0;
+   }
+   else
+   {
+      r7_14 = 0x7e0;
+   }
 
-/* 80028b8 - todo */
-void sub_80028b8(struct_8008d84* a, uint8_t b, uint8_t c)
-{
-
+   ili9341_draw_box(r7_e, r7_c, r7_16, r7_17, r7_14);
+   sub_800581e(r7_e, r7_c, r7_16, r7_17, 0);
 }
 
 
@@ -616,7 +710,7 @@ int sub_8006af4(uint32_t addr)
 
 
 /* 800bd2c - todo */
-void sub_800bd2c(void)
+void menu_channel_select(void)
 {
    uint8_t r7_1f = 1;
    int8_t r7_1e;
@@ -627,13 +721,7 @@ void sub_800bd2c(void)
    uint8_t r7_19 = bData_20000a58;
    uint8_t r7_18;
    struct_8008d84* r7_14;
-   struct
-   {
-	   int8_t bData_0; //0
-	   int8_t bData_1; //1
-	   int fill_0[3];
-	   //16
-   } r7_4 = {0};
+   Tuner_Values r7_4 = {0};
 
    r7_1e = 0;
    r7_1d = 0;
@@ -847,24 +935,24 @@ void sub_800bd2c(void)
     	  if ((Data_20000cc8[bData_20000a58].wData_24 < 41) && (Data_20000cc8[bData_20000a58].service_id != 0))
     	  {
     		  //0800c23c
-    		  sub_800a6ec(&r7_4);
-    		  if (0 == sub_800a6ec(&r7_4))
+    		  si46xx_get_dab_values(&r7_4);
+    		  if (0 == si46xx_get_dab_values(&r7_4))
     		  {
     			  //0800c252
-    			  if (r7_4.bData_0/5 != r7_1e/5)
+    			  if (r7_4.rssi/5 != r7_1e/5)
     			  {
     				  //0800c27a
-    				  r7_1e = r7_4.bData_0;
+    				  r7_1e = r7_4.rssi;
 
-    				  draw_signal_strength_bars(142, 42, &r7_4);
+    				  draw_signal_strength_bars(142, 42, &r7_4.rssi);
     			  }
     			  //loc_800c28a
-    			  if (r7_4.bData_1 != r7_1d)
+    			  if (r7_4.snr != r7_1d)
     			  {
     				  //0800c296
-    				  r7_1d = r7_4.bData_1;
+    				  r7_1d = r7_4.snr;
 
-    				  sub_8002722(0xde, 0x07, &r7_4, 1);
+    				  draw_snr_indicator(0xde, 0x07, &r7_4, 1);
     			  }
     			  //loc_800c312
     		  }
@@ -873,23 +961,23 @@ void sub_800bd2c(void)
     	  else
     	  {
         	  //loc_800c2a8
-    		  sub_800a68c(&r7_4);
-    		  if (0 == sub_800a68c(&r7_4))
+    		  si46xx_get_fm_values(&r7_4);
+    		  if (0 == si46xx_get_fm_values(&r7_4))
     		  {
-    			  if (r7_4.bData_0/5 != r7_1e/5)
+    			  if (r7_4.rssi/5 != r7_1e/5)
     			  {
     				  //0800c2e6
-    				  r7_1e = r7_4.bData_0;
+    				  r7_1e = r7_4.rssi;
 
-    				  draw_signal_strength_bars(142, 42, &r7_4);
+    				  draw_signal_strength_bars(142, 42, &r7_4.rssi);
     			  }
     			  //loc_800c2f6
-    			  if (r7_4.bData_1 != r7_1d)
+    			  if (r7_4.snr != r7_1d)
     			  {
     				  //0800c302
-    				  r7_1d = r7_4.bData_1;
+    				  r7_1d = r7_4.snr;
 
-    				  sub_8002722(0xde, 0x07, &r7_4, 1);
+    				  draw_snr_indicator(0xde, 0x07, &r7_4, 1);
     			  }
     		  }
     	  }

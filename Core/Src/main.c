@@ -344,9 +344,12 @@ void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
 }
 
 
-void sub_8001eb6()
+/* 8001eb6 - todo */
+void sub_8001eb6(uint8_t r7_7)
 {
-
+   ili9341_draw_box(r7_7 + 242, 6, 63, 36, 0xffff);
+   sub_800581e(242, 6, 63, 36, 0);
+   ili9341_draw_box(242, 6, r7_7, 35, 0);
 }
 
 
@@ -466,7 +469,7 @@ int main(void)
                   si46xx_mute(0);
                }
                //loc_800ca70
-               if ((0 == sub_800a6ec(&Data_20000a5c)) &&
+               if ((0 == si46xx_get_dab_values(&Data_20000a5c)) &&
             		   (Data_20000a5c/5 != Data_20000a5a/5))
                {
            	      Data_20000a5a = Data_20000a5c;
@@ -478,7 +481,7 @@ int main(void)
             else
             {
                //loc_800cabe
-               if ((0 == sub_800a68c(&Data_20000a5c)) &&
+               if ((0 == si46xx_get_fm_values(&Data_20000a5c)) &&
              		   (Data_20000a5c/5 != Data_20000a5a/5))
                {
                   Data_20000a5a = Data_20000a5c;
@@ -657,7 +660,7 @@ int main(void)
 
             case 6:
                //800cf2a
-               sub_800bd2c();
+               menu_channel_select();
 
                Data_20000a78.bData_0x80 = 0;
 #if 0

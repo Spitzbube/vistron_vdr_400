@@ -286,6 +286,20 @@ void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
 }
 
 
+/* 80040a4 - todo */
+void sub_80040a4(char* a, char* b)
+{
+
+}
+
+
+/* 80041e0 - todo */
+int sub_80041e0(uint16_t a, uint16_t b)
+{
+
+}
+
+
 /* 8004560 - todo */
 void draw_on_off_icon(uint16_t a, uint16_t b)
 {
@@ -1453,7 +1467,19 @@ int sub_8007114(void)
 /* 80073c0 - todo */
 int sub_80073c0(void)
 {
+   uint8_t r7_7 = 1;
 
+   sub_80040a4(strDABVersion, strFMVersion);
+
+   while (r7_7 != 0)
+   {
+      if (5 == sub_80041e0(Data_20000bc0.wData_2, Data_20000bc0.wData_4))
+      {
+         r7_7 = 0;
+      }
+   }
+
+   return 0;
 }
 
 
@@ -1663,7 +1689,7 @@ int menu_automatic_search(void)
       r7_17 += r7_14;
    }
    //loc_800c3b0
-   sub_80028f2(Data_20000cc8, 0, bData_200022a8, 0, 0x7f8, &r7_4, 0x222e);
+   sub_80028f2(Data_20000cc8, 0, bData_200022a8, 0, 0x7f8, &r7_4, 8750);
 
    si46xx_start_fm(bData_20000057);
 
