@@ -26,6 +26,7 @@ extern const uint8_t si46xx_image_data[]; //8018af4
 #define SI46XX_DAB_TUNE_FREQ                 0xB0
 #define SI46XX_DAB_DIGRAD_STATUS             0xB2
 #define SI46XX_DAB_GET_EVENT_STATUS          0xB3
+#define SI46XX_DAB_GET_TIME                  0xBC
 
 #define SI46XX_FM_INT_CTL_ENABLE             0x0000
 #define SI46XX_DIGITAL_IO_OUTPUT_SELECT      0x0200
@@ -167,7 +168,7 @@ int si46xx_dab_search(uint8_t* r7_4)
 		  }
 		  //loc_8008c0a
 		  sub_800a6ec(&r7_8);
-		  sub_8001cc4(142, 42, &r7_8);
+		  draw_signal_strength_bars(142, 42, &r7_8);
 		  if (0 != sub_8009e7c())
 		  {
 			 return 1;
@@ -302,9 +303,45 @@ int si46xx_dab_stop_digital_service(struct_8008d84* a)
 
 
 /* 8008ed8 - todo */
-int sub_8008ed8(RTC_TimeTypeDef* a, RTC_DateTypeDef* b)
+int si46xx_dab_get_time_date(RTC_TimeTypeDef* r7_4, RTC_DateTypeDef* r7)
 {
+   uint16_t wData_12; //12
+   uint16_t wData_14; //14
+   uint8_t r7_8[12] = //8012c9c
+      {0x00, 0x03, 0x02, 0x05, 0x00, 0x03, 0x05, 0x01, 0x04, 0x06, 0x02, 0x04};
 
+   Data_200001f0[0] = SI46XX_DAB_GET_TIME;
+   Data_200001f0[1] = 0x00;
+
+   if (0 != si46xx_send_command(2, 11, 50))
+   {
+      return 0;
+   }
+
+   wData_14 = Data_200001f0[4] | (Data_200001f0[5] << 8);
+   if ((wData_14 > 2099) ||
+		   (wData_14 < 2018) ||
+		   (Data_200001f0[6] > 12) ||
+		   (Data_200001f0[7] > 31) ||
+		   (Data_200001f0[8] > 23) ||
+		   (Data_200001f0[10] > 59) ||
+		   (Data_200001f0[6] == 0))
+   {
+      return 0;
+   }
+   //loc_8008f62
+   wData_12 = wData_14 - ((Data_200001f0[6] < 3)? 1: 0);
+
+   r7->Year = wData_14 + 48;
+   r7->Month = Data_200001f0[6];
+   r7->Date = Data_200001f0[7];
+   r7->WeekDay = (wData_12 + wData_12 / 4 - wData_12 / 100 + wData_12 / 400 + r7_8[Data_200001f0[6] - 1] + Data_200001f0[7]) % 7;
+
+   r7_4->Hours = Data_200001f0[8];
+   r7_4->Minutes = Data_200001f0[9];
+   r7_4->Seconds = Data_200001f0[10];
+
+   return 1;
 }
 
 
@@ -354,8 +391,8 @@ int si46xx_fm_search(uint8_t* r7_4)
    uint16_t r7_2a;
    uint8_t r7_29;
    uint8_t r7_28;
-   int r7_1c;
-   int r7_c;
+   uint8_t r7_1c[8];
+   Struct_800a68c r7_c;
 
    Data_20000bc0.bData_0 = 1;
    Data_20000a48.bData_0 = 1;
@@ -393,7 +430,7 @@ int si46xx_fm_search(uint8_t* r7_4)
       }
       //loc_800920e
       sub_800a68c(&r7_c);
-      sub_8001cc4(142, 42, &r7_c);
+      draw_signal_strength_bars(142, 42, &r7_c.rssi);
       sub_8002c04(r7_2e);
       sub_80029da(242, 42, r7_2e - 8750, 0x7f8);
 
@@ -453,8 +490,8 @@ int si46xx_fm_search(uint8_t* r7_4)
       if ((Data_200001f0[10] != 0) &&
     		  ((Data_200001f0[10] & 0x80) == 0) &&
 			  (0 == sub_800a1a4(3, 50)) &&
-			  (0 == sub_8009868(&r7_1c)) &&
-			  (1 == sub_800b398(r7_2e, &r7_1c)))
+			  (0 == sub_8009868(r7_1c)) &&
+			  (1 == sub_800b398(r7_2e, r7_1c)))
       {
          return 1;
       }
@@ -1076,9 +1113,26 @@ int si46xx_set_config(void)
 
 
 /* 800a68c - todo */
-int sub_800a68c(void* a)
+int sub_800a68c(Struct_800a68c* r7_4)
 {
+   int8_t rssi;
+   int8_t snr;
 
+   if (0 != sub_800a174())
+   {
+      return 1;
+   }
+
+   rssi = Data_200001f0[9];
+   snr = Data_200001f0[10];
+
+   r7_4->rssi = rssi;
+   r7_4->snr = snr;
+   r7_4->multipath = Data_200001f0[11];
+   r7_4->freq = Data_200001f0[6] | (Data_200001f0[7] << 8);
+   r7_4->freq_offset = Data_200001f0[8];
+
+   return 0;
 }
 
 
@@ -1307,6 +1361,50 @@ void sub_800abb0(struct_8008d84* a)
    }
 
    wData_20000a56 |= 0x40;
+}
+
+
+/* 800ac74 - todo */
+void channel_next(void)
+{
+   uint8_t r7_7 = (wData_20000a56 & 4)? bData_20000be4: bData_200022a8;
+
+   if (r7_7 != 0)
+   {
+      bData_20000a59 = bData_20000a58;
+      if (bData_20000a58 < (r7_7 - 1))
+      {
+   	     bData_20000a58++;
+      }
+      else
+      {
+         bData_20000a58 = 0;
+      }
+
+      wData_20000a56 |= 0x02;
+   }
+}
+
+
+/* 800acf0 - todo */
+void channel_previous(void)
+{
+   uint8_t r7_7 = (wData_20000a56 & 4)? bData_20000be4: bData_200022a8;
+
+   if (r7_7 != 0)
+   {
+      bData_20000a59 = bData_20000a58;
+      if (bData_20000a58 != 0)
+      {
+   	     bData_20000a58--;
+      }
+      else
+      {
+         bData_20000a58 = r7_7 - 1;
+      }
+
+      wData_20000a56 |= 0x02;
+   }
 }
 
 

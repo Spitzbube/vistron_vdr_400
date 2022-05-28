@@ -255,16 +255,92 @@ uint8_t sub_8001802(uint16_t a, uint16_t b)
 
 
 /* 8001bd8 - todo */
-void sub_8001bd8(int a, int b, uint8_t c, uint8_t d)
+void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
 {
+   uint8_t r7_17;
+   uint16_t color;
+   uint8_t r7_c[8];
 
+   if (r7_2 != 0)
+   {
+      color = 0xf81f;
+      r7_17 = siprintf(r7_c, "F%u", r7_3 + 1);
+   }
+   else
+   {
+      color = 0x7ff;
+      r7_17 = siprintf(r7_c, "%u", r7_3 + 1);
+   }
+
+   ili9341_draw_box(r7_6, r7_4, 50, 36, color);
+   sub_800581e(r7_6, r7_4, 50, 36, 0);
+   ili9341_set_cursor(r7_6 - r7_17 * Data_20000044.width / 2 + 25, r7_4 - Data_20000044.height / 2 + 20);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, color);
+   ili9341_draw_string(r7_c, r7_17);
 }
 
 
 /* 8001cc4 - todo */
-void sub_8001cc4(int a, int b, void* c)
+void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
 {
+   int8_t r7_f = *r7;
 
+   if (r7_f < 20)
+   {
+      ili9341_draw_box(r7_6, r7_4 - 7, 10, 7, 0xffff);
+      sub_800581e(r7_6, r7_4 - 7, 10, 7, 0);
+   }
+   else
+   {
+      //loc_8001d16
+      ili9341_draw_box(r7_6, r7_4 - 7, 10, 7, 0);
+   }
+   //loc_8001d2e
+   if (r7_f < 25)
+   {
+      ili9341_draw_box(r7_6 + 15, r7_4 - 14, 10, 14, 0xffff);
+      sub_800581e(r7_6 + 15, r7_4 - 14, 10, 14, 0);
+   }
+   else
+   {
+      //loc_8001d72
+      ili9341_draw_box(r7_6 + 15, r7_4 - 14, 10, 14, 0);
+   }
+   //loc_8001d8e
+   if (r7_f < 35)
+   {
+      ili9341_draw_box(r7_6 + 30, r7_4 - 21, 10, 21, 0xffff);
+      sub_800581e(r7_6 + 30, r7_4 - 21, 10, 21, 0);
+   }
+   else
+   {
+      //loc_8001dd2
+      ili9341_draw_box(r7_6 + 30, r7_4 - 21, 10, 21, 0);
+   }
+   //loc_8001dee
+   if (r7_f < 45)
+   {
+      ili9341_draw_box(r7_6 + 45, r7_4 - 28, 10, 28, 0xffff);
+      sub_800581e(r7_6 + 45, r7_4 - 28, 10, 28, 0);
+   }
+   else
+   {
+      //loc_8001e32
+      ili9341_draw_box(r7_6 + 45, r7_4 - 28, 10, 28, 0);
+   }
+   //loc_8001e4e
+   if (r7_f < 50)
+   {
+      ili9341_draw_box(r7_6 + 60, r7_4 - 35, 10, 35, 0xffff);
+      sub_800581e(r7_6 + 60, r7_4 - 35, 10, 35, 0);
+   }
+   else
+   {
+      //loc_8001e92
+      ili9341_draw_box(r7_6 + 60, r7_4 - 35, 10, 35, 0);
+   }
+   //loc_8001eae
 }
 
 
@@ -373,7 +449,7 @@ int main(void)
             if ((Data_200023e0->wData_24 < 41) && (Data_200023e0->service_id != 0))
             {
                if (((wData_20000a56 & 0x80) == 0) &&
-            		   (0 != sub_8008ed8(&Data_20000a70, &Data_20000a74)))
+            		   (0 != si46xx_dab_get_time_date(&Data_20000a70, &Data_20000a74)))
                {
                   if (0 != HAL_RTC_SetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
                   {
@@ -395,7 +471,7 @@ int main(void)
                {
            	      Data_20000a5a = Data_20000a5c;
 
-                  sub_8001cc4(0x8e, 0x2a, &Data_20000a5c);
+                  draw_signal_strength_bars(142, 42, &Data_20000a5c);
                }
                //->loc_800cb0c
             }
@@ -407,7 +483,7 @@ int main(void)
                {
                   Data_20000a5a = Data_20000a5c;
 
-                  sub_8001cc4(0x8e, 0x2a, &Data_20000a5c);
+                  draw_signal_strength_bars(142, 42, &Data_20000a5c);
                }
                //loc_800cb0e
             }
@@ -507,12 +583,12 @@ int main(void)
 
                         if ((wData_20000a56 & 0x04) != 0)
                         {
-                           sub_8001a14(&Data_20000be8[bData_20000a58].Data_8);
+                           draw_channel_name(&Data_20000be8[bData_20000a58].Data_8);
                         }
                         else
                         {
                            //loc_800cd44
-                           sub_8001a14(&Data_20000cc8[bData_20000a58].Data_8);
+                           draw_channel_name(&Data_20000cc8[bData_20000a58].Data_8);
                         }
                      }
                   }
@@ -545,17 +621,17 @@ int main(void)
             {
             case 2:
                //800ce78 - green
-               sub_800ac74();
-               sub_8001bd8(0x0c, 0x06, bData_20000a58, wData_20000a56 & 0x04);
-               sub_8001a14(&r7_c[bData_20000a58].Data_8);
+               channel_next();
+               draw_channel_number_box(12, 6, bData_20000a58, wData_20000a56 & 0x04);
+               draw_channel_name(&r7_c[bData_20000a58].Data_8);
                //->800D116
                break;
 
             case 3:
                //800ceb2 - blue
-               sub_800acf0();
-               sub_8001bd8(0x0c, 0x06, bData_20000a58, wData_20000a56 & 0x04);
-               sub_8001a14(&r7_c[bData_20000a58].Data_8);
+               channel_previous();
+               draw_channel_number_box(12, 6, bData_20000a58, wData_20000a56 & 0x04);
+               draw_channel_name(&r7_c[bData_20000a58].Data_8);
                //->800D116
                break;
 

@@ -144,8 +144,22 @@ typedef struct
 } Struct_20000a48;
 
 
+typedef struct
+{
+   int8_t rssi; //0
+   int8_t snr; //1
+   int fill_4; //4
+   uint32_t freq; //8
+   uint8_t multipath; //12
+   uint8_t freq_offset; //13
+
+} Struct_800a68c;
+
+
 typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
 
+
+extern const char* Data_8012cdc[]; //8012cdc
 
 extern Func_20000000 Funcs_20000000[]; //0x20000000
 extern Screen_Resolution ScreenResolution; //20000024 (801941C)
@@ -239,7 +253,9 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 
 int sub_8001224(char* a);
-void sub_8001bd8(int a, int b, uint8_t c, uint8_t d);
+void draw_channel_name(void* a);
+void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7);
 void draw_on_off_icon(uint16_t a, uint16_t b);
 void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18);
 int sub_8002976(uint16_t a, uint16_t b);
@@ -321,14 +337,16 @@ int si46xx_dab_tune_freq(uint8_t index);
 int si46xx_fm_tune_freq(uint16_t khz);
 int si46xx_dab_search(uint8_t* r7_4);
 int si46xx_fm_search(uint8_t* r7_4);
+int si46xx_dab_get_time_date(RTC_TimeTypeDef* r7_4, RTC_DateTypeDef* r7);
 int sub_8009868(uint8_t r7_4[]);
 int sub_8009f1c(uint8_t a);
 int sub_8009f70(uint8_t* a);
 int sub_8009fb0(int r7, uint8_t r7_7);
 int sub_800a174(void);
 int sub_800a1a4(uint8_t r7_7, uint8_t r7_6);
-void sub_800ac74(void);
-void sub_800acf0(void);
+int sub_800a68c(Struct_800a68c* r7_4);
+void channel_next(void);
+void channel_previous(void);
 void sub_800ad68(void);
 void sub_800adb8(void);
 int sub_800b398(uint16_t a, void* b);

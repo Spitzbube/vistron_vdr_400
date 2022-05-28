@@ -109,12 +109,12 @@ void sub_800173c(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8
    ili9341_fill_screen(0xffff);
    ili9341_draw_hor_line(0, 320, 48, 0);
    ili9341_draw_hor_line(0, 320, 192, 0);
-   sub_8001a14(r7_8);
+   draw_channel_name(r7_8);
    sub_8001f04(r7, r7_18);
 
-   sub_8001bd8(0x0c, 6, f, h & 4);
+   draw_channel_number_box(12, 6, f, h & 4);
 
-   sub_8001cc4(0x8e, 0x2a, g);
+   draw_signal_strength_bars(142, 42, g);
 
    sub_8001eb6(r7_7);
 
@@ -140,7 +140,7 @@ int sub_8001224(char* a)
 
 
 /* 8001a14 - todo */
-void sub_8001a14(void* a)
+void draw_channel_name(void* a)
 {
    uint16_t len;
 

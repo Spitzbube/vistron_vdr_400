@@ -166,7 +166,7 @@ void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, 
    if (r7_2 != 0)
    {
       sub_8002a60(r7_4, r7_2);
-      sub_8001cc4(142, 42, r7_14);
+      draw_signal_strength_bars(142, 42, r7_14);
    }
    //loc_800295e
    sub_8005198(273, 196, 0xffff, 7); //Back button
@@ -229,31 +229,89 @@ void sub_8002a60(struct_8008d84* r7_4, uint8_t r7_3)
 }
 
 
-/* 8002c04 - todo */
-void sub_8002c04(uint16_t a)
+const char* Data_8012cdc[] = //8012cdc
 {
+   "DAB", //0x080125c8
+   "FM", //0x080125cc
+   "RSSI:", //0x080125d0
+   "SNR:", //0x080125d8
+   "FIB:", //0x080125e0
+   "FREQ:", //0x080125e8
+   "dBuV", //0x080125f0
+   "dB", //0x080125f8
+   "MHz", //0x080125fc
+   "FM Radio", //0x08012600
+   "5A", //10 0x0801260c
+   "5B", //0x08012610
+   "5C", //0x08012614
+   "5D", //0x08012618
+   "6A", //0x0801261c
+   "6B", //0x08012620
+   "6C", //0x08012624
+   "6D", //0x08012628
+   "7A", //0x0801262c
+   "7B", //0x08012630
+   "7C", //0x08012634
+   "7D", //0x08012638
+   "8A", //0x0801263c
+   "8B", //0x08012640
+   "8C", //0x08012644
+   "8D", //0x08012648
+   "9A", //0x0801264c
+   "9B", //0x08012650
+   "9C", //0x08012654
+   "9D", //0x08012658
+   "10A", //0x0801265c
+   "10N", //0x08012660
+   "10B", //0x08012664
+   "10C", //0x08012668
+   "10D", //0x0801266c
+   "11A", //0x08012670
+   "11N",
+   "11B",
+   "11C",
+   "11D",
+   "12A",
+   "12N",
+   "12B",
+   "12C",
+   "12D",
+   "13A",
+   "13B",
+   "13C",
+   "13D",
+   "13E",
+   "13F",
+};
 
+/* 8002c04 - todo */
+void sub_8002c04(uint16_t r7_6)
+{
+   ili9341_draw_box(0, 24, Data_20000044.width * 10, 23, 0xffff);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 24);
+
+   if (r7_6 > 41)
+   {
+      ili9341_draw_format_string(" %3u.%02uMHz", r7_6 / 100, r7_6 % 100);
+   }
+   else
+   {
+      //loc_8002c7c
+      ili9341_draw_format_string(" MUX:%s", Data_8012cdc[r7_6 + 10]);
+   }
+   //loc_8002c8e
 }
 
 
 /* 800581e - todo */
-void sub_800581e(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t e)
+void sub_800581e(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, uint16_t e)
 {
-
-}
-
-
-/* 800ac74 - todo */
-void sub_800ac74(void)
-{
-
-}
-
-
-/* 800acf0 - todo */
-void sub_800acf0(void)
-{
-
+   ili9341_draw_hor_line(r7_6, r7_6 + r7_2, r7_4, e);
+   ili9341_draw_hor_line(r7_6, r7_6 + r7_2, r7_4 + r7, e);
+   ili9341_draw_vert_line(r7_6, r7_4, r7_4 + r7, e);
+   ili9341_draw_vert_line(r7_6 + r7_2, r7_4, r7_4 + r7, e);
 }
 
 
@@ -617,7 +675,7 @@ void sub_800bd2c(void)
          {
          case 3:
         	 //800be7c
-        	 sub_800ac74();
+        	 channel_next();
         	 sub_80028b8(r7_14, bData_20000a58, r7_18);
         	 sub_800abb0(&r7_14[bData_20000a58]);
         	 //->800C1E8
@@ -625,7 +683,7 @@ void sub_800bd2c(void)
 
          case 2:
         	 //800beaa
-        	 sub_800acf0();
+        	 channel_previous();
         	 sub_80028b8(r7_14, bData_20000a58, r7_18);
         	 sub_800abb0(&r7_14[bData_20000a58]);
         	 //->800C1E8
@@ -798,7 +856,7 @@ void sub_800bd2c(void)
     				  //0800c27a
     				  r7_1e = r7_4.bData_0;
 
-    				  sub_8001cc4(0x8e, 0x2a, &r7_4);
+    				  draw_signal_strength_bars(142, 42, &r7_4);
     			  }
     			  //loc_800c28a
     			  if (r7_4.bData_1 != r7_1d)
@@ -823,7 +881,7 @@ void sub_800bd2c(void)
     				  //0800c2e6
     				  r7_1e = r7_4.bData_0;
 
-    				  sub_8001cc4(0x8e, 0x2a, &r7_4);
+    				  draw_signal_strength_bars(142, 42, &r7_4);
     			  }
     			  //loc_800c2f6
     			  if (r7_4.bData_1 != r7_1d)
