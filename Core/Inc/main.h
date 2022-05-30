@@ -371,8 +371,28 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Button_Blue_Pin GPIO_PIN_4
+#define Button_Blue_GPIO_Port GPIOA
 #define Display_Backlight_Pin GPIO_PIN_5
 #define Display_Backlight_GPIO_Port GPIOA
+#define Touch_SPI_MISO_Pin GPIO_PIN_6
+#define Touch_SPI_MISO_GPIO_Port GPIOA
+#define Touch_SPI_MOSI_Pin GPIO_PIN_7
+#define Touch_SPI_MOSI_GPIO_Port GPIOA
+#define Button_Yellow_Pin GPIO_PIN_5
+#define Button_Yellow_GPIO_Port GPIOC
+#define Button_Red_Pin GPIO_PIN_0
+#define Button_Red_GPIO_Port GPIOB
+#define Button_Green_Pin GPIO_PIN_1
+#define Button_Green_GPIO_Port GPIOB
+#define SPI2_CS_SI46xx_Pin GPIO_PIN_12
+#define SPI2_CS_SI46xx_GPIO_Port GPIOB
+#define Touch_SPI_CLK_Pin GPIO_PIN_12
+#define Touch_SPI_CLK_GPIO_Port GPIOD
+#define Touch_SPI_IRQ_Pin GPIO_PIN_6
+#define Touch_SPI_IRQ_GPIO_Port GPIOB
+#define Touch_SPI_CS_Pin GPIO_PIN_7
+#define Touch_SPI_CS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

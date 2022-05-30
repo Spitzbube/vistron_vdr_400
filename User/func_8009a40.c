@@ -314,7 +314,8 @@ void draw_on_off_icon(uint16_t a, uint16_t b)
 /* 80045f8 - todo */
 void sub_80045f8(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3)
 {
-   HAL_GPIO_WritePin(GPIOA/*todo*/, GPIO_PIN_5, GPIO_PIN_SET);
+   // Display Backlight Off
+   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
    ili9341_fill_screen(0);
    ili9341_draw_hor_line(0, 320, 48, 0xffff);
