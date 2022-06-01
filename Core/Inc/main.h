@@ -153,9 +153,16 @@ typedef struct
    uint32_t frequency; //8
    uint8_t multipath; //12
    uint8_t freq_offset; //13
-
+   //16
 } Tuner_Values;
 
+
+typedef struct
+{
+   uint8_t arData_0[128]; //0
+   uint8_t bData_0x80; //0x80
+   //129
+} Struct_20000a78;
 
 typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
 
@@ -183,29 +190,42 @@ extern uint8_t bData_200000eb; //200000eb
 extern char Data_200000ec[]; //200000ec
 extern uint16_t wData_200001ec; //200001ec
 extern uint16_t wData_200001ee; //200001ee
-extern uint8_t Data_200001f0[]; //200001f0
-
+extern uint8_t si46xx_buffer[]; //200001f0
+extern uint8_t bData_200009f0; //200009f0
+extern int Data_200009f4; //200009f4
+extern int Data_200009f8; //200009f8
+extern uint8_t bData_200009fc; //200009fc
+extern uint8_t Data_20000a00[]; //20000a00
+extern uint8_t Data_20000a08[]; //20000a08
 extern Struct_20000a48 Data_20000a48; //20000a48
 //extern int Data_20000a4c; //20000a4c
 extern Struct_20000a4c Data_20000a4c; //20000a4c
 extern Struct_20000a50 Data_20000a50; //20000a50
+extern uint8_t bData_20000a54; //20000a54
+extern uint8_t bData_20000a55; //20000a55
 extern uint16_t wData_20000a56; //20000a56
-extern uint8_t bData_20000a58; //20000a58
+extern uint8_t bCurrentChannelNumber; //20000a58
 extern uint8_t bData_20000a59; //20000a59
+extern int8_t Data_20000a5a; //20000a5a
+extern Tuner_Values Data_20000a5c; //20000a5c
 extern uint8_t bData_20000a6c; //20000a6c
 extern uint8_t bData_20000a6d; //20000a6d
 extern RTC_TimeTypeDef Data_20000a70; //20000a70
 extern RTC_DateTypeDef Data_20000a74; //20000a74
+extern Struct_20000a78 Data_20000a78; //20000a78
+//extern int Data_20000af8; //20000af8
+extern Struct_20000a78 Data_20000afc; //20000afc
 extern uint8_t bData_20000b7d; //20000b7d
 extern Struct_20000b90 Data_20000b90; //20000b90
 extern Struct_20000bc0 Data_20000bc0;
+extern char** CurrentTextTable; //20000bc8
 extern char strFMVersion[]; //20000bcc
 extern char strDABVersion[]; //20000bd8
 extern uint8_t bData_20000be4; //20000be4
 extern struct_8008d84 Data_20000be8[]; //20000be8 +224
 extern struct_8008d84 Data_20000cc8[]; //20000cc8 +5600
 
-extern uint8_t bData_200022a8; //200022a8
+extern uint8_t bChannelCount; //200022a8
 extern SPI_HandleTypeDef hspi2; //200022ac
 extern I2C_HandleTypeDef hi2c2; //20002304
 extern TIM_HandleTypeDef htim5; //20002358
@@ -254,19 +274,28 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 
 int sub_8001224(char* a);
+void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t f, Tuner_Values* g, uint16_t h);
 void sub_8001eb6(uint8_t r7_7);
 void draw_channel_name(void* a);
+void draw_radio_text(void* r7_4, uint8_t r7_3);
 void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7);
+void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18);
+int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b);
 void draw_on_off_icon(uint16_t a, uint16_t b);
 void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6);
 void draw_snr_indicator(uint16_t r7_e, uint16_t r7_c, Tuner_Values* r7_8, uint8_t r7_7);
 void draw_channel_freq_mux_label(struct_8008d84* r7_4, uint8_t r7_3);
-void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18);
-int sub_8002976(uint16_t a, uint16_t b);
+void sub_80028b8(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_automatic_search_screen(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18);
+int menu_automatic_search_check_touch_fields(uint16_t a, uint16_t b);
 void draw_progress_bar(uint16_t r7_6, uint16_t r7_4, uint16_t r7_2, uint16_t r7);
+void draw_channel_list(struct_8008d84* r7_4, uint8_t r7_3);
 void draw_freq_mux_label(uint16_t a);
+void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
+void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3);
+void sub_80046d8(Struct_20000a4c* a);
 void sub_8004be8(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
 void sub_8004cb0(uint16_t, uint16_t, int, uint16_t);
@@ -277,6 +306,7 @@ void sub_8004f24(uint16_t, uint16_t, int, uint16_t);
 void sub_8004fc4(uint16_t, uint16_t, int, uint16_t);
 void sub_8005074(uint16_t, uint16_t, int, uint16_t);
 void sub_8005198(uint16_t a, uint16_t b, uint16_t c, uint8_t d);
+void menu_set_language(uint8_t a);
 void ili9341_init(void);
 void ili9341_fill_screen(uint16_t a);
 void ili9341_draw_vert_line(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
@@ -320,6 +350,7 @@ void sub_8006a70(int a);
 int sub_8006a8e(uint32_t addr, uint16_t data[], uint16_t r7_6);
 int sub_8006af4(uint32_t addr);
 void menu_main(void);
+int menu_channel_list(void);
 int menu_settings(void);
 int sub_8007114(void);
 int sub_80073c0(void);
@@ -344,22 +375,29 @@ int si46xx_fm_tune_freq(uint16_t khz);
 int si46xx_dab_search(uint8_t* r7_4);
 int si46xx_fm_search(uint8_t* r7_4);
 int si46xx_dab_get_time_date(RTC_TimeTypeDef* r7_4, RTC_DateTypeDef* r7);
+int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint16_t* r7_30, uint8_t* r7_34);
 int sub_8009868(uint8_t r7_4[]);
 int sub_8009f1c(uint8_t a);
 int sub_8009f70(uint8_t* a);
-int sub_8009fb0(int r7, uint8_t r7_7);
+int si46xx_get_digital_service_list(uint8_t r7_7, uint16_t* r7);
 int sub_800a174(void);
 int sub_800a1a4(uint8_t r7_7, uint8_t r7_6);
+int si46xx_start_fm_seek(void);
+void si46xx_get_rds_time(RTC_TimeTypeDef* a, RTC_DateTypeDef* b);
 int si46xx_get_fm_values(Tuner_Values* r7_4);
 int si46xx_get_dab_values(Tuner_Values* a);
+int si46xx_get_digital_service_data(uint8_t r7_4[], uint8_t* r7);
 void channel_next(void);
 void channel_previous(void);
-void sub_800abb0(struct_8008d84* a);
+void channel_set(struct_8008d84* a);
 void sub_800ad68(void);
 void sub_800adb8(void);
+void button_gpio_check(void);
 int sub_800b398(uint16_t a, void* b);
 int sub_800b43c(uint16_t a);
-void button_gpio_check(void);
+void sub_800b610(uint8_t a);
+int sub_800b8d4(uint8_t r7_f, uint32_t r7_8, uint32_t r7_4, uint8_t* r7);
+int sub_800ba74(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7);
 int sub_800bbbc(void);
 void menu_channel_select(void);
 int menu_automatic_search(void);

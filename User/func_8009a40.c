@@ -76,17 +76,30 @@ uint8_t bData_200000eb; //200000eb
 char Data_200000ec[256]; //200000ec, size?
 uint16_t wData_200001ec; //200001ec
 uint16_t wData_200001ee; //200001ee
-uint8_t Data_200001f0[100]; //200001f0 size?
+uint8_t si46xx_buffer[2048]; //200001f0 size?
+uint8_t bData_200009f0; //200009f0
+int Data_200009f4; //200009f4
+int Data_200009f8; //200009f8
+uint8_t bData_200009fc; //200009fc
+uint8_t Data_20000a00[8]; //20000a00, size?
+uint8_t Data_20000a08[0x40]; //20000a08, size?
 Struct_20000a48 Data_20000a48; //20000a48
 Struct_20000a4c Data_20000a4c; //20000a4c
 Struct_20000a50 Data_20000a50; //20000a50
+uint8_t bData_20000a54; //20000a54
+uint8_t bData_20000a55; //20000a55
 uint16_t wData_20000a56; //20000a56
-uint8_t bData_20000a58; //20000a58
+uint8_t bCurrentChannelNumber; //20000a58
 uint8_t bData_20000a59; //20000a59
+int8_t Data_20000a5a; //20000a5a
+Tuner_Values Data_20000a5c; //20000a5c
 uint8_t bData_20000a6c; //20000a6c
 uint8_t bData_20000a6d; //20000a6d
 RTC_TimeTypeDef Data_20000a70; //20000a70
 RTC_DateTypeDef Data_20000a74; //20000a74
+Struct_20000a78 Data_20000a78; //20000a78
+//int Data_20000af8; //20000af8
+Struct_20000a78 Data_20000afc; //20000afc
 uint8_t bData_20000b7d; //20000b7d
 Struct_20000b90 Data_20000b90; //20000b90
 Struct_20000bc0 Data_20000bc0;
@@ -96,25 +109,23 @@ char strDABVersion[12]; //20000bd8
 uint8_t bData_20000be4; //20000be4
 struct_8008d84 Data_20000be8[8]; //20000be8 +224
 struct_8008d84 Data_20000cc8[200]; //20000cc8 +5600
-uint8_t bData_200022a8; //200022a8
+uint8_t bChannelCount; //200022a8
 struct_8008d84* Data_200023e0; //200023e0
 
 extern int sub_800bc04(struct_8008d84* a, struct_8008d84* b, void* c, void* d);
 
 
 /* 800173c - todo */
-void sub_800173c(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, void* f, int g, uint16_t h)
-//new: RTC_TimeTypeDef a, void* b, uint8_t c, void* d, uint8_t e, int f, void* g, uint16_t h
+void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t channel_nr, Tuner_Values* g, uint16_t h)
 {
    ili9341_fill_screen(0xffff);
    ili9341_draw_hor_line(0, 320, 48, 0);
    ili9341_draw_hor_line(0, 320, 192, 0);
+
    draw_channel_name(r7_8);
-   sub_8001f04(r7, r7_18);
-
-   draw_channel_number_box(12, 6, f, h & 4);
-
-   draw_signal_strength_bars(142, 42, g);
+   draw_radio_text(r7, r7_18);
+   draw_channel_number_box(12, 6, channel_nr, h & 4);
+   draw_signal_strength_bars(142, 42, &g->rssi);
 
    sub_8001eb6(r7_7);
 
@@ -144,7 +155,7 @@ void draw_channel_name(void* a)
 {
    uint16_t len;
 
-   if (bData_200022a8 != 0)
+   if (bChannelCount != 0)
    {
       ili9341_set_font(&Data_2000004c);
       ili9341_draw_box(0, 63, 320, 24, 0xffff);
@@ -312,10 +323,10 @@ void draw_on_off_icon(uint16_t a, uint16_t b)
 
 
 /* 80045f8 - todo */
-void sub_80045f8(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3)
+void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3)
 {
    // Display Backlight Off
-   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_SET);
 
    ili9341_fill_screen(0);
    ili9341_draw_hor_line(0, 320, 48, 0xffff);
@@ -450,143 +461,6 @@ void sub_8005198(uint16_t x, uint16_t y, uint16_t color, uint8_t r7_1)
    (Funcs_20000000)[r7_1](x + 18, y + 18, 0, color);
 
    ili9341_draw_rect(x, y, 36, 36, 0);
-}
-
-char* EnglishTextTable[] = //8012dc0
-{
-	"CHAN.UP",
-	"CHAN.DOWN",
-	"VOL.UP",
-	"VOL.DOWN",
-	"MUX.UP",
-	"MUX.DOWN",
-	"No new channel found!",
-	"No signal!",
-	"No channel", //TEXT_ID_NO_CHANNEL
-	"FAV-list full!",
-	"OK",
-	"Exit",
-	"Menu",
-	"Main menu", //TEXT_ID_MAIN_MENU
-	"Up",
-	"Down",
-	"Delete",
-	"Next",
-	"Channel list", //TEXT_ID_CHANNEL_LIST
-	"Settings", //TEXT_ID_SETTINGS
-	"Factory reset",
-	"Alarm",  //TEXT_ID_ALARM
-	"Information",
-	"Automatic search", //TEXT_ID_AUTOMATIC_SEARCH
-	"Manual search",
-	"Delete channel",
-	"Manual search DAB",
-	"Manual search FM",
-	"Language", //TEXT_ID_LANGUAGE
-	"Sleep-Timer",
-	"Auto-Standby",
-	"Continue?",
-	"NO",
-	"YES",
-	"Deutsch", //TEXT_ID_GERMAN
-	"English",
-	"Volume",
-	"Off",
-	"On",
-	"Signal information",
-	"Channel:",
-	"Multiplex:",
-	"Frequency:",
-	"Level:",
-	"SNR:",
-	"Error rate:",
-	"Multipath:",
-	"Freq.offset:",
-	"Audio information",
-	"Data rate:",
-	"Sampl.frequency:",
-	"Audio mode:",
-	"Stereo separation:",
-	"Product:",
-	"Hardware:",
-	"Software:",
-	"DAB Firmware:",
-	"FM Firmware:",
-};
-
-char* GermanTextTable[] = //8012ea8
-{
-	"KAN.OBEN",
-	"KAN.NIEDER",
-	"LAUT.OBEN",
-	"LAUT.NIEDER",
-	"MUX.OBEN",
-	"MUX.NIEDER",
-	"Kein neuer Sender gefunden",
-	"Kein Signal!",
-	"Kein Sender",
-	"FAV-Liste voll!",
-	"OK",
-	"Zurück",
-	"Menü",
-	"Hauptmenü",
-	"Ab",
-	"Auf",
-	"Löschen",
-	"N.hste",
-	"Senderliste",
-	"Einstellungen",
-	"Werkzustand",
-	"Wecker",
-	"Information",
-	"Automatische Suche",
-	"Manuelle Suche",
-	"Sender löschen",
-	"Manuelle Suche DAB",
-	"Manuelle Suche FM",
-	"Sprache",
-	"Sleep-Timer",
-	"Autom. Abschaltung",
-	"Weiter?",
-	"NEIN",
-	"JA",
-	"Deutsch",
-	"English",
-	"Lautstärke",
-	"Aus",
-	"Ein",
-	"Empfang",
-	"Sendername:",
-	"Multiplex:",
-	"Frequenz:",
-	"Pegel:",
-	"SNR:",
-	"Fehlerrate:",
-	"Mehrweg:",
-	"Frek.offset:",
-	"Audio Information",
-	"Datenrate:",
-	"Abtastfreq.:",
-	"Audio Modus:",
-	"Stereo Tren:",
-	"Produkt:",
-	"Hardware:",
-	"Software:",
-	"DAB Firmware:",
-	"FM Firmware:",
-};
-
-/* 8005204 - todo */
-void sub_8005204(uint8_t a)
-{
-   if (a == 1)
-   {
-      CurrentTextTable = EnglishTextTable;
-   }
-   else
-   {
-      CurrentTextTable = GermanTextTable;
-   }
 }
 
 
@@ -1071,393 +945,6 @@ void sub_8006a70(int a)
 }
 
 
-/* 8006d40 - todo */
-int menu_channel_list(void)
-{
-   typedef int (*funcs)(void);
-   funcs r7_4[] = //8012c68
-   {
-	  menu_automatic_search, //Automatic search
-	  sub_8007415, //Manual search
-	  sub_80075e9 //Delete channel
-   };
-   uint8_t r7_17 = 0;
-   uint8_t r7_16 = 1;
-   uint8_t itemSelected = 0;
-   uint8_t itemIndex = 0;
-   uint8_t oldItem = 0;
-   uint8_t r7_12;
-   uint8_t r7_11;
-
-   sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
-
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
-   //->loc_8006f00
-   while (r7_16 != 0)
-   {
-      //loc_8006d7e
-      r7_12 = 0;
-      if (Data_20000a48.bData_0 == 0)
-      {
-         r7_12 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
-      }
-      //loc_8006d96
-      r7_11 = 0;
-      if (Data_20000bc0.bData_0 == 0)
-      {
-         r7_11 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
-      }
-      //loc_8006db6
-      if ((r7_11 | r7_12) != 0)
-      {
-         switch (r7_11 | r7_12)
-         {
-            case 3:
-               //0x08006e41
-               itemIndex++;
-               if (itemIndex == TEXT_ID_CHANNEL_LIST_ITEMS) itemIndex = 0;
-               break;
-
-            case 2:
-               //0x08006e53
-               itemIndex--;
-               if (itemIndex == 0xff) itemIndex = 2;
-               break;
-
-            case 4:
-               //0x08006e65
-               itemSelected = 1;
-               break;
-
-            case 5:
-               //0x08006e6b
-               r7_16 = 0;
-               break;
-
-            case 25:
-               //0x08006e71
-               itemIndex = 0;
-               itemSelected = 1;
-               break;
-
-            case 26:
-               //0x08006e7b
-               itemIndex = 1;
-               itemSelected = 1;
-               break;
-
-            case 27:
-               //0x08006e85
-               itemIndex = 2;
-               itemSelected = 1;
-               break;
-
-            default:
-               //0x08006e8f
-               break;
-         }
-      }
-      //loc_8006ea4
-      if (itemSelected != 0)
-      {
-         itemSelected = 0;
-
-         if (0 != r7_4[itemIndex]())
-         {
-            wData_20000a56 |= 0x02;
-            r7_16 = 0;
-            r7_17 = 1;
-         }
-         else
-         {
-            //loc_8006edc
-            Data_20000bc0.bData_0 = 1;
-            Data_20000a48.bData_0 = 1;
-
-            sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
-         }
-      }
-      //loc_8006ee8
-      if (itemIndex != oldItem)
-      {
-         oldItem = itemIndex;
-
-         sub_8002cac(TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
-      }
-   }
-
-   return r7_17;
-}
-
-
-/* 8006b3c - todo */
-void menu_main(void)
-{
-   typedef int (*funcs)(void);
-   funcs r7_4[] = //8012c54
-   {
-      menu_channel_list, //Channel list
-	  menu_settings, //Settings
-	  sub_80088cc, //Factory reset
-	  sub_8007114, //Alarm
-	  sub_80073c0 //Information
-   };
-   uint8_t r7_1f = 1;
-   uint8_t itemSelected = 0;
-   uint8_t itemIndex = 0;
-   uint8_t oldItem = 0;
-   uint8_t r7_1b;
-   uint8_t r7_1a;
-
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
-
-   sub_8002d70(TEXT_ID_MAIN_MENU, TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
-   //->loc_8006d20
-   while (r7_1f != 0)
-   {
-      //loc_8006b7a
-      r7_1b = 0;
-      if (Data_20000a48.bData_0 == 0)
-      {
-         r7_1b = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
-      }
-      //loc_8006b92
-      r7_1a = 0;
-      if (Data_20000bc0.bData_0 == 0)
-      {
-         r7_1a = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
-      }
-      //loc_8006bb2
-      if ((r7_1a | r7_1b) != 0)
-      {
-         switch (r7_1a | r7_1b)
-         {
-            case 3:
-               //0x08006c45: blue
-               itemIndex++;
-               if (itemIndex == TEXT_ID_MAIN_MENU_ITEMS) itemIndex = 0;
-               //->8006CAA
-               break;
-
-            case 2:
-               //0x08006c57: green
-               itemIndex--;
-               if (itemIndex == 0xff) itemIndex = TEXT_ID_MAIN_MENU_ITEMS - 1;
-               //->8006CAE
-               break;
-
-            case 4:
-               //0x08006c69: yellow
-               itemSelected = 1;
-               //->8006CB0
-               break;
-
-            case 5:
-               //0x08006c6f: white (back)
-               r7_1f = 0;
-               //->8006CB0
-               break;
-
-            case 25:
-               //0x08006c75
-               itemIndex = 0;
-               itemSelected = 1;
-               break;
-
-            case 26:
-               //0x08006c7f
-               itemIndex = 1;
-               itemSelected = 1;
-               break;
-
-            case 27:
-               //0x08006c89
-               itemIndex = 2;
-               itemSelected = 1;
-               break;
-
-            case 28:
-               //0x08006c93
-               itemIndex = 3;
-               itemSelected = 1;
-               break;
-
-            case 29:
-               //0x08006c9d
-               itemIndex = 4;
-               itemSelected = 1;
-               break;
-
-            default:
-               //0x08006ca7
-               //->loc_8006cb0
-               break;
-         }
-         //loc_8006cb0
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
-      }
-      //loc_8006cbc
-      if (itemSelected != 0)
-      {
-         itemSelected = 0;
-
-         if (0 != r7_4[itemIndex]())
-         {
-            wData_20000a56 |= 0x02;
-            r7_1f = 0;
-         }
-         else
-         {
-            //loc_8006cf0
-            Data_20000bc0.bData_0 = 1;
-            Data_20000a48.bData_0 = 1;
-
-            sub_8002d70(TEXT_ID_MAIN_MENU, TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
-         }
-      }
-      //loc_8006d08
-      if (itemIndex != oldItem)
-      {
-         oldItem = itemIndex;
-
-         sub_8002cac(TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
-      }
-      //loc_8006d20
-   }
-}
-
-
-/* 8006f24 - todo */
-int menu_settings(void)
-{
-   typedef int (*funcs)(void);
-   funcs r7_4[] = //8012c74
-   {
-	  menu_language, //Language
-	  sub_8008200, //Sleep-Timer
-	  sub_800837c, //Auto-Standby
-   };
-   uint8_t r7_17 = 0;
-   uint8_t r7_16 = 1;
-   uint8_t itemSelected = 0;
-   uint8_t itemIndex = 0;
-   uint8_t oldItem = 0;
-   uint8_t r7_12;
-   uint8_t r7_11;
-
-   sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
-
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
-   //->loc_80070f0
-   while (r7_16 != 0)
-   {
-      //loc_8006f62
-	  r7_12 = 0;
-	  if (Data_20000a48.bData_0 == 0)
-	  {
-         r7_12 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
-	  }
-
-	  r7_11 = 0;
-	  if (Data_20000bc0.bData_0 == 0)
-	  {
-         r7_11 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
-	  }
-
-	  if ((r7_11 | r7_12) != 0)
-	  {
-         switch (r7_11 | r7_12)
-         {
-            case 3:
-               //0x08007025
-               itemIndex++;
-               if (itemIndex == 3) itemIndex = 0;
-               break;
-
-            case 2:
-               //0x08007037
-               itemIndex--;
-               if (itemIndex == 0xff) itemIndex = 2;
-               break;
-
-            case 4:
-               //0x08007049
-               itemSelected = 1;
-               break;
-
-            case 5:
-               //0x0800704f
-               r7_16 = 0;
-               break;
-
-            case 25:
-               //0x08007055
-               itemIndex = 0;
-               itemSelected = 1;
-               break;
-
-            case 26:
-               //0x0800705f
-               itemIndex = 1;
-               itemSelected = 1;
-               break;
-
-            case 27:
-               //0x08007069
-               itemIndex = 2;
-               itemSelected = 1;
-               break;
-
-            default:
-               //0x08007073
-               //->loc_800707c
-               break;
-         }
-         //loc_800707c
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
-	  }
-	  //loc_8007088
-	  if (itemSelected != 0)
-	  {
-         itemSelected = 0;
-
-         if (0 != r7_4[itemIndex]())
-         {
-            wData_20000a56 |= 0x02;
-            r7_16 = 0;
-            r7_17 = 1;
-         }
-         else
-         {
-            //loc_80070c0
-            sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
-
-            Data_20000bc0.bData_0 = 1;
-            Data_20000a48.bData_0 = 1;
-         }
-	  }
-	  //loc_80070d8
-	  if (itemIndex != oldItem)
-	  {
-         oldItem = itemIndex;
-
-         sub_8002cac(TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
-	  }
-	  //loc_80070f0
-   }
-
-   return r7_17;
-}
-
-
 /* 8007114 - todo */
 int sub_8007114(void)
 {
@@ -1498,99 +985,6 @@ int sub_80075e9(void)
 }
 
 
-/* 8008030 - todo */
-int menu_language(void)
-{
-   uint8_t r7_7 = 1;
-   uint8_t itemIndex = Data_20000a50.b2;
-   uint8_t oldItem = Data_20000a50.b2;
-   uint8_t r7_4;
-   uint8_t r7_3;
-   uint8_t r7_2 = Data_20000a50.b2;
-
-   sub_8002d70(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
-
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
-   //->loc_80081d4
-   while (r7_7 != 0)
-   {
-      //loc_8008078
-      r7_4 = 0;
-      if (Data_20000a48.bData_0 == 0)
-      {
-         r7_4 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
-      }
-      //loc_8008090
-      r7_3 = 0;
-      if (Data_20000bc0.bData_0 == 0)
-      {
-         r7_3 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
-      }
-      //loc_80080b0
-      if ((r7_3 | r7_4) != 0)
-      {
-         switch (r7_3 | r7_4)
-         {
-            case 2:
-               //0x08008135
-               itemIndex++;
-               if (itemIndex == 2) itemIndex = 0;
-               break;
-
-            case 3:
-               //0x08008147
-               itemIndex--;
-               if (itemIndex == 0xff) itemIndex = 1;
-               break;
-
-            case 4:
-               //0x08008159
-               r7_3 = itemIndex + 25;
-               //break; //fall through
-
-            case 25:
-            case 26:
-               //0x0800815f
-               if (r7_2 != (r7_3 - 25))
-               {
-                  Data_20000a50.b2 = (r7_3 - 25) & 1;
-                  sub_8005204(Data_20000a50.b2);
-                  sub_800ba74(Data_20000cc8, Data_20000be8, &Data_20000a4c, &Data_20000a50);
-               }
-               //800819A
-               r7_7 = 0;
-               break;
-
-            case 5:
-               //0x080081a1
-               r7_7 = 0;
-               break;
-
-            default:
-               //0x080081a7
-               //->loc_80081b0
-               break;
-         }
-         //loc_80081b0
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
-      }
-      //loc_80081bc
-      if (itemIndex != oldItem)
-      {
-         oldItem = itemIndex;
-
-         sub_8002cac(TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
-      }
-      //loc_80081d4
-   }
-
-   return 0;
-}
-
-
 /* 8008200 - todo */
 int sub_8008200(void)
 {
@@ -1618,7 +1012,7 @@ int sub_800b494(struct_8008d84* r7_4)
    uint8_t r7_f = 0xff;
    uint8_t r7_e = 0;
 
-   for (; r7_e < bData_200022a8; r7_e++)
+   for (; r7_e < bChannelCount; r7_e++)
    {
       //loc_800b4a6
       if (0 == memcmp(&Data_20000cc8[r7_e], r7_4, sizeof(struct_8008d84)))
@@ -1673,7 +1067,7 @@ int menu_automatic_search(void)
 
    sub_800b5e0();
 
-   sub_80028f2(Data_20000cc8, 0, bData_200022a8, 0, 0x29, &r7_4, 0);
+   draw_automatic_search_screen(Data_20000cc8, 0, bChannelCount, 0, 41, &r7_4, 0);
 
    si46xx_mute(1);
 
@@ -1690,7 +1084,7 @@ int menu_automatic_search(void)
       r7_17 += r7_14;
    }
    //loc_800c3b0
-   sub_80028f2(Data_20000cc8, 0, bData_200022a8, 0, 0x7f8, &r7_4, 8750);
+   draw_automatic_search_screen(Data_20000cc8, 0, bChannelCount, 0, 2040/*10790-8750*/, &r7_4, 8750);
 
    si46xx_start_fm(bData_20000057);
 
@@ -1720,7 +1114,7 @@ int menu_automatic_search(void)
       sub_800b2ac(&Data_20000a4c, &Data_20000a50);
    }
    //loc_800c42e
-   bData_20000a58 = 0;
+   bCurrentChannelNumber = 0;
 
    return r7_15;
 }

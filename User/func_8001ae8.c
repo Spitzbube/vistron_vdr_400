@@ -59,6 +59,75 @@ void sub_8001b60(RTC_TimeTypeDef a)
 }
 
 
+/* 8001f04 - todo */
+void draw_radio_text(void* r7_4, uint8_t r7_3)
+{
+   uint8_t r7_1f;
+   uint8_t r7_1e;
+   uint8_t r7_1d;
+   uint8_t* r7_18;
+   uint8_t* r7_14;
+   uint8_t* r7_10;
+   uint8_t r7_f = 0;
+
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_draw_box(0, 120, 320, 71, 0xffff);
+
+   r7_18 = r7_4;
+   r7_10 = r7_18;
+
+   if ((r7_3 * Data_20000044.width) > 320)
+   {
+      for (r7_1e = 0; r7_1e < 3; r7_1e++)
+      {
+         //loc_8001f56
+         r7_1d = 0;
+         for (r7_1f = 0; r7_1f < (320 / Data_20000044.width); r7_1f++)
+         {
+            //loc_8001f60
+        	if ((r7_f + r7_1f) == r7_3)
+        	{
+               //->loc_8001f9c
+        	   break;
+        	}
+
+            if (*r7_18++ == ' ')
+            {
+               r7_14 = r7_18;
+               r7_1d = r7_1f;
+            }
+            //loc_8001f80
+         }
+         //loc_8001f9c
+         //loc_8001f9e
+         if (r7_1d != r7_1f)
+         {
+            r7_18 = r7_14;
+            r7_f = r7_1d + r7_f + 1;
+            //->loc_8001fce
+         }
+         else
+         {
+            //loc_8001fb8
+            r7_f += 320 / Data_20000044.width;
+         }
+         //loc_8001fce
+         ili9341_set_cursor(160 - r7_1d * Data_20000044.width / 2, r7_1e * 24 + 120);
+         ili9341_draw_string(r7_10, r7_1d);
+         r7_10 = r7_18;
+      }
+      //->loc_8002046
+   }
+   else
+   {
+      //loc_800201c
+      ili9341_set_cursor(160 - r7_3 * Data_20000044.width / 2, 120);
+      ili9341_draw_string(r7_4, r7_3);
+   }
+}
+
+
 /* 8002054 - todo */
 void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18)
 {
@@ -92,7 +161,7 @@ void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, u
 
 
 /* 8002128 - todo */
-int sub_8002128(uint16_t a, uint16_t b)
+int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
 {
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
@@ -229,7 +298,7 @@ void sub_80028b8(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2)
 
 
 /* 80028f2 - todo */
-void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
+void draw_automatic_search_screen(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
 {
    ili9341_fill_screen(0xffff);
    ili9341_draw_hor_line(0, 320, 48, 0);
@@ -239,7 +308,7 @@ void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, 
 
    if (r7_2 != 0)
    {
-      sub_8002a60(r7_4, r7_2);
+      draw_channel_list(r7_4, r7_2);
       draw_signal_strength_bars(142, 42, r7_14);
    }
    //loc_800295e
@@ -248,7 +317,7 @@ void sub_80028f2(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, 
 
 
 /* 8002976 - todo */
-int sub_8002976(uint16_t a, uint16_t b)
+int menu_automatic_search_check_touch_fields(uint16_t a, uint16_t b)
 {
 
 }
@@ -266,17 +335,17 @@ void draw_progress_bar(uint16_t x, uint16_t y, uint16_t currentValue, uint16_t m
 
 
 /* 8002a60 - todo */
-void sub_8002a60(struct_8008d84* r7_4, uint8_t r7_3)
+void draw_channel_list(struct_8008d84* r7_4, uint8_t r7_3)
 {
    uint8_t r7_f;
-   uint8_t r7_e = (r7_3 < 5)? 5: r7_3 - 5;
+   uint8_t r7_e = (r7_3 < 6)? 0: r7_3 - 5;
    uint8_t r7_d;
 
    ili9341_draw_box(0, 72, 295, 119, 0xffff);
    ili9341_set_font(&Data_20000044);
    ili9341_set_text_color(0, 0xffff);
 
-   for (r7_f = 0; (r7_e + r7_f) < 0; r7_f++)
+   for (r7_f = 0; (r7_e + r7_f) < r7_3; r7_f++)
    {
       //loc_8002aa4
       ili9341_set_cursor(0, r7_f * 24 + 72);
@@ -708,282 +777,4 @@ int sub_8006af4(uint32_t addr)
    return r7_1f;
 }
 
-
-/* 800bd2c - todo */
-void menu_channel_select(void)
-{
-   uint8_t r7_1f = 1;
-   int8_t r7_1e;
-   int8_t r7_1d;
-   uint8_t r7_1c;
-   uint8_t r7_1b;
-   uint8_t r7_1a;
-   uint8_t r7_19 = bData_20000a58;
-   uint8_t r7_18;
-   struct_8008d84* r7_14;
-   Tuner_Values r7_4 = {0};
-
-   r7_1e = 0;
-   r7_1d = 0;
-   r7_1a = 0;
-   r7_18 = (wData_20000a56 & 0x04)? bData_20000be4: bData_200022a8;
-   r7_14 = (wData_20000a56 & 0x04)? Data_20000be8: Data_20000cc8;
-
-   if (bData_200022a8 == 0)
-   {
-      return;
-   }
-
-   sub_8002054(r7_14, bData_20000a58, r7_18, &r7_4, bData_20000057);
-
-   Data_20000bc0.bData_0 = 1;
-   //->loc_800c312
-   while (r7_1f != 0)
-   {
-      //loc_800bda8
-      r7_18 = (wData_20000a56 & 0x04)? bData_20000be4: bData_200022a8;
-      r7_1c = 0;
-
-      if (Data_20000a48.bData_0 == 0)
-      {
-         r7_1c = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
-      }
-      //loc_800bdd8
-      r7_1b = 0;
-
-      if (Data_20000bc0.bData_0 == 0)
-      {
-         r7_1b = sub_8002128(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
-      }
-      //loc_800bdf8
-      if ((r7_1b | r7_1c) != 0)
-      {
-         switch (r7_1b | r7_1c)
-         {
-         case 3:
-        	 //800be7c
-        	 channel_next();
-        	 sub_80028b8(r7_14, bData_20000a58, r7_18);
-        	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 //->800C1E8
-        	 break;
-
-         case 2:
-        	 //800beaa
-        	 channel_previous();
-        	 sub_80028b8(r7_14, bData_20000a58, r7_18);
-        	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 //->800C1E8
-        	 break;
-
-         case 4:
-        	 //800bed8
-        	 r7_1f = 0;
-        	 if (r7_1a != 0)
-        	 {
-        		 sub_800ba74(Data_20000cc8, Data_20000be8, &Data_20000a4c, &Data_20000a50);
-        	 }
-        	 //->800C1C6
-        	 break;
-
-         case 1:
-        	 //800bef2
-        	 if ((wData_20000a56 & 4) == 0)
-        	 {
-        		 sub_800b610(bData_20000a58);
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-        		 r7_1a = 1;
-        	 }
-        	 //800C1CA
-        	 break;
-
-         case 5:
-        	 //800bf1e
-        	 bData_20000a58 = r7_19;
-        	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 r7_1f = 0;
-        	 //->800C1E8
-        	 break;
-
-         case 7:
-        	 //800bf44
-        	 if (r7_18 != 0)
-        	 {
-        		 bData_20000a58 -= 2; //TODO
-
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 }
-        	 //800C1CE
-        	 break;
-
-         case 8:
-        	 //800bf8a
-        	 if (r7_18 > 1)
-        	 {
-        		 bData_20000a58 -= 1; //TODO
-
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 }
-        	 //800C1D2
-        	 break;
-
-         case 9:
-        	 //800bfd0
-        	 if ((r7_18 > 2) && (bData_20000a58 < 2))
-        	 {
-        		 bData_20000a58 = 2;
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 }
-        	 //800C1D6
-        	 break;
-
-         case 10:
-        	 //800c040
-        	 if ((r7_18 > 3) && ((bData_20000a58 + 1) < r7_18))
-        	 {
-        		 bData_20000a58++;
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 }
-        	 //800C1DA
-        	 break;
-
-         case 11:
-        	 //800c08c
-        	 if ((r7_18 > 4) && ((bData_20000a58 + 2) < r7_18))
-        	 {
-        		 bData_20000a58 += 2;
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 }
-        	 //800C1DE
-        	 break;
-
-         case 12:
-        	 //800c0d8
-        	 if (r7_18 > 4)
-        	 {
-        		 if (bData_20000a58 == 0)
-        		 {
-        			 bData_20000a58 = r7_18 - 1;
-        			 //->800C118
-        		 }
-        		 //800C0F4
-        		 else if (bData_20000a58 > 4)
-        		 {
-        			 bData_20000a58 -= 5; //TODO
-        			 //->800C118
-        		 }
-        		 else
-        		 {
-        			 //800C112
-        			 bData_20000a58 = 0;
-        		 }
-        		 //800C118
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-            	 //->800C1E2
-        	 }
-        	 //800C1E2
-        	 break;
-
-         case 13:
-        	 //800c142
-        	 if (r7_18 > 4)
-        	 {
-        		 if ((bData_20000a58 + 1) < r7_18)
-        		 {
-        			 bData_20000a58 = ((bData_20000a58 + 5) > r7_18)? r7_18 - 1: bData_20000a58 + 5;
-        			 //->800C17C
-        		 }
-        		 else
-        		 {
-        			 //800C176
-        			 bData_20000a58 = 0;
-        		 }
-        		 //800C17C
-        		 sub_80028b8(r7_14, bData_20000a58, r7_18);
-            	 sub_800abb0(&r7_14[bData_20000a58]);
-        	 }
-        	 //800C1E6
-        	 break;
-
-         case 24:
-        	 //800c1a6
-        	 sub_8008554();
-        	 sub_8002054(r7_14, bData_20000a58, r7_18, &r7_4, bData_20000057);
-        	 //800C1E8
-        	 break;
-
-         default:
-        	 //loc_800c1c2 -> loc_800c1e8
-        	 break;
-
-         }//switch ((r7_1b | r7_1c))
-         //loc_800c1e8
-    	 Data_20000bc0.bData_0 = 1;
-      } //if ((r7_1b | r7_1c) != 0)
-      //loc_800c1ee
-      if (wData_20000a56 & 0x10)
-      {
-    	  wData_20000a56 &= ~0x10;
-
-    	  if ((Data_20000cc8[bData_20000a58].wData_24 < 41) && (Data_20000cc8[bData_20000a58].service_id != 0))
-    	  {
-    		  //0800c23c
-    		  si46xx_get_dab_values(&r7_4);
-    		  if (0 == si46xx_get_dab_values(&r7_4))
-    		  {
-    			  //0800c252
-    			  if (r7_4.rssi/5 != r7_1e/5)
-    			  {
-    				  //0800c27a
-    				  r7_1e = r7_4.rssi;
-
-    				  draw_signal_strength_bars(142, 42, &r7_4.rssi);
-    			  }
-    			  //loc_800c28a
-    			  if (r7_4.snr != r7_1d)
-    			  {
-    				  //0800c296
-    				  r7_1d = r7_4.snr;
-
-    				  draw_snr_indicator(0xde, 0x07, &r7_4, 1);
-    			  }
-    			  //loc_800c312
-    		  }
-    		  //loc_800c312
-    	  }
-    	  else
-    	  {
-        	  //loc_800c2a8
-    		  si46xx_get_fm_values(&r7_4);
-    		  if (0 == si46xx_get_fm_values(&r7_4))
-    		  {
-    			  if (r7_4.rssi/5 != r7_1e/5)
-    			  {
-    				  //0800c2e6
-    				  r7_1e = r7_4.rssi;
-
-    				  draw_signal_strength_bars(142, 42, &r7_4.rssi);
-    			  }
-    			  //loc_800c2f6
-    			  if (r7_4.snr != r7_1d)
-    			  {
-    				  //0800c302
-    				  r7_1d = r7_4.snr;
-
-    				  draw_snr_indicator(0xde, 0x07, &r7_4, 1);
-    			  }
-    		  }
-    	  }
-      }
-      //loc_800c312 -> loc_800bda8
-   } //while (r7_1f != 0)
-   //loc_800c31a
-}
 
