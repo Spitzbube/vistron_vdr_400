@@ -4,6 +4,10 @@ TOOLCHAIN_ROOT:=~/opt/xPacks/arm-none-eabi-gcc/xpack-arm-none-eabi-gcc-9.2.1-1.1
 TOOLCHAIN_PATH:=$(TOOLCHAIN_ROOT)/bin
 TOOLCHAIN_PREFIX:=arm-none-eabi
 
+# Optimization level, can be [0, 1, 2, 3, s].
+OPTLVL:=0 #1
+DBG:=-g
+
 STARTUP:=$(CURDIR)/Core/Startup
 LINKER_SCRIPT:=$(CURDIR)/STM32F103VETX_FLASH.ld
 
@@ -25,6 +29,7 @@ SRC+=main.c
 CDEFS+=-DSTM32F103xE
 
 MCUFLAGS=-mcpu=cortex-m3 -mthumb
+COMMONFLAGS=-O$(OPTLVL) $(DBG)
 CFLAGS=$(COMMONFLAGS) $(MCUFLAGS) $(INCLUDE) $(CDEFS)
 
 LDFLAGS=$(MCUFLAGS) -u _scanf_float -u _printf_float -fno-exceptions -Wl,--gc-sections,-T$(LINKER_SCRIPT),-Map,$(BIN_DIR)/$(TARGET).map
