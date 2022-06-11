@@ -18,13 +18,15 @@ INCLUDE+=-I$(FREERTOS)/portable/GCC/ARM_CM3
 INCLUDE+=-I$(CURDIR)/Drivers/CMSIS/Device/ST/STM32F1xx/Include
 INCLUDE+=-I$(CURDIR)/Drivers/CMSIS/Include
 INCLUDE+=-I$(CURDIR)/Core/Inc
+INCLUDE+=-I$(CURDIR)/Drivers/STM32F1xx_HAL_Driver/Inc
 
 BUILD_DIR = $(CURDIR)/build
 BIN_DIR = $(CURDIR)/binary
 
 vpath %.c $(FREERTOS) \
           $(FREERTOS)/portable/MemMang \
-          $(FREERTOS)/portable/GCC/ARM_CM3 
+          $(FREERTOS)/portable/GCC/ARM_CM3 \
+          $(CURDIR)/Drivers/STM32F1xx_HAL_Driver/Src
 
 ASRC=startup_stm32f103vetx.s
 
@@ -37,6 +39,12 @@ SRC+=port.c
 SRC+=list.c
 SRC+=tasks.c
 SRC+=heap_4.c
+
+SRC+=stm32f1xx_hal.c
+SRC+=stm32f1xx_hal_cortex.c
+SRC+=stm32f1xx_hal_rcc.c
+SRC+=stm32f1xx_hal_rcc_ex.c
+SRC+=stm32f1xx_hal_gpio.c
 
 CDEFS+=-DSTM32F103xE
 
