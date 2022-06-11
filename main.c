@@ -3,14 +3,6 @@
 #include "task.h"
 #include "stm32f1xx.h"
 
-// delay loop for 8 MHz CPU clock with optimizer enabled
-void delay(uint32_t msec)
-{
-    for (uint32_t j=0; j < 500UL * msec; j++)
-    {
-        __NOP();
-    }
-}
 
 #define LED_TASK_STACK_SIZE 256
 void LED1_Task(void* p)
@@ -29,7 +21,7 @@ void LED1_Task(void* p)
 			GPIOE->BSRR |= GPIO_BSRR_BS5;
 			on = 1;
 		}
-	    delay(250);
+	    vTaskDelay(pdMS_TO_TICKS(250));
 	}
 }
 
@@ -49,12 +41,14 @@ void LED2_Task(void* p)
 			GPIOE->BSRR |= GPIO_BSRR_BS6;
 			on = 1;
 		}
-	    delay(500);
+	    vTaskDelay(pdMS_TO_TICKS(500));
 	}
 }
 
 int main(void)
 {
+	SystemCoreClockUpdate();
+
     // Enable Port E and alternate functions
     RCC->APB2ENR |= RCC_APB2ENR_IOPEEN;
 
