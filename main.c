@@ -1,5 +1,6 @@
 
-
+#include "FreeRTOS.h"
+#include "task.h"
 #include "stm32f1xx.h"
 
 // delay loop for 8 MHz CPU clock with optimizer enabled
@@ -21,16 +22,41 @@ int main(void)
     GPIOE->CRL &= ~(GPIO_CRL_CNF6 + GPIO_CRL_MODE6 + GPIO_CRL_CNF5 + GPIO_CRL_MODE5);
     GPIOE->CRL |= GPIO_CRL_MODE6_0 + GPIO_CRL_MODE5_0;
 
-    while(1)
-    {
-        // LED Pin -> High
-        GPIOE->BSRR |= GPIO_BSRR_BR5;
-        GPIOE->BSRR |= GPIO_BSRR_BS6;
-        delay(500);
+//	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
-        // LED Pin -> Low
-        GPIOE->BSRR |= GPIO_BSRR_BS5;
-        GPIOE->BSRR |= GPIO_BSRR_BR6;
-        delay(500);
-    }
+	vTaskStartScheduler();  // should never return
 }
+
+void vApplicationTickHook(void)
+{
+	static int on=1;
+
+	if (on)
+	{
+		GPIOE->BSRR |= GPIO_BSRR_BR5;
+		on = 0;
+	}
+	else
+	{
+	    GPIOE->BSRR |= GPIO_BSRR_BS5;
+	    on = 1;
+	}
+}
+
+void vApplicationIdleHook(void)
+{
+	static int on=1;
+
+	if (on)
+	{
+		GPIOE->BSRR |= GPIO_BSRR_BR6;
+		on = 0;
+	}
+	else
+	{
+	    GPIOE->BSRR |= GPIO_BSRR_BS6;
+	    on = 1;
+	}
+    delay(500);
+}
+

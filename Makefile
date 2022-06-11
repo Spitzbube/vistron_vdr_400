@@ -8,9 +8,13 @@ TOOLCHAIN_PREFIX:=arm-none-eabi
 OPTLVL:=0 #1
 DBG:=-g
 
+FREERTOS:=$(CURDIR)/FreeRTOS
 STARTUP:=$(CURDIR)/Core/Startup
 LINKER_SCRIPT:=$(CURDIR)/STM32F103VETX_FLASH.ld
 
+INCLUDE+=-I$(CURDIR)/.
+INCLUDE+=-I$(FREERTOS)/include
+INCLUDE+=-I$(FREERTOS)/portable/GCC/ARM_CM3
 INCLUDE+=-I$(CURDIR)/Drivers/CMSIS/Device/ST/STM32F1xx/Include
 INCLUDE+=-I$(CURDIR)/Drivers/CMSIS/Include
 INCLUDE+=-I$(CURDIR)/Core/Inc
@@ -18,13 +22,21 @@ INCLUDE+=-I$(CURDIR)/Core/Inc
 BUILD_DIR = $(CURDIR)/build
 BIN_DIR = $(CURDIR)/binary
 
-#vpath %.c $(CURDIR)/Core/Src
+vpath %.c $(FREERTOS) \
+          $(FREERTOS)/portable/MemMang \
+          $(FREERTOS)/portable/GCC/ARM_CM3 
 
 ASRC=startup_stm32f103vetx.s
 
 #SRC+=stm32f1xx_it.c
 SRC+=system_stm32f1xx.c
 SRC+=main.c
+
+# FreeRTOS Source Files
+SRC+=port.c
+SRC+=list.c
+SRC+=tasks.c
+SRC+=heap_4.c
 
 CDEFS+=-DSTM32F103xE
 
