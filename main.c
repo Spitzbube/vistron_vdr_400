@@ -12,6 +12,47 @@ void delay(uint32_t msec)
     }
 }
 
+#define LED_TASK_STACK_SIZE 256
+void LED1_Task(void* p)
+{
+	int on=1;
+
+	while (1)
+	{
+		if (on)
+		{
+			GPIOE->BSRR |= GPIO_BSRR_BR5;
+			on = 0;
+		}
+		else
+		{
+			GPIOE->BSRR |= GPIO_BSRR_BS5;
+			on = 1;
+		}
+	    delay(250);
+	}
+}
+
+void LED2_Task(void* p)
+{
+	int on=1;
+
+	while (1)
+	{
+		if (on)
+		{
+			GPIOE->BSRR |= GPIO_BSRR_BR6;
+			on = 0;
+		}
+		else
+		{
+			GPIOE->BSRR |= GPIO_BSRR_BS6;
+			on = 1;
+		}
+	    delay(500);
+	}
+}
+
 int main(void)
 {
     // Enable Port E and alternate functions
@@ -24,39 +65,22 @@ int main(void)
 
 //	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
+    TaskHandle_t led1Task;
+    (void) xTaskCreate( LED1_Task, "LED1", LED_TASK_STACK_SIZE,
+    		NULL/*pvParameters*/, 1/*uxPriority*/, &led1Task);
+
+    TaskHandle_t led2Task;
+    (void) xTaskCreate( LED2_Task, "LED2", LED_TASK_STACK_SIZE,
+    		NULL/*pvParameters*/, 1/*uxPriority*/, &led2Task);
+
 	vTaskStartScheduler();  // should never return
 }
 
 void vApplicationTickHook(void)
 {
-	static int on=1;
-
-	if (on)
-	{
-		GPIOE->BSRR |= GPIO_BSRR_BR5;
-		on = 0;
-	}
-	else
-	{
-	    GPIOE->BSRR |= GPIO_BSRR_BS5;
-	    on = 1;
-	}
 }
 
 void vApplicationIdleHook(void)
 {
-	static int on=1;
-
-	if (on)
-	{
-		GPIOE->BSRR |= GPIO_BSRR_BR6;
-		on = 0;
-	}
-	else
-	{
-	    GPIOE->BSRR |= GPIO_BSRR_BS6;
-	    on = 1;
-	}
-    delay(500);
 }
 
