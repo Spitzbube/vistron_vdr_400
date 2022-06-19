@@ -325,15 +325,6 @@ void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
 }
 
 
-/* 8001eb6 - todo */
-void sub_8001eb6(uint8_t r7_7)
-{
-   ili9341_draw_box(r7_7 + 242, 6, 63, 36, 0xffff);
-   sub_800581e(242, 6, 63, 36, 0);
-   ili9341_draw_box(242, 6, r7_7, 35, 0);
-}
-
-
 /* USER CODE END 0 */
 
 /**
@@ -344,7 +335,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-  struct_8008d84* r7_c = (wData_20000a56 & 4)? Data_20000be8: Data_20000cc8;
+  struct_8008d84* r7_c = (wData_20000a56 & 4)? FavouriteList: ChannelList;
   uint16_t r7_a = 10800;
   uint8_t r7_9;
   struct_8008d84_Inner8 r7; //???
@@ -390,7 +381,7 @@ int main(void)
   {
      draw_main_screen(Data_20000a70,
                  &r7_c[bCurrentChannelNumber].Data_8,
-				 bData_20000057,
+				 bCurrentVolume,
 				 &Data_20000a78,
 				 Data_20000a78.bData_0x80,
 				 bCurrentChannelNumber,
@@ -558,12 +549,12 @@ int main(void)
 
                      if ((wData_20000a56 & 0x04) != 0)
                      {
-                        draw_channel_name(&Data_20000be8[bCurrentChannelNumber].Data_8);
+                        draw_channel_name(&FavouriteList[bCurrentChannelNumber].Data_8);
                      }
                      else
                      {
                         //loc_800cd44
-                        draw_channel_name(&Data_20000cc8[bCurrentChannelNumber].Data_8);
+                        draw_channel_name(&ChannelList[bCurrentChannelNumber].Data_8);
                      }
                   }
                   //loc_800cd5e
@@ -609,15 +600,15 @@ int main(void)
 
             case 1:
                //800ceec - red
-               sub_800adb8();
-               sub_8001eb6(bData_20000057);
+               volume_down();
+               draw_volume_bar(bCurrentVolume);
                //->800D116
                break;
 
             case 4:
                //800cefc - yellow
-               sub_800ad68();
-               sub_8001eb6(bData_20000057);
+               volume_up();
+               draw_volume_bar(bCurrentVolume);
                break;
 
             case 14:
@@ -635,7 +626,7 @@ int main(void)
 
                draw_main_screen(Data_20000a70,
             		   &r7_c[bCurrentChannelNumber].Data_8,
-					   bData_20000057,
+					   bCurrentVolume,
             		   &Data_20000a78,
 					   Data_20000a78.bData_0x80,
 					   bCurrentChannelNumber,
@@ -656,7 +647,7 @@ int main(void)
                else
                {
                   //800CFAA
-                  if (bData_20000be4 != 0)
+                  if (bFavouriteCount != 0)
                   {
                      bCurrentChannelNumber = 0;
                      wData_20000a56 |= (0x02|0x04);
@@ -664,7 +655,7 @@ int main(void)
                   //800CFC6
                }
                //800CFC6
-               r7_c = ((wData_20000a56 & 0x04) != 0)? Data_20000be8: Data_20000cc8;
+               r7_c = ((wData_20000a56 & 0x04) != 0)? FavouriteList: ChannelList;
 
                draw_channel_name(&r7_c[bCurrentChannelNumber].Data_8);
                draw_channel_number_box(12, 6, bCurrentChannelNumber, wData_20000a56 & 0x04);
@@ -675,16 +666,16 @@ int main(void)
                //800d010 - orange (Menu)
                menu_main();
 
-               if (((wData_20000a56 & 0x04) != 0) && (bData_20000be4 == 0))
+               if (((wData_20000a56 & 0x04) != 0) && (bFavouriteCount == 0))
                {
                   bCurrentChannelNumber = 0;
-                  r7_c = Data_20000cc8;
+                  r7_c = ChannelList;
                   wData_20000a56 &= ~0x04;
                }
                //800D040
                draw_main_screen(Data_20000a70,
             		   &r7_c[bCurrentChannelNumber].Data_8,
-					   bData_20000057,
+					   bCurrentVolume,
             		   &Data_20000a78,
 					   Data_20000a78.bData_0x80,
 					   bCurrentChannelNumber,
@@ -729,7 +720,7 @@ int main(void)
 
             draw_main_screen(Data_20000a70,
                  &r7_c[bCurrentChannelNumber].Data_8,
-   				 bData_20000057,
+   				 bCurrentVolume,
    				 &Data_20000a78,
 				 Data_20000a78.bData_0x80,
 				 bCurrentChannelNumber,
@@ -782,7 +773,7 @@ int main(void)
 
                draw_main_screen(Data_20000a70,
                            &r7_c[bCurrentChannelNumber].Data_8,
-          				 bData_20000057,
+          				 bCurrentVolume,
           				 &Data_20000a78,
 						 Data_20000a78.bData_0x80,
 						 bCurrentChannelNumber,

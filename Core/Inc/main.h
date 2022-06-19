@@ -178,7 +178,7 @@ extern Struct_2000002c_Inner8 Data_2000004c; //2000004c
 extern uint8_t bData_20000054; //20000054 (801944C)
 extern uint8_t bData_20000055; //20000055 (801944D)
 extern uint8_t bData_20000056; //20000056 (801944E)
-extern uint8_t bData_20000057; //20000057 (801944F)
+extern uint8_t bCurrentVolume; //20000057 (801944F)
 extern uint32_t SystemCoreClock; //20000058
 extern uint32_t uwTickPrio; //2000005C
 extern HAL_TickFreqTypeDef uwTickFreq; //20000060
@@ -221,9 +221,9 @@ extern Struct_20000bc0 Data_20000bc0;
 extern char** CurrentTextTable; //20000bc8
 extern char strFMVersion[]; //20000bcc
 extern char strDABVersion[]; //20000bd8
-extern uint8_t bData_20000be4; //20000be4
-extern struct_8008d84 Data_20000be8[]; //20000be8 +224
-extern struct_8008d84 Data_20000cc8[]; //20000cc8 +5600
+extern uint8_t bFavouriteCount; //20000be4
+extern struct_8008d84 FavouriteList[]; //20000be8 +224
+extern struct_8008d84 ChannelList[]; //20000cc8 +5600
 
 extern uint8_t bChannelCount; //200022a8
 extern SPI_HandleTypeDef hspi2; //200022ac
@@ -244,6 +244,7 @@ extern UART_HandleTypeDef huart2; //20002438
 #define TOUCH_CMD_RDY                       0x90
 
 #define TEXT_ID_NO_CHANNEL                  8
+#define TEXT_ID_FAV_LIST_FULL               9
 #define TEXT_ID_MAIN_MENU                   13
 #define TEXT_ID_CHANNEL_LIST                18
 #define TEXT_ID_SETTINGS                    19
@@ -275,7 +276,7 @@ void Error_Handler(void);
 
 int sub_8001224(char* a);
 void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t f, Tuner_Values* g, uint16_t h);
-void sub_8001eb6(uint8_t r7_7);
+void draw_volume_bar(uint8_t r7_7);
 void draw_channel_name(void* a);
 void draw_radio_text(void* r7_4, uint8_t r7_3);
 void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
@@ -300,9 +301,10 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b);
 void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
 void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3);
 void sub_80046d8(Struct_20000a4c* a);
-void sub_80049bc(uint8_t a);
-void sub_8004a34(uint8_t a);
-int sub_8004a8a(uint16_t a, uint16_t b);
+void draw_volume_change_screen(uint8_t a);
+void draw_volume_change_bar(uint8_t a);
+int volume_change_screen_check_touch_fields(uint16_t a, uint16_t b);
+void sub_8004b74(int a, int b, char* c);
 void sub_8004be8(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
 void sub_8004cb0(uint16_t, uint16_t, int, uint16_t);
@@ -366,6 +368,7 @@ int sub_80075e9(void);
 int menu_language(void);
 int sub_8008200(void);
 int sub_800837c(void);
+int menu_volume_change(void);
 int sub_80088cc(void);
 
 int si46xx_set_volume(uint8_t a);
@@ -398,13 +401,15 @@ int si46xx_get_digital_service_data(uint8_t r7_4[], uint8_t* r7);
 void channel_next(void);
 void channel_previous(void);
 void channel_set(struct_8008d84* a);
-void sub_800ad68(void);
-void sub_800adb8(void);
+void volume_up(void);
+void volume_down(void);
 void button_gpio_check(void);
 int sub_800b398(uint16_t a, void* b);
 int sub_800b43c(uint16_t a);
 int sub_800b4ec(struct_8008d84* a);
 void sub_800b610(uint8_t a);
+void sub_800b6f0(struct_8008d84 a);
+void sub_800b7f8(struct_8008d84 a);
 int sub_800b8d4(uint8_t r7_f, uint32_t r7_8, uint32_t r7_4, uint8_t* r7);
 int sub_800ba74(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7);
 int sub_800bbbc(void);

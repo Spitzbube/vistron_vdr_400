@@ -19,22 +19,22 @@ void menu_channel_select(void)
    r7_1e = 0;
    r7_1d = 0;
    r7_1a = 0;
-   r7_18 = (wData_20000a56 & 0x04)? bData_20000be4: bChannelCount;
-   r7_14 = (wData_20000a56 & 0x04)? Data_20000be8: Data_20000cc8;
+   r7_18 = (wData_20000a56 & 0x04)? bFavouriteCount: bChannelCount;
+   r7_14 = (wData_20000a56 & 0x04)? FavouriteList: ChannelList;
 
    if (bChannelCount == 0)
    {
       return;
    }
 
-   sub_8002054(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bData_20000057);
+   sub_8002054(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bCurrentVolume);
 
    Data_20000bc0.bData_0 = 1;
    //->loc_800c312
    while (r7_1f != 0)
    {
       //loc_800bda8
-      r7_18 = (wData_20000a56 & 0x04)? bData_20000be4: bChannelCount;
+      r7_18 = (wData_20000a56 & 0x04)? bFavouriteCount: bChannelCount;
 
       r7_1c = 0;
       if (Data_20000a48.bData_0 == 0)
@@ -74,7 +74,7 @@ void menu_channel_select(void)
         	 r7_1f = 0;
         	 if (r7_1a != 0)
         	 {
-        		 sub_800ba74(Data_20000cc8, Data_20000be8, &Data_20000a4c, &Data_20000a50);
+        		 sub_800ba74(ChannelList, FavouriteList, &Data_20000a4c, &Data_20000a50);
         	 }
         	 //->800C1C6
         	 break;
@@ -206,8 +206,8 @@ void menu_channel_select(void)
 
          case 24:
         	 //800c1a6
-        	 sub_8008554();
-        	 sub_8002054(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bData_20000057);
+        	 menu_volume_change();
+        	 sub_8002054(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bCurrentVolume);
         	 //800C1E8
         	 break;
 
@@ -224,7 +224,7 @@ void menu_channel_select(void)
       {
     	  wData_20000a56 &= ~0x10;
 
-    	  if ((Data_20000cc8[bCurrentChannelNumber].wData_24 < 41) && (Data_20000cc8[bCurrentChannelNumber].service_id != 0))
+    	  if ((ChannelList[bCurrentChannelNumber].wData_24 < 41) && (ChannelList[bCurrentChannelNumber].service_id != 0))
     	  {
     		  //0800c23c
     		  si46xx_get_dab_values(&r7_4);

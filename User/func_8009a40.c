@@ -62,7 +62,7 @@ Struct_2000002c_Inner8 Data_2000004c = //2000004c (8019444)
 uint8_t bData_20000054 = 1; //20000054 (801944C)
 uint8_t bData_20000055 = 0xff; //20000055 (801944D)
 uint8_t bData_20000056 = 4; //20000056 (801944E)
-uint8_t bData_20000057 = 31; //20000057 (801944F)
+uint8_t bCurrentVolume = 31; //20000057 (801944F)
 //uint32_t SystemCoreClock; //20000058 (8019450)
 //uint32_t uwTickPrio; //2000005C (8019454)
 //HAL_TickFreqTypeDef uwTickFreq; //20000060 (8019458)
@@ -106,9 +106,9 @@ Struct_20000bc0 Data_20000bc0;
 char** CurrentTextTable; //20000bc8
 char strFMVersion[12]; //20000bcc
 char strDABVersion[12]; //20000bd8
-uint8_t bData_20000be4; //20000be4
-struct_8008d84 Data_20000be8[8]; //20000be8 +224
-struct_8008d84 Data_20000cc8[200]; //20000cc8 +5600
+uint8_t bFavouriteCount; //20000be4
+struct_8008d84 FavouriteList[8]; //20000be8 +224
+struct_8008d84 ChannelList[200]; //20000cc8 +5600
 uint8_t bChannelCount; //200022a8
 struct_8008d84* Data_200023e0; //200023e0
 
@@ -127,7 +127,7 @@ void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, 
    draw_channel_number_box(12, 6, channel_nr, h & 4);
    draw_signal_strength_bars(142, 42, &g->rssi);
 
-   sub_8001eb6(r7_7);
+   draw_volume_bar(r7_7);
 
    sub_8001ae8(r7_c); //Clock display
 
@@ -1006,48 +1006,6 @@ int sub_80088cc(void)
 }
 
 
-/* 800b494 - todo */
-int sub_800b494(struct_8008d84* r7_4)
-{
-   uint8_t r7_f = 0xff;
-   uint8_t r7_e = 0;
-
-   for (; r7_e < bChannelCount; r7_e++)
-   {
-      //loc_800b4a6
-      if (0 == memcmp(&Data_20000cc8[r7_e], r7_4, sizeof(struct_8008d84)))
-      {
-         r7_f = r7_e;
-         break;
-      }
-   }
-
-   return r7_f;
-}
-
-
-/* 800b53c - todo */
-int sub_800b53c(uint8_t r7_7)
-{
-   uint8_t r7_f;
-   uint8_t r7_e = 0;
-
-   if (r7_7 < 8)
-   {
-      for (r7_f = r7_7; r7_f < 7; r7_f++)
-      {
-         memcpy(&Data_20000be8[r7_f], &Data_20000be8[r7_f + 1], sizeof(struct_8008d84));
-      }
-
-      memset(&Data_20000be8[7], 0xff, sizeof(struct_8008d84));
-
-      bData_20000be4++;
-   }
-
-   return r7_e;
-}
-
-
 /* 800c33c - todo */
 int menu_automatic_search(void)
 {
@@ -1067,11 +1025,11 @@ int menu_automatic_search(void)
 
    sub_800b5e0();
 
-   draw_automatic_search_screen(Data_20000cc8, 0, bChannelCount, 0, 41, &r7_4, 0);
+   draw_automatic_search_screen(ChannelList, 0, bChannelCount, 0, 41, &r7_4, 0);
 
    si46xx_mute(1);
 
-   si46xx_start_dab(bData_20000057);
+   si46xx_start_dab(bCurrentVolume);
 
    if (0 != si46xx_dab_search(&r7_14))
    {
@@ -1084,9 +1042,9 @@ int menu_automatic_search(void)
       r7_17 += r7_14;
    }
    //loc_800c3b0
-   draw_automatic_search_screen(Data_20000cc8, 0, bChannelCount, 0, 2040/*10790-8750*/, &r7_4, 8750);
+   draw_automatic_search_screen(ChannelList, 0, bChannelCount, 0, 2040/*10790-8750*/, &r7_4, 8750);
 
-   si46xx_start_fm(bData_20000057);
+   si46xx_start_fm(bCurrentVolume);
 
    si46xx_mute(1);
 
@@ -1106,7 +1064,7 @@ int menu_automatic_search(void)
    if (r7_16 != 0)
    {
       sub_800c460();
-      sub_800ba74(Data_20000cc8, Data_20000be8, &Data_20000a4c, &Data_20000a50);
+      sub_800ba74(ChannelList, FavouriteList, &Data_20000a4c, &Data_20000a50);
    }
    else
    {
@@ -1124,11 +1082,11 @@ int menu_automatic_search(void)
 void sub_800c460(void)
 {
    uint8_t r7_7 = 0;
-   uint8_t r7_6 = bData_20000be4;
+   uint8_t r7_6 = bFavouriteCount;
 
    for (r7_7 = 0; r7_7 < r7_6; r7_7++)
    {
-      if (0xff == sub_800b494(&Data_20000be8[r7_7]))
+      if (0xff == sub_800b494(&FavouriteList[r7_7]))
       {
          sub_800b53c(r7_7);
       }

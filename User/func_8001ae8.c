@@ -59,6 +59,15 @@ void sub_8001b60(RTC_TimeTypeDef a)
 }
 
 
+/* 8001eb6 - todo */
+void draw_volume_bar(uint8_t r7_7)
+{
+   ili9341_draw_box(r7_7 + 242, 6, 63, 36, 0xffff);
+   sub_800581e(242, 6, 63, 36, 0);
+   ili9341_draw_box(242, 6, r7_7, 35, 0);
+}
+
+
 /* 8001f04 - todo */
 void draw_radio_text(void* r7_4, uint8_t r7_3)
 {
@@ -154,7 +163,7 @@ void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, u
 
    draw_snr_indicator(222, 7, r7_4, 1);
 
-   sub_8001eb6(r7_18);
+   draw_volume_bar(r7_18);
 
    draw_channel_freq_mux_label(r7_c, r7_b);
 }
@@ -523,23 +532,56 @@ void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
 
 
 /* 80049bc - todo */
-void sub_80049bc(uint8_t a)
+void draw_volume_change_screen(uint8_t a)
 {
-
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
+   sub_8003038(36, &Data_2000004c);
+   draw_volume_change_bar(a);
+   sub_8005198(114, 196, 0xf800, 2);
+   sub_8005198(167, 196, 0xffe0, 3);
+   sub_8005198(273, 196, 0xffff, 7);
 }
 
 
 /* 8004a34 - todo */
-void sub_8004a34(uint8_t a)
+void draw_volume_change_bar(uint8_t a)
 {
-
+   ili9341_draw_box((a + 8)*4, 72, 252, 24, 0xffff);
+   sub_800581e(32, 72, 252, 24, 0);
+   ili9341_draw_box(32, 72, a * 4, 23, 0);
 }
 
 
 /* 8004a8a - todo */
-int sub_8004a8a(uint16_t a, uint16_t b)
+int volume_change_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 {
+   if ((r7_6 > 113) && (r7_6 < 151) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(114, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(114, 196, 0xf800, 2);
+      return 1;
+   }
 
+   if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(167, 196, 0xffe0, 3);
+      return 4;
+   }
+
+   if ((r7_6 > 272) && (r7_6 < 311) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(273, 196, 0xffff, 7);
+      return 5;
+   }
+
+   return 0;
 }
 
 
@@ -631,8 +673,8 @@ void draw_snr_indicator(uint16_t r7_e, uint16_t r7_c, Tuner_Values* r7_8, uint8_
 }
 
 
-/* 800b610 - todo */
-void sub_800b610(uint8_t a)
+/* 8004b74 - todo */
+void sub_8004b74(int a, int b, char* c)
 {
 
 }
