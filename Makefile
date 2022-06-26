@@ -26,7 +26,9 @@ BIN_DIR = $(CURDIR)/binary
 vpath %.c $(FREERTOS) \
           $(FREERTOS)/portable/MemMang \
           $(FREERTOS)/portable/GCC/ARM_CM3 \
-          $(CURDIR)/Drivers/STM32F1xx_HAL_Driver/Src
+          $(CURDIR)/Drivers/STM32F1xx_HAL_Driver/Src \
+
+#          $(CURDIR)/Core/Src
 
 ASRC=startup_stm32f103vetx.s
 
