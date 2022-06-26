@@ -19,11 +19,12 @@ INCLUDE+=-I$(CURDIR)/Drivers/CMSIS/Device/ST/STM32F1xx/Include
 INCLUDE+=-I$(CURDIR)/Drivers/CMSIS/Include
 INCLUDE+=-I$(CURDIR)/Core/Inc
 INCLUDE+=-I$(CURDIR)/Drivers/STM32F1xx_HAL_Driver/Inc
+INCLUDE+=-I$(CURDIR)/bootloader
 
 BUILD_DIR = $(CURDIR)/build
 BIN_DIR = $(CURDIR)/binary
 
-vpath %.c $(FREERTOS) \
+vpath %.c $(CURDIR)/bootloader/ $(FREERTOS) \
           $(FREERTOS)/portable/MemMang \
           $(FREERTOS)/portable/GCC/ARM_CM3 \
           $(CURDIR)/Drivers/STM32F1xx_HAL_Driver/Src \
@@ -35,6 +36,9 @@ ASRC=startup_stm32f103vetx.s
 #SRC+=stm32f1xx_it.c
 SRC+=system_stm32f1xx.c
 SRC+=main.c
+SRC+=usb.c
+SRC+=hid.c
+SRC+=led.c
 
 # FreeRTOS Source Files
 SRC+=port.c

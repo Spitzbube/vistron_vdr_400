@@ -4,6 +4,10 @@
 #include "stm32f1xx.h"
 #include "stm32f1xx_hal.h"
 
+#include "usb.h"
+#include "hid.h"
+#include "bitwise.h"
+
 
 void Error_Handler(void)
 {
@@ -31,7 +35,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9; //9 * 8 = 72
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -105,14 +109,29 @@ int main(void)
 
     __HAL_RCC_GPIOE_CLK_ENABLE();
 
+#if 0
     TaskHandle_t led1Task;
     (void) xTaskCreate( LED1_Task, "LED1", LED_TASK_STACK_SIZE,
     		NULL/*pvParameters*/, 1/*uxPriority*/, &led1Task);
+#endif
 
+#if 0
     TaskHandle_t led2Task;
     (void) xTaskCreate( LED2_Task, "LED2", LED_TASK_STACK_SIZE,
     		NULL/*pvParameters*/, 1/*uxPriority*/, &led2Task);
+#else
+	GPIOE->CRL &= ~(GPIO_CRL_CNF6 + GPIO_CRL_MODE6);
+	GPIOE->CRL |= GPIO_CRL_MODE6_0;
 
-	vTaskStartScheduler();  // should never return
+	GPIOE->BSRR |= GPIO_BSRR_BS6;
+#endif
+
+    USB_Init(HIDUSB_EPHandler, HIDUSB_Reset);
+
+	GPIOA->CRH &= ~(GPIO_CRH_CNF10 + GPIO_CRH_MODE10);
+	GPIOA->CRH |= GPIO_CRH_MODE10_0;
+	GPIOA->BSRR |= GPIO_BSRR_BS10;
+
+    vTaskStartScheduler();  // should never return
 }
 
