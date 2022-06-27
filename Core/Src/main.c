@@ -408,6 +408,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  uint8_t Buf[] = "Mainloop\r\n";
+
+	  CDC_Transmit_FS(Buf, sizeof(Buf)+1);
+
       //loc_800c9c4
 	  if ((wData_20000a56 & 0x100) != 0)
 	  {
