@@ -26,6 +26,7 @@
 
 #include "../../User/func_8001ae8.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -243,9 +244,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t Buf[] = "Mainloop\r\n";
-
-	  CDC_Transmit_FS(Buf, sizeof(Buf)+1);
+	  printf("Mainloop\r\n");
 
       //loc_800c9c4
 	  if ((wMainloopEvents & 0x100) != 0)
