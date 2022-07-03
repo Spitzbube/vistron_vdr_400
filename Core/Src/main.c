@@ -26,6 +26,7 @@
 
 #include "../../User/func_8001ae8.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -325,6 +326,18 @@ void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
    //loc_8001eae
 }
 
+int _write(int file, char *ptr, int len)
+{
+   uint8_t rc = USBD_OK;
+
+   do
+   {
+      rc = CDC_Transmit_FS((uint8_t*) ptr, len);
+   }
+   while (USBD_BUSY == rc);
+
+   return len;
+}
 
 /* USER CODE END 0 */
 
@@ -408,9 +421,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t Buf[] = "Mainloop\r\n";
-
-	  CDC_Transmit_FS(Buf, sizeof(Buf)+1);
+	  printf("Mainloop\r\n");
 
       //loc_800c9c4
 	  if ((wData_20000a56 & 0x100) != 0)
