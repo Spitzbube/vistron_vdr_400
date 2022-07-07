@@ -32,15 +32,15 @@ char* EnglishTextTable[] = //8012dc0
 	"Manual search DAB",
 	"Manual search FM",
 	"Language", //TEXT_ID_LANGUAGE
-	"Sleep-Timer",
-	"Auto-Standby",
+	"Sleep-Timer", //TEXT_ID_SLEEP_TIMER
+	"Auto-Standby", //TEXT_ID_AUTO_STANDBY
 	"Continue?",
 	"NO",
 	"YES",
 	"Deutsch", //TEXT_ID_GERMAN
 	"English",
 	"Volume",
-	"Off",
+	"Off", //TEXT_ID_OFF
 	"On",
 	"Signal information",
 	"Channel:",

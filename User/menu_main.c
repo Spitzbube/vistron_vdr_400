@@ -11,7 +11,7 @@ void menu_main(void)
       menu_channel_list, //Channel list
 	  menu_settings, //Settings
 	  sub_80088cc, //Factory reset
-	  sub_8007114, //Alarm
+	  menu_alarm, //Alarm
 	  sub_80073c0 //Information
    };
    uint8_t r7_1f = 1;
@@ -118,7 +118,7 @@ void menu_main(void)
 
          if (0 != r7_4[itemIndex]())
          {
-            wData_20000a56 |= 0x02;
+            wMainloopEvents |= 0x02;
             r7_1f = 0;
          }
          else

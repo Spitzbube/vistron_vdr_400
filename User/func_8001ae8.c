@@ -149,7 +149,7 @@ void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, u
    sub_8005198(8, 196, 0x1f, 1);
    sub_8005198(61, 196, 0x7e0, 0);
 
-   if ((wData_20000a56 & 0x04) == 0)
+   if ((wMainloopEvents & 0x04) == 0)
    {
 	   sub_8005198(114, 196, 0xf800, 5);
    }
@@ -189,7 +189,7 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
    }
 
    if ((a > 113) && (a < 151) && (b > 195) && (b < 233) &&
-		   ((wData_20000a56 & 0x04) == 0)) //TODO
+		   ((wMainloopEvents & 0x04) == 0)) //TODO
    {
       ili9341_draw_box(114, 196, 36, 36, 0xce59);
       sub_800c7e0(100);

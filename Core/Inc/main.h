@@ -90,12 +90,6 @@ typedef struct
 
 typedef struct
 {
-	uint16_t a;
-	uint16_t b;
-} Struct_20000a4c;
-
-typedef struct
-{
 	int b0: 1;
 	uint8_t b1: 1;
 	uint8_t b2: 1;
@@ -164,6 +158,12 @@ typedef struct
    //129
 } Struct_20000a78;
 
+typedef struct
+{
+   uint16_t hours; //0
+   uint16_t minutes; //2
+} Alarm_Time;
+
 typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
 
 
@@ -198,12 +198,11 @@ extern uint8_t bData_200009fc; //200009fc
 extern uint8_t Data_20000a00[]; //20000a00
 extern uint8_t Data_20000a08[]; //20000a08
 extern Struct_20000a48 Data_20000a48; //20000a48
-//extern int Data_20000a4c; //20000a4c
-extern Struct_20000a4c Data_20000a4c; //20000a4c
+extern Alarm_Time currentAlarmTime; //20000a4c
 extern Struct_20000a50 Data_20000a50; //20000a50
 extern uint8_t bData_20000a54; //20000a54
 extern uint8_t bData_20000a55; //20000a55
-extern uint16_t wData_20000a56; //20000a56
+extern uint16_t wMainloopEvents; //20000a56
 extern uint8_t bCurrentChannelNumber; //20000a58
 extern uint8_t bData_20000a59; //20000a59
 extern int8_t Data_20000a5a; //20000a5a
@@ -215,7 +214,7 @@ extern RTC_DateTypeDef Data_20000a74; //20000a74
 extern Struct_20000a78 Data_20000a78; //20000a78
 //extern int Data_20000af8; //20000af8
 extern Struct_20000a78 Data_20000afc; //20000afc
-extern uint8_t bData_20000b7d; //20000b7d
+extern uint8_t sleepTimerCount; //20000b7d
 extern Struct_20000b90 Data_20000b90; //20000b90
 extern Struct_20000bc0 Data_20000bc0;
 extern char** CurrentTextTable; //20000bc8
@@ -243,6 +242,9 @@ extern UART_HandleTypeDef huart2; //20002438
 #define TOUCH_CMD_RDX                       0xD0
 #define TOUCH_CMD_RDY                       0x90
 
+#define MAIN_LOOP_EVENT_SLEEP_TIMER         (1 << 9)
+#define MAIN_LOOP_EVENT_AUTO_STANDBY        (1 << 10)
+
 #define TEXT_ID_NO_CHANNEL                  8
 #define TEXT_ID_FAV_LIST_FULL               9
 #define TEXT_ID_MAIN_MENU                   13
@@ -251,7 +253,10 @@ extern UART_HandleTypeDef huart2; //20002438
 #define TEXT_ID_ALARM                       21
 #define TEXT_ID_AUTOMATIC_SEARCH            23
 #define TEXT_ID_LANGUAGE                    28
+#define TEXT_ID_SLEEP_TIMER                 29
+#define TEXT_ID_AUTO_STANDBY                30
 #define TEXT_ID_GERMAN                      34
+#define TEXT_ID_OFF                         37
 
 #define TEXT_ID_MAIN_MENU_FIRST             TEXT_ID_CHANNEL_LIST
 #define TEXT_ID_MAIN_MENU_ITEMS             5
@@ -299,8 +304,14 @@ void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 uint8_t sub_8002e98(uint16_t a, uint16_t b);
 void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
-void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3);
-void sub_80046d8(Struct_20000a4c* a);
+void draw_alarm_screen(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
+int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4);
+void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time* r7_4, uint8_t r7_3);
+void draw_alarm_time(Alarm_Time* a);
+void draw_sleep_timer_screen(uint8_t a);
+void draw_sleep_timer_value(uint8_t r7_7);
+int sub_8004894(uint16_t a, uint16_t b);
 void draw_volume_change_screen(uint8_t a);
 void draw_volume_change_bar(uint8_t a);
 int volume_change_screen_check_touch_fields(uint16_t a, uint16_t b);
@@ -361,13 +372,13 @@ int sub_8006af4(uint32_t addr);
 void menu_main(void);
 int menu_channel_list(void);
 int menu_settings(void);
-int sub_8007114(void);
+int menu_alarm(void);
 int sub_80073c0(void);
 int sub_8007415(void);
 int sub_80075e9(void);
 int menu_language(void);
-int sub_8008200(void);
-int sub_800837c(void);
+int menu_sleep_timer(void);
+int menu_auto_standby(void);
 int menu_volume_change(void);
 int sub_80088cc(void);
 

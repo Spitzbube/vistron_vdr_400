@@ -9,8 +9,8 @@ int menu_settings(void)
    funcs r7_4[] = //8012c74
    {
 	  menu_language, //Language
-	  sub_8008200, //Sleep-Timer
-	  sub_800837c, //Auto-Standby
+	  menu_sleep_timer, //Sleep-Timer
+	  menu_auto_standby, //Auto-Standby
    };
    uint8_t r7_17 = 0;
    uint8_t r7_16 = 1;
@@ -101,7 +101,7 @@ int menu_settings(void)
 
          if (0 != r7_4[itemIndex]())
          {
-            wData_20000a56 |= 0x02;
+            wMainloopEvents |= 0x02;
             r7_16 = 0;
             r7_17 = 1;
          }

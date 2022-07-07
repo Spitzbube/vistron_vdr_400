@@ -452,7 +452,7 @@ int si46xx_start_dab(uint8_t a)
       return 1;
    }
 
-   wData_20000a56 |= 1;
+   wMainloopEvents |= 1;
 
    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
 
@@ -1186,7 +1186,7 @@ int si46xx_start_fm(uint8_t a)
 
    si46xx_mute(0);
 
-   wData_20000a56 &= ~1;
+   wMainloopEvents &= ~1;
 
    return 0;
 }
@@ -2047,7 +2047,7 @@ int si46xx_send_command(uint16_t numTxBytes, uint16_t numRxBytes, uint16_t c)
 /* 800a9a8 - todo */
 int sub_800a9a8(void)
 {
-   RTC_AlarmTypeDef r7_4 = {0};
+   RTC_AlarmTypeDef sAlarm = {0};
    uint8_t r7_f = 0;
 
    si46xx_start_dab(0);
@@ -2068,7 +2068,7 @@ int sub_800a9a8(void)
    Data_20000bc0.bData_0 = 1;
    Data_20000a48.bData_0 = 1;
 
-   if (0 != sub_800b2ac(&Data_20000a4c, &Data_20000a50))
+   if (0 != sub_800b2ac(&currentAlarmTime, &Data_20000a50))
    {
       Data_20000a50.b = 0x1f;
    }
@@ -2077,21 +2077,21 @@ int sub_800a9a8(void)
 
    menu_set_language(Data_20000a50.b2);
 
-   if ((Data_20000a4c.a > 23) || (Data_20000a4c.b > 59))
+   if ((currentAlarmTime.hours > 23) || (currentAlarmTime.minutes > 59))
    {
-      Data_20000a4c.a = 0;
-      Data_20000a4c.b = 0;
+      currentAlarmTime.hours = 0;
+      currentAlarmTime.minutes = 0;
       Data_20000a50.b1 = 0;
    }
 
    if (Data_20000a50.b1 != 0)
    {
-      r7_4.AlarmTime.Hours = ((Data_20000a4c.a / 10) << 4) |
-                ((Data_20000a4c.a % 10));
-      r7_4.AlarmTime.Minutes = ((Data_20000a4c.b / 10) << 4) |
-                ((Data_20000a4c.b % 10));
+      sAlarm.AlarmTime.Hours = ((currentAlarmTime.hours / 10) << 4) |
+                ((currentAlarmTime.hours % 10));
+      sAlarm.AlarmTime.Minutes = ((currentAlarmTime.minutes / 10) << 4) |
+                ((currentAlarmTime.minutes % 10));
 
-      if (0 != HAL_RTC_SetAlarm_IT(&hrtc, &r7_4, RTC_FORMAT_BCD))
+      if (0 != HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD))
       {
          Error_Handler();
       }
@@ -2111,19 +2111,19 @@ int sub_800a9a8(void)
 
       if (0 != bChannelCount)
       {
-         wData_20000a56 |= 2;
+         wMainloopEvents |= 2;
       }
       else
       {
          si46xx_mute(1);
       }
 
-      wData_20000a56 |= 0x100;
+      wMainloopEvents |= 0x100;
       r7_f = 1;
    }
    else
    {
-      wData_20000a56 &= ~0x100;
+      wMainloopEvents &= ~0x100;
    }
 
    menu_set_language(Data_20000a50.b2);
@@ -2143,11 +2143,11 @@ void volume_up(void)
       bCurrentVolume++;
    }
 
-   if ((wData_20000a56 & 0x20) != 0)
+   if ((wMainloopEvents & 0x20) != 0)
    {
       si46xx_mute(0);
 
-      wData_20000a56 &= ~0x20;
+      wMainloopEvents &= ~0x20;
    }
 
    si46xx_set_volume(bCurrentVolume);
@@ -2161,20 +2161,20 @@ void volume_down(void)
    {
 	  bCurrentVolume--;
 
-      if ((wData_20000a56 & 0x20) != 0)
+      if ((wMainloopEvents & 0x20) != 0)
       {
          si46xx_mute(0);
 
-         wData_20000a56 &= ~0x20;
+         wMainloopEvents &= ~0x20;
       }
    }
    else
    {
-      if ((wData_20000a56 & 0x20) == 0)
+      if ((wMainloopEvents & 0x20) == 0)
       {
          si46xx_mute(1);
 
-         wData_20000a56 |= 0x20;
+         wMainloopEvents |= 0x20;
       }
    }
 
@@ -2194,37 +2194,37 @@ void channel_set(struct_8008d84* a)
 
    if ((a->wData_24 < 42) && (a->service_id != 0))
    {
-      if ((wData_20000a56 & 1) == 0)
+      if ((wMainloopEvents & 1) == 0)
       {
          si46xx_start_dab(bCurrentVolume);
       }
 
       if (0 == si46xx_dab_start_digital_service(a))
       {
-         wData_20000a56 &= ~2;
+         wMainloopEvents &= ~2;
       }
    }
    else
    {
-      if ((wData_20000a56 & 1) != 0)
+      if ((wMainloopEvents & 1) != 0)
       {
          si46xx_start_fm(bCurrentVolume);
       }
 
       if (0 == si46xx_fm_tune_freq(a->wData_24))
       {
-         wData_20000a56 &= ~2;
+         wMainloopEvents &= ~2;
       }
    }
 
-   wData_20000a56 |= 0x40;
+   wMainloopEvents |= 0x40;
 }
 
 
 /* 800ac74 - todo */
 void channel_next(void)
 {
-   uint8_t r7_7 = (wData_20000a56 & 4)? bFavouriteCount: bChannelCount;
+   uint8_t r7_7 = (wMainloopEvents & 4)? bFavouriteCount: bChannelCount;
 
    if (r7_7 != 0)
    {
@@ -2238,7 +2238,7 @@ void channel_next(void)
          bCurrentChannelNumber = 0;
       }
 
-      wData_20000a56 |= 0x02;
+      wMainloopEvents |= 0x02;
    }
 }
 
@@ -2246,7 +2246,7 @@ void channel_next(void)
 /* 800acf0 - todo */
 void channel_previous(void)
 {
-   uint8_t r7_7 = (wData_20000a56 & 4)? bFavouriteCount: bChannelCount;
+   uint8_t r7_7 = (wMainloopEvents & 4)? bFavouriteCount: bChannelCount;
 
    if (r7_7 != 0)
    {
@@ -2260,7 +2260,7 @@ void channel_previous(void)
          bCurrentChannelNumber = r7_7 - 1;
       }
 
-      wData_20000a56 |= 0x02;
+      wMainloopEvents |= 0x02;
    }
 }
 
@@ -2268,7 +2268,7 @@ void channel_previous(void)
 /* 800ae28 - todo */
 void sub_800ae28(void)
 {
-   struct_8008d84* a = (wData_20000a56 & 4)? FavouriteList: ChannelList;
+   struct_8008d84* a = (wMainloopEvents & 4)? FavouriteList: ChannelList;
 
    if ((a[bCurrentChannelNumber].wData_24 < 42) && (a[bCurrentChannelNumber].service_id != 0))
    {
@@ -2281,14 +2281,14 @@ void sub_800ae28(void)
 
    channel_set(&a[bCurrentChannelNumber]);
 
-   wData_20000a56 |= 0x100;
+   wMainloopEvents |= 0x100;
 }
 
 
 /* 800aed0 - todo */
 void sub_800aed0(void)
 {
-   struct_8008d84* r7_4 = (wData_20000a56 & 4)? FavouriteList: ChannelList;
+   struct_8008d84* r7_4 = (wMainloopEvents & 4)? FavouriteList: ChannelList;
 
    si46xx_dab_stop_digital_service(&r7_4[bCurrentChannelNumber]);
 
@@ -2299,7 +2299,7 @@ void sub_800aed0(void)
    sub_800c7e0(10);
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
-   wData_20000a56 &= ~0x300;
+   wMainloopEvents &= ~0x300;
 }
 
 
@@ -2316,7 +2316,7 @@ int sub_800af5c(void)
 
    si46xx_mute(1);
 
-   if (((wData_20000a56 & 0x80) == 0) &&
+   if (((wMainloopEvents & 0x80) == 0) &&
 		   (bChannelCount != 0))
    {
       if (bData_20000a54 != 0)
@@ -2336,7 +2336,7 @@ int sub_800af5c(void)
                   Error_Handler();
                }
                //loc_800b006
-               wData_20000a56 |= 0x80;
+               wMainloopEvents |= 0x80;
                r7_8f = 1;
             }
             //loc_800b01a
@@ -2351,7 +2351,7 @@ int sub_800af5c(void)
                  		   r7_c.arData_0,
      					   &Data_20000a70,
      					   &Data_20000a74,
-     					   &wData_20000a56,
+     					   &wMainloopEvents,
      					   &r7_c.bData_0x80) & 0x08) != 0))
             {
                 if (0 != HAL_RTC_SetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
@@ -2364,11 +2364,11 @@ int sub_800af5c(void)
                    Error_Handler();
                 }
                 //loc_800b07c
-                wData_20000a56 |= 0x80;
+                wMainloopEvents |= 0x80;
                 r7_8f = 1;
             }
             //loc_800b090
-            if ((wData_20000a56 & 0x10) != 0)
+            if ((wMainloopEvents & 0x10) != 0)
             {
             	bData_20000a54--;
             }
@@ -2387,7 +2387,7 @@ int sub_800af5c(void)
          if ((ChannelList[bData_20000a55].wData_24 < 42) &&
         		 (ChannelList[bData_20000a55].service_id != 0))
          {
-            if ((wData_20000a56 & 0x01) == 0)
+            if ((wMainloopEvents & 0x01) == 0)
             {
                 si46xx_start_dab(bCurrentVolume);
                 si46xx_mute(1);
@@ -2409,7 +2409,7 @@ int sub_800af5c(void)
          else
          {
             //loc_800b156
-            if ((wData_20000a56 & 0x01) != 0)
+            if ((wMainloopEvents & 0x01) != 0)
             {
                si46xx_start_fm(bCurrentVolume);
                si46xx_mute(1);

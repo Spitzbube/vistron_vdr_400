@@ -61,7 +61,7 @@ int menu_language(void)
                {
                   Data_20000a50.b2 = (r7_3 - 25) & 1;
                   menu_set_language(Data_20000a50.b2);
-                  sub_800ba74(ChannelList, FavouriteList, &Data_20000a4c, &Data_20000a50);
+                  sub_800ba74(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
                }
                //800819A
                r7_7 = 0;

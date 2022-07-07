@@ -139,7 +139,7 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
 /* 800dd74 - todo */
 void RTC_IRQHandler(void)
 {
-   wData_20000a56 |= 0x10;
+   wMainloopEvents |= 0x10;
 
    sub_801050c(&hrtc);
 }
@@ -148,7 +148,7 @@ void RTC_IRQHandler(void)
 /* 800dd98 - todo */
 void RTC_Alarm_IRQHandler(void)
 {
-   wData_20000a56 |= 0x08;
+   wMainloopEvents |= 0x08;
 
    HAL_RTC_AlarmIRQHandler(&hrtc);
 }
@@ -335,8 +335,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-  struct_8008d84* r7_c = (wData_20000a56 & 4)? FavouriteList: ChannelList;
-  uint16_t r7_a = 10800;
+  struct_8008d84* r7_c = (wMainloopEvents & 4)? FavouriteList: ChannelList;
+  uint16_t standbyCounter = 10800;
   uint8_t r7_9;
   struct_8008d84_Inner8 r7; //???
 
@@ -386,13 +386,13 @@ int main(void)
 				 Data_20000a78.bData_0x80,
 				 bCurrentChannelNumber,
 				 &Data_20000a5c,
-  				 wData_20000a56
+  				 wMainloopEvents
 			 );
   }
   else //if (0 != sub_800a9a8())
   {
      //loc_800c99c
-     draw_standby_screen(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+     draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
   }
   //loc_800c9b4
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
@@ -404,11 +404,11 @@ int main(void)
   while (1)
   {
       //loc_800c9c4
-	  if ((wData_20000a56 & 0x100) != 0)
+	  if ((wMainloopEvents & 0x100) != 0)
 	  {
-         if ((wData_20000a56 & 0x10) != 0)
+         if ((wMainloopEvents & 0x10) != 0)
          {
-            wData_20000a56 &= ~0x10;
+            wMainloopEvents &= ~0x10;
             if (0 == HAL_RTC_GetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
             {
                sub_8001ae8(Data_20000a70);
@@ -416,7 +416,7 @@ int main(void)
             //loc_800ca06
             if ((Data_200023e0->wData_24 < 41) && (Data_200023e0->service_id != 0))
             {
-               if (((wData_20000a56 & 0x80) == 0) &&
+               if (((wMainloopEvents & 0x80) == 0) &&
             		   (0 != si46xx_dab_get_time_date(&Data_20000a70, &Data_20000a74)))
                {
                   if (0 != HAL_RTC_SetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
@@ -429,7 +429,7 @@ int main(void)
                      Error_Handler();
                   }
                   //loc_800ca5c
-                  wData_20000a56 |= 0x80;
+                  wMainloopEvents |= 0x80;
 
                   si46xx_mute(0);
                }
@@ -455,12 +455,14 @@ int main(void)
                }
                //loc_800cb0e
             }
-            //loc_800cb0e
-            if ((wData_20000a56 & 0x200) != 0)
+
+            //loc_800cb0e: Sleep Timer
+
+            if ((wMainloopEvents & MAIN_LOOP_EVENT_SLEEP_TIMER) != 0)
             {
-               if (bData_20000b7d == 0)
+               if (sleepTimerCount == 0)
                {
-                  wData_20000a56 &= ~0x200;
+                  wMainloopEvents &= ~MAIN_LOOP_EVENT_SLEEP_TIMER;
                   //->loc_800cbbe
                }
                else
@@ -468,35 +470,37 @@ int main(void)
                   //loc_800cb78
                   if (Data_20000a70.Seconds == 0)
                   {
-                     bData_20000b7d--;
-                     if (bData_20000b7d == 0)
+                     sleepTimerCount--;
+                     if (sleepTimerCount == 0)
                      {
-                        wData_20000a56 &= ~0x200;
+                        wMainloopEvents &= ~MAIN_LOOP_EVENT_SLEEP_TIMER;
 
                         sub_800aed0();
 
-                        draw_standby_screen(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+                        draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
                      }
                   }
                }
             }
-            //loc_800cbbe
-            if ((wData_20000a56 & 0x400) == 0)
-            {
-               r7_a--;
-               if (r7_a == 0)
-               {
-                  r7_a = 10800;
 
-                  wData_20000a56 &= ~0x400;
+            //loc_800cbbe: Auto-Standby
+
+            if ((wMainloopEvents & MAIN_LOOP_EVENT_AUTO_STANDBY) == 0)
+            {
+               standbyCounter--;
+               if (standbyCounter == 0)
+               {
+                  standbyCounter = 10800;
+
+                  wMainloopEvents &= ~MAIN_LOOP_EVENT_AUTO_STANDBY;
 
                   sub_800aed0();
 
-                  draw_standby_screen(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+                  draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
                }
             }
             //loc_800cc06
-            if ((wData_20000a56 & 0x02) != 0)
+            if ((wMainloopEvents & 0x02) != 0)
             {
                channel_set(&r7_c[bCurrentChannelNumber]);
 
@@ -505,7 +509,7 @@ int main(void)
                draw_radio_text(&Data_20000a78, Data_20000a78.bData_0x80);
             }
             //loc_800cc42
-         }
+         } //if ((wMainloopEvents & 0x10) != 0)
          //loc_800cc42
          if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
          {
@@ -524,7 +528,7 @@ int main(void)
             		   Data_20000a78.arData_0,
 					   &Data_20000a70,
 					   &Data_20000a74,
-					   &wData_20000a56,
+					   &wMainloopEvents,
 					   &Data_20000a78.bData_0x80);
 
                if ((r7_9 & 4) != 0)
@@ -547,7 +551,7 @@ int main(void)
 //                     memcpy(Data_200023e0->fill8, r7, 8);
                      Data_200023e0->Data_8 = r7;
 
-                     if ((wData_20000a56 & 0x04) != 0)
+                     if ((wMainloopEvents & 0x04) != 0)
                      {
                         draw_channel_name(&FavouriteList[bCurrentChannelNumber].Data_8);
                      }
@@ -578,14 +582,14 @@ int main(void)
          if ((bData_20000a6c | bData_20000a6d))
          {
             //800cdb2
-            r7_a = 10800;
+            standbyCounter = 10800;
 
             switch (bData_20000a6c | bData_20000a6d)
             {
             case 2:
                //800ce78 - green
                channel_next();
-               draw_channel_number_box(12, 6, bCurrentChannelNumber, wData_20000a56 & 0x04);
+               draw_channel_number_box(12, 6, bCurrentChannelNumber, wMainloopEvents & 0x04);
                draw_channel_name(&r7_c[bCurrentChannelNumber].Data_8);
                //->800D116
                break;
@@ -593,7 +597,7 @@ int main(void)
             case 3:
                //800ceb2 - blue
                channel_previous();
-               draw_channel_number_box(12, 6, bCurrentChannelNumber, wData_20000a56 & 0x04);
+               draw_channel_number_box(12, 6, bCurrentChannelNumber, wMainloopEvents & 0x04);
                draw_channel_name(&r7_c[bCurrentChannelNumber].Data_8);
                //->800D116
                break;
@@ -614,7 +618,7 @@ int main(void)
             case 14:
                //800cf0c - OnOff
                sub_800aed0();
-               draw_standby_screen(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+               draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
                //->800D116
                break;
 
@@ -631,17 +635,17 @@ int main(void)
 					   Data_20000a78.bData_0x80,
 					   bCurrentChannelNumber,
 					   &Data_20000a5c,
-					   wData_20000a56);
+					   wMainloopEvents);
                //->800D116
                break;
 
             case 20:
                //800cf7a - Channel number box
-               if ((wData_20000a56 & 0x04) != 0)
+               if ((wMainloopEvents & 0x04) != 0)
                {
                   bCurrentChannelNumber = 0;
-                  wData_20000a56 &= ~0x04;
-                  wData_20000a56 |= 0x02;
+                  wMainloopEvents &= ~0x04;
+                  wMainloopEvents |= 0x02;
                   //->800CFC6
                }
                else
@@ -650,15 +654,15 @@ int main(void)
                   if (bFavouriteCount != 0)
                   {
                      bCurrentChannelNumber = 0;
-                     wData_20000a56 |= (0x02|0x04);
+                     wMainloopEvents |= (0x02|0x04);
                   }
                   //800CFC6
                }
                //800CFC6
-               r7_c = ((wData_20000a56 & 0x04) != 0)? FavouriteList: ChannelList;
+               r7_c = ((wMainloopEvents & 0x04) != 0)? FavouriteList: ChannelList;
 
                draw_channel_name(&r7_c[bCurrentChannelNumber].Data_8);
-               draw_channel_number_box(12, 6, bCurrentChannelNumber, wData_20000a56 & 0x04);
+               draw_channel_number_box(12, 6, bCurrentChannelNumber, wMainloopEvents & 0x04);
                //800CFD6
                break;
 
@@ -666,11 +670,11 @@ int main(void)
                //800d010 - orange (Menu)
                menu_main();
 
-               if (((wData_20000a56 & 0x04) != 0) && (bFavouriteCount == 0))
+               if (((wMainloopEvents & 0x04) != 0) && (bFavouriteCount == 0))
                {
                   bCurrentChannelNumber = 0;
                   r7_c = ChannelList;
-                  wData_20000a56 &= ~0x04;
+                  wMainloopEvents &= ~0x04;
                }
                //800D040
                draw_main_screen(Data_20000a70,
@@ -680,7 +684,7 @@ int main(void)
 					   Data_20000a78.bData_0x80,
 					   bCurrentChannelNumber,
 					   &Data_20000a5c,
-					   wData_20000a56);
+					   wMainloopEvents);
                //->800D116
                break;
 
@@ -701,7 +705,7 @@ int main(void)
             Data_20000bc0.bData_0 = 1;
          }
          //goto loc_800c9c4;
-	  }
+	  } //if ((wMainloopEvents & 0x100) != 0)
 	  else
 	  {
          //loc_800d154
@@ -709,14 +713,14 @@ int main(void)
         		 (Data_20000a48.bData_0 == 0))
          {
             //loc_800d164
-            r7_a = 10800;
+            standbyCounter = 10800;
 
             // Display On
             HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_RESET);
 
             sub_800ae28();
 
-            wData_20000a56 |= 0x02;
+            wMainloopEvents |= 0x02;
 
             draw_main_screen(Data_20000a70,
                  &r7_c[bCurrentChannelNumber].Data_8,
@@ -725,7 +729,7 @@ int main(void)
 				 Data_20000a78.bData_0x80,
 				 bCurrentChannelNumber,
 				 &Data_20000a5c,
-  				 wData_20000a56
+  				 wMainloopEvents
             	);
 
             Data_20000bc0.bData_0 = 1;
@@ -734,17 +738,17 @@ int main(void)
          else
          {
             //loc_800d1d0
-            if (((wData_20000a56 & 0x80) == 0) &&
+            if (((wMainloopEvents & 0x80) == 0) &&
             		(0 != sub_800af5c()))
             {
-               draw_standby_screen(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+               draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
 
                sub_800aed0();
             }
             //loc_800d202
-            if ((wData_20000a56 & 0x10) != 0)
+            if ((wMainloopEvents & 0x10) != 0)
             {
-               wData_20000a56 &= ~0x10;
+               wMainloopEvents &= ~0x10;
 
                if (0 == HAL_RTC_GetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
                {
@@ -756,20 +760,20 @@ int main(void)
 					   (Data_20000a70.Hours == 0) &&
 					   (0 == HAL_RTC_GetDate(&hrtc, &Data_20000a74, RTC_FORMAT_BIN)))
                {
-                  draw_standby_screen(Data_20000a70, Data_20000a74, &Data_20000a4c, Data_20000a50.b1);
+                  draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
                }
                //loc_800d274
             }
             //loc_800d274
-            if ((wData_20000a56 & 0x08) != 0)
+            if ((wMainloopEvents & 0x08) != 0)
             {
-               wData_20000a56 &= ~0x08;
+               wMainloopEvents &= ~0x08;
 
                HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_RESET);
 
                sub_800ae28();
 
-               wData_20000a56 |= 0x02;
+               wMainloopEvents |= 0x02;
 
                draw_main_screen(Data_20000a70,
                            &r7_c[bCurrentChannelNumber].Data_8,
@@ -778,7 +782,7 @@ int main(void)
 						 Data_20000a78.bData_0x80,
 						 bCurrentChannelNumber,
 						 &Data_20000a5c,
-          				 wData_20000a56
+          				 wMainloopEvents
           			 );
             }
             //loc_800c9c4

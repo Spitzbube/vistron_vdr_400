@@ -84,11 +84,11 @@ uint8_t bData_200009fc; //200009fc
 uint8_t Data_20000a00[8]; //20000a00, size?
 uint8_t Data_20000a08[0x40]; //20000a08, size?
 Struct_20000a48 Data_20000a48; //20000a48
-Struct_20000a4c Data_20000a4c; //20000a4c
+Alarm_Time currentAlarmTime; //20000a4c
 Struct_20000a50 Data_20000a50; //20000a50
 uint8_t bData_20000a54; //20000a54
 uint8_t bData_20000a55; //20000a55
-uint16_t wData_20000a56; //20000a56
+uint16_t wMainloopEvents; //20000a56
 uint8_t bCurrentChannelNumber; //20000a58
 uint8_t bData_20000a59; //20000a59
 int8_t Data_20000a5a; //20000a5a
@@ -100,7 +100,7 @@ RTC_DateTypeDef Data_20000a74; //20000a74
 Struct_20000a78 Data_20000a78; //20000a78
 //int Data_20000af8; //20000af8
 Struct_20000a78 Data_20000afc; //20000afc
-uint8_t bData_20000b7d; //20000b7d
+uint8_t sleepTimerCount; //20000b7d
 Struct_20000b90 Data_20000b90; //20000b90
 Struct_20000bc0 Data_20000bc0;
 char** CurrentTextTable; //20000bc8
@@ -305,9 +305,118 @@ void sub_80040a4(char* a, char* b)
 
 
 /* 80041e0 - todo */
-int sub_80041e0(uint16_t a, uint16_t b)
+int sub_80041e0(uint16_t r7_6, uint16_t r7_4)
 {
+   if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(273, 196, 0xffff, 7);
+      return 5;
+   }
 
+   return 0;
+}
+
+
+/* 8004244 - todo */
+void draw_alarm_screen(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
+{
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
+   sub_8003038(TEXT_ID_ALARM, &Data_2000004c);
+   draw_alarm_time_edit(r7_4, offOn, editFocus);
+   sub_8005198(8, 196, 0x1f, 1);
+   sub_8005198(61, 196, 0x7e0, 0);
+   sub_8005198(167, 196, 0xffe0, 6);
+   sub_8005198(273, 196, 0xffff, 7);
+}
+
+
+/* 80042d0 - todo */
+void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
+{
+   uint8_t len;
+   char str[20];
+
+   len = sprintf(str, "%2d:%02d %s", r7_4->hours, r7_4->minutes, CurrentTextTable[TEXT_ID_OFF + offOn]);
+
+   ili9341_draw_box(0, 96, 320, 25, 0xffff);
+   ili9341_set_font(&Data_2000004c);
+   ili9341_set_text_color(0, 0xffff);
+
+   switch (editFocus)
+   {
+      case 0:
+         //loc_8004342
+         ili9341_set_cursor(160 - len * Data_2000004c.width / 2, 97);
+         ili9341_draw_format_string("__");
+         //->loc_80043dc
+         break;
+
+      case 1:
+         //loc_800436a
+         ili9341_set_cursor(160 - len * Data_2000004c.width / 2 + 3 * Data_2000004c.width, 97);
+         ili9341_draw_format_string("__");
+         //->loc_80043dc
+         break;
+
+      case 2:
+         //loc_80043a2
+         ili9341_set_cursor(160 - len * Data_2000004c.width / 2 + 6 * Data_2000004c.width, 97);
+         ili9341_draw_format_string("___");
+         //->loc_80043dc
+         break;
+#if 0
+      default:
+    	  break;
+#endif
+   }
+   //loc_80043dc
+   ili9341_set_font(&Data_2000004c);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(160 - len * Data_2000004c.width / 2, 96);
+   ili9341_draw_string(str, len);
+}
+
+
+/* 8004438 - todo */
+int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
+{
+   if ((r7_6 > 7) && (r7_6 < 45) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(8, 196, 0x1f, 1);
+      return 3;
+   }
+
+   if ((r7_6 > 60) && (r7_6 < 98) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(61, 196, 0x7e0, 0);
+      return 2;
+   }
+
+   if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(167, 196, 0xffe0, 6);
+      return 4;
+   }
+
+   if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(273, 196, 0xffff, 7);
+      return 5;
+   }
+
+   return 0;
 }
 
 
@@ -323,7 +432,7 @@ void draw_on_off_icon(uint16_t a, uint16_t b)
 
 
 /* 80045f8 - todo */
-void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_20000a4c* r7_4, uint8_t r7_3)
+void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time* r7_4, uint8_t r7_3)
 {
    // Display Backlight Off
    HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_SET);
@@ -336,7 +445,7 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Struct_2000
 
    if (r7_3 != 0)
    {
-	   sub_80046d8(r7_4);
+	   draw_alarm_time(r7_4);
    }
 }
 
@@ -358,18 +467,89 @@ void sub_800465c(RTC_DateTypeDef a)
 
 
 /* 80046d8 - todo */
-void sub_80046d8(Struct_20000a4c* a)
+void draw_alarm_time(Alarm_Time* a)
 {
    char buf[10];
    uint8_t len = 0;
 
-   len = sprintf(buf, "%s %d:%02d", CurrentTextTable[TEXT_ID_ALARM], a->a, a->b);
+   len = sprintf(buf, "%s %d:%02d", CurrentTextTable[TEXT_ID_ALARM], a->hours, a->minutes);
 
    ili9341_draw_box(0, 120, 320, 23, 0);
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0xffff, 0);
    ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 120);
    ili9341_draw_string(buf, len);
+}
+
+
+/* 800476c - todo */
+void draw_sleep_timer_screen(uint8_t r7_7)
+{
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
+   sub_8003038(TEXT_ID_SLEEP_TIMER, &Data_2000004c);
+   draw_sleep_timer_value(r7_7);
+   sub_8005198(8, 196, 0x1f, 1);
+   sub_8005198(61, 196, 0x7e0, 0);
+   sub_8005198(167, 196, 0xffe0, 6);
+   sub_8005198(273, 196, 0xffff, 7);
+}
+
+
+/* 80047f0 - todo */
+void draw_sleep_timer_value(uint8_t r7_7)
+{
+   uint8_t r7_17 = (r7_7 != 0)? 1: 0;
+   uint8_t len = 0;
+   char buf[12];
+
+   len = sprintf(buf, "%2d min %s", r7_7, CurrentTextTable[TEXT_ID_OFF + r7_17]);
+
+   ili9341_draw_box(0, 96, 320, 25, 0xffff);
+   ili9341_set_font(&Data_2000004c);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 96);
+   ili9341_draw_string(buf, len);
+}
+
+
+/* 8004894 - todo */
+int sub_8004894(uint16_t r7_6, uint16_t r7_4)
+{
+   if ((r7_6 > 7) && (r7_6 < 45) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(8, 196, 0x1f, 1);
+      return 3;
+   }
+
+   if ((r7_6 > 60) && (r7_6 < 98) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(61, 196, 0x7e0, 0);
+      return 2;
+   }
+
+   if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(167, 196, 0xffe0, 6);
+      return 4;
+   }
+
+   if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
+   {
+      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(273, 196, 0xffff, 7);
+      return 5;
+   }
+
+   return 0;
 }
 
 
@@ -945,13 +1125,6 @@ void sub_8006a70(int a)
 }
 
 
-/* 8007114 - todo */
-int sub_8007114(void)
-{
-
-}
-
-
 /* 80073c0 - todo */
 int sub_80073c0(void)
 {
@@ -980,20 +1153,6 @@ int sub_8007415(void)
 
 /* 80075e9 - todo */
 int sub_80075e9(void)
-{
-
-}
-
-
-/* 8008200 - todo */
-int sub_8008200(void)
-{
-
-}
-
-
-/* 800837c - todo */
-int sub_800837c(void)
 {
 
 }
@@ -1064,12 +1223,12 @@ int menu_automatic_search(void)
    if (r7_16 != 0)
    {
       sub_800c460();
-      sub_800ba74(ChannelList, FavouriteList, &Data_20000a4c, &Data_20000a50);
+      sub_800ba74(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
    }
    else
    {
       //loc_800c426
-      sub_800b2ac(&Data_20000a4c, &Data_20000a50);
+      sub_800b2ac(&currentAlarmTime, &Data_20000a50);
    }
    //loc_800c42e
    bCurrentChannelNumber = 0;

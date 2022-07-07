@@ -97,7 +97,7 @@ int menu_channel_list(void)
 
          if (0 != r7_4[itemIndex]())
          {
-            wData_20000a56 |= 0x02;
+            wMainloopEvents |= 0x02;
             r7_16 = 0;
             r7_17 = 1;
          }
