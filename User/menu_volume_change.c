@@ -14,23 +14,23 @@ int menu_volume_change(void)
 
    draw_volume_change_screen(newVolume);
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    while ((menuActive != 0) && (r7_c -- != 0))
    {
       //loc_8008586
       r7_7 = 0;
-      if (Data_20000a48.bData_0 == 0)
+      if (KeyEvent.bData_0 == 0)
       {
-         r7_7 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
+         r7_7 = KeyEvent.bData_1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_800859e
       r7_6 = 0;
-      if (Data_20000bc0.bData_0 == 0)
+      if (TouchEvent.bData_0 == 0)
       {
-         r7_6 = volume_change_screen_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+         r7_6 = volume_change_screen_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
       }
       //loc_80085be
       if ((r7_6 | r7_7) != 0)
@@ -69,8 +69,8 @@ int menu_volume_change(void)
 #endif
          }
          //loc_800861e
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_800862a
       if (newVolume != oldVolume)

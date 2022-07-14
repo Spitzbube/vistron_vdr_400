@@ -25,7 +25,7 @@ char* EnglishTextTable[] = //8012dc0
 	"Settings", //TEXT_ID_SETTINGS
 	"Factory reset",
 	"Alarm",  //TEXT_ID_ALARM
-	"Information",
+	"Information", //TEXT_ID_INFORMATION
 	"Automatic search", //TEXT_ID_AUTOMATIC_SEARCH
 	"Manual search",
 	"Delete channel",
@@ -42,25 +42,25 @@ char* EnglishTextTable[] = //8012dc0
 	"Volume",
 	"Off", //TEXT_ID_OFF
 	"On",
-	"Signal information",
-	"Channel:",
-	"Multiplex:",
-	"Frequency:",
-	"Level:",
-	"SNR:",
-	"Error rate:",
-	"Multipath:",
+	"Signal information", //TEXT_ID_SIGNAL_INFORMATION
+	"Channel:", //TEXT_ID_CHANNEL
+	"Multiplex:", //TEXT_ID_MULTIPLEX
+	"Frequency:", //TEXT_ID_FREQUENCY
+	"Level:", //TEXT_ID_LEVEL
+	"SNR:", //TEXT_ID_SNR
+	"Error rate:", //TEXT_ID_ERROR_RATE
+	"Multipath:", //TEXT_ID_MULTIPATH
 	"Freq.offset:",
 	"Audio information",
 	"Data rate:",
 	"Sampl.frequency:",
 	"Audio mode:",
 	"Stereo separation:",
-	"Product:",
-	"Hardware:",
-	"Software:",
-	"DAB Firmware:",
-	"FM Firmware:",
+	"Product:", //TEXT_ID_PRODUCT
+	"Hardware:", //TEXT_ID_HARDWARE
+	"Software:", //TEXT_ID_SOFTWARE
+	"DAB Firmware:", //TEXT_ID_DAB_FIRMWARE
+	"FM Firmware:", //TEXT_ID_FM_FIRMWARE
 };
 
 char* GermanTextTable[] = //8012ea8

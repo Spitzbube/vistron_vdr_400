@@ -14,23 +14,23 @@ int menu_language(void)
 
    sub_8002d70(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
    //->loc_80081d4
    while (r7_7 != 0)
    {
       //loc_8008078
       r7_4 = 0;
-      if (Data_20000a48.bData_0 == 0)
+      if (KeyEvent.bData_0 == 0)
       {
-         r7_4 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
+         r7_4 = KeyEvent.bData_1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_8008090
       r7_3 = 0;
-      if (Data_20000bc0.bData_0 == 0)
+      if (TouchEvent.bData_0 == 0)
       {
-         r7_3 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+         r7_3 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
       }
       //loc_80080b0
       if ((r7_3 | r7_4) != 0)
@@ -61,7 +61,7 @@ int menu_language(void)
                {
                   Data_20000a50.b2 = (r7_3 - 25) & 1;
                   menu_set_language(Data_20000a50.b2);
-                  sub_800ba74(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
+                  persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
                }
                //800819A
                r7_7 = 0;
@@ -78,8 +78,8 @@ int menu_language(void)
                break;
          }
          //loc_80081b0
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_80081bc
       if (itemIndex != oldItem)

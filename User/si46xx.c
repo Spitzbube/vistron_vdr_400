@@ -58,8 +58,8 @@ int sub_8008670(void)
    uint8_t r7_3;
    uint8_t r7_2 = Data_20000a50.b2;
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    sub_8002e0c(28, 34, 2, r7_6);
 
@@ -67,16 +67,16 @@ int sub_8008670(void)
    {
 	  //loc_80086b8
 	  r7_4 = 0;
-	  if (Data_20000a48.bData_0 == 0)
+	  if (KeyEvent.bData_0 == 0)
 	  {
-		 r7_4 = Data_20000a48.bData_1;
-		 Data_20000a48.bData_0 = 1;
+		 r7_4 = KeyEvent.bData_1;
+		 KeyEvent.bData_0 = 1;
 	  }
 	  //loc_80086d0
 	  r7_3 = 0;
-	  if (Data_20000bc0.bData_0 == 0)
+	  if (TouchEvent.bData_0 == 0)
 	  {
-		 r7_3 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+		 r7_3 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
 	  }
 	  //loc_80086f0
 	  if ((r7_3 | r7_4) != 0)
@@ -118,8 +118,8 @@ int sub_8008670(void)
 			   break;
 		 }
 		 //loc_80087de
-		 Data_20000bc0.bData_0 = 1;
-		 Data_20000a48.bData_0 = 1;
+		 TouchEvent.bData_0 = 1;
+		 KeyEvent.bData_0 = 1;
 	  }
 	  //loc_80087ea
 	  if (r7_6 != r7_5)
@@ -199,8 +199,8 @@ int si46xx_dab_search(uint8_t* r7_4)
 
    Tuner_Values r7_8 = {0};
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    do
    {
@@ -212,23 +212,23 @@ int si46xx_dab_search(uint8_t* r7_4)
 	   }
 	   else
 	   {
-		  if (Data_20000bc0.bData_0 == 0)
+		  if (TouchEvent.bData_0 == 0)
 		  {
 			 r7_21 = 0;
-			 if (Data_20000a48.bData_0 == 0)
+			 if (KeyEvent.bData_0 == 0)
 			 {
-				r7_21 = Data_20000a48.bData_1;
-				Data_20000a48.bData_0 = 1;
+				r7_21 = KeyEvent.bData_1;
+				KeyEvent.bData_0 = 1;
 			 }
 			 //loc_8008b8a
 			 r7_20 = 0;
-			 if (Data_20000bc0.bData_0 == 0)
+			 if (TouchEvent.bData_0 == 0)
 			 {
-				r7_20 = menu_automatic_search_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+				r7_20 = menu_automatic_search_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
 			 }
 			 //loc_8008bae
-			 Data_20000bc0.bData_0 = 1;
-			 Data_20000a48.bData_0 = 1;
+			 TouchEvent.bData_0 = 1;
+			 KeyEvent.bData_0 = 1;
 
 			 if ((r7_20 | r7_21) == 5)
 			 {
@@ -268,10 +268,10 @@ int si46xx_dab_search(uint8_t* r7_4)
 					  //loc_8008c52
 					  sub_8009f1c(100);
 
-					  if (Data_20000bc0.bData_0 == 0)
+					  if (TouchEvent.bData_0 == 0)
 					  {
-						  Data_20000bc0.bData_0 = 1;
-						  if (5 == menu_automatic_search_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4))
+						  TouchEvent.bData_0 = 1;
+						  if (5 == menu_automatic_search_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4))
 						  {
 							  return 1;
 						  }
@@ -474,8 +474,8 @@ int si46xx_fm_search(uint8_t* r7_4)
    uint8_t r7_1c[8];
    Tuner_Values r7_c;
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    if (0 != si46xx_fm_tune_freq(freq))
    {
@@ -485,23 +485,23 @@ int si46xx_fm_search(uint8_t* r7_4)
    while (freq < 10790)
    {
       //loc_80091a6
-      if (Data_20000bc0.bData_0 == 0)
+      if (TouchEvent.bData_0 == 0)
       {
          r7_29 = 0;
-         if (Data_20000a48.bData_0 == 0)
+         if (KeyEvent.bData_0 == 0)
          {
-            r7_29 = Data_20000a48.bData_1;
-            Data_20000a48.bData_0 = 1;
+            r7_29 = KeyEvent.bData_1;
+            KeyEvent.bData_0 = 1;
          }
          //loc_80091ca
          r7_28 = 0;
-         if (Data_20000bc0.bData_0 == 0)
+         if (TouchEvent.bData_0 == 0)
          {
-            r7_28 = menu_automatic_search_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+            r7_28 = menu_automatic_search_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
          }
          //loc_80091ee
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
 
          if ((r7_28 | r7_29) == 5)
          {
@@ -534,23 +534,23 @@ int si46xx_fm_search(uint8_t* r7_4)
             break;
          }
 
-         if (Data_20000bc0.bData_0 == 0)
+         if (TouchEvent.bData_0 == 0)
          {
             r7_29 = 0;
-            if (Data_20000a48.bData_0 == 0)
+            if (KeyEvent.bData_0 == 0)
             {
-               r7_29 = Data_20000a48.bData_1;
-               Data_20000a48.bData_0 = 1;
+               r7_29 = KeyEvent.bData_1;
+               KeyEvent.bData_0 = 1;
             }
             //loc_80092a4
             r7_28 = 0;
-            if (Data_20000bc0.bData_0 == 0)
+            if (TouchEvent.bData_0 == 0)
             {
-               r7_28 = menu_automatic_search_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+               r7_28 = menu_automatic_search_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
             }
             //loc_80092c8
-            Data_20000bc0.bData_0 = 1;
-            Data_20000a48.bData_0 = 1;
+            TouchEvent.bData_0 = 1;
+            KeyEvent.bData_0 = 1;
 
             if ((r7_28 | r7_29) == 5)
             {
@@ -2065,8 +2065,8 @@ int sub_800a9a8(void)
 
    HAL_RTC_SetDate(&hrtc, &Data_20000a74, RTC_FORMAT_BIN);
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    if (0 != sub_800b2ac(&currentAlarmTime, &Data_20000a50))
    {
@@ -2440,22 +2440,22 @@ int sub_800b270(void)
 
 
 /* 800b2ac - todo */
-int sub_800b2ac(void* a/*r7_4*/, void* b/*r7*/)
+int sub_800b2ac(void* a, void* b)
 {
-   struct_8008d84 r7_8;
-   uint8_t r7_26;
+   struct_8008d84 empty;
+   uint8_t res;
    uint8_t i;
 
-   memset(&r7_8, 0xff, 28);
+   memset(&empty, 0xff, sizeof(struct_8008d84));
 
    bChannelCount = 0;
    bFavouriteCount = 0;
 
-   r7_26 = sub_800bc04(ChannelList, FavouriteList, a, b);
+   res = persist_read(ChannelList, FavouriteList, a, b);
 
    for (i = 0; i < 200; i++)
    {
-      if (0 == memcmp(&ChannelList[i], &r7_8, 28))
+      if (0 == memcmp(&ChannelList[i], &empty, sizeof(struct_8008d84)))
       {
          break;
       }
@@ -2465,7 +2465,7 @@ int sub_800b2ac(void* a/*r7_4*/, void* b/*r7*/)
 
    for (i = 0; i < 8; i++)
    {
-      if (0 == memcmp(&FavouriteList[i], &r7_8, 28))
+      if (0 == memcmp(&FavouriteList[i], &empty, sizeof(struct_8008d84)))
       {
          break;
       }
@@ -2473,7 +2473,7 @@ int sub_800b2ac(void* a/*r7_4*/, void* b/*r7*/)
       bFavouriteCount++;
    }
 
-   return r7_26;
+   return res;
 }
 
 

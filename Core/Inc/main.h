@@ -197,7 +197,7 @@ extern int Data_200009f8; //200009f8
 extern uint8_t bData_200009fc; //200009fc
 extern uint8_t Data_20000a00[]; //20000a00
 extern uint8_t Data_20000a08[]; //20000a08
-extern Struct_20000a48 Data_20000a48; //20000a48
+extern Struct_20000a48 KeyEvent; //20000a48
 extern Alarm_Time currentAlarmTime; //20000a4c
 extern Struct_20000a50 Data_20000a50; //20000a50
 extern uint8_t bData_20000a54; //20000a54
@@ -216,7 +216,7 @@ extern Struct_20000a78 Data_20000a78; //20000a78
 extern Struct_20000a78 Data_20000afc; //20000afc
 extern uint8_t sleepTimerCount; //20000b7d
 extern Struct_20000b90 Data_20000b90; //20000b90
-extern Struct_20000bc0 Data_20000bc0;
+extern Struct_20000bc0 TouchEvent;
 extern char** CurrentTextTable; //20000bc8
 extern char strFMVersion[]; //20000bcc
 extern char strDABVersion[]; //20000bd8
@@ -251,12 +251,26 @@ extern UART_HandleTypeDef huart2; //20002438
 #define TEXT_ID_CHANNEL_LIST                18
 #define TEXT_ID_SETTINGS                    19
 #define TEXT_ID_ALARM                       21
+#define TEXT_ID_INFORMATION                 22
 #define TEXT_ID_AUTOMATIC_SEARCH            23
 #define TEXT_ID_LANGUAGE                    28
 #define TEXT_ID_SLEEP_TIMER                 29
 #define TEXT_ID_AUTO_STANDBY                30
 #define TEXT_ID_GERMAN                      34
 #define TEXT_ID_OFF                         37
+#define TEXT_ID_SIGNAL_INFORMATION          39
+#define TEXT_ID_CHANNEL                     40
+#define TEXT_ID_MULTIPLEX                   41
+#define TEXT_ID_FREQUENCY                   42
+#define TEXT_ID_LEVEL                       43
+#define TEXT_ID_SNR                         44
+#define TEXT_ID_ERROR_RATE                  45
+#define TEXT_ID_MULTIPATH                   46
+#define TEXT_ID_PRODUCT                     53
+#define TEXT_ID_HARDWARE                    54
+#define TEXT_ID_SOFTWARE                    55
+#define TEXT_ID_DAB_FIRMWARE                56
+#define TEXT_ID_FM_FIRMWARE                 57
 
 #define TEXT_ID_MAIN_MENU_FIRST             TEXT_ID_CHANNEL_LIST
 #define TEXT_ID_MAIN_MENU_ITEMS             5
@@ -304,6 +318,14 @@ void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 uint8_t sub_8002e98(uint16_t a, uint16_t b);
 void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
+void draw_signal_information_screen(struct_8008d84* a, uint8_t b, Tuner_Values* c);
+void draw_signal_level_line(Tuner_Values* a);
+void draw_signal_quality_line(Tuner_Values* a);
+void draw_signal_error_rate_line(Tuner_Values* a);
+void draw_signal_multipath_line(Tuner_Values* a);
+int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b);
+void draw_sw_information_screen(char* r7_4, char* r7);
+int sub_80041e0(uint16_t r7_6, uint16_t r7_4);
 void draw_alarm_screen(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
 int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4);
@@ -367,13 +389,13 @@ void sub_800691c(uint8_t a);
 void sub_8006950(uint8_t a);
 uint16_t sub_80069b4(int a);
 void sub_8006a70(int a);
-int sub_8006a8e(uint32_t addr, uint16_t data[], uint16_t r7_6);
-int sub_8006af4(uint32_t addr);
+int flash_write(uint32_t addr, uint16_t data[], uint16_t r7_6);
+int flash_erase(uint32_t addr);
 void menu_main(void);
 int menu_channel_list(void);
 int menu_settings(void);
 int menu_alarm(void);
-int sub_80073c0(void);
+int menu_sw_information(void);
 int sub_8007415(void);
 int sub_80075e9(void);
 int menu_language(void);
@@ -415,18 +437,21 @@ void channel_set(struct_8008d84* a);
 void volume_up(void);
 void volume_down(void);
 void button_gpio_check(void);
+int sub_800b2ac(void* a, void* b);
 int sub_800b398(uint16_t a, void* b);
 int sub_800b43c(uint16_t a);
 int sub_800b4ec(struct_8008d84* a);
 void sub_800b610(uint8_t a);
-void sub_800b6f0(struct_8008d84 a);
-void sub_800b7f8(struct_8008d84 a);
+int sub_800b6f0(struct_8008d84 a);
+int sub_800b7f8(struct_8008d84 a);
 int sub_800b8d4(uint8_t r7_f, uint32_t r7_8, uint32_t r7_4, uint8_t* r7);
-int sub_800ba74(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7);
-int sub_800bbbc(void);
+int persist_write(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7);
+int persist_clear(void);
+int persist_read(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7);
 void menu_channel_select(void);
 int menu_automatic_search(void);
 void sub_800c460(void);
+void menu_signal_information(void);
 void sub_800c7e0(uint16_t a);
 uint32_t calculate_crc(uint32_t r7_c, void* r7_8, uint32_t r7_4);
 uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);

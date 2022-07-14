@@ -567,16 +567,16 @@ int main(void)
          } //if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
          //loc_800cd5e
          bData_20000a6d = 0;
-         if (Data_20000a48.bData_0 == 0)
+         if (KeyEvent.bData_0 == 0)
          {
-            bData_20000a6d = Data_20000a48.bData_1;
-            Data_20000a48.bData_0 = 1;
+            bData_20000a6d = KeyEvent.bData_1;
+            KeyEvent.bData_0 = 1;
          }
          //loc_800cd7a
          bData_20000a6c = 0;
-         if (Data_20000bc0.bData_0 == 0)
+         if (TouchEvent.bData_0 == 0)
          {
-            bData_20000a6c = main_screen_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+            bData_20000a6c = main_screen_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
          }
          //loc_800cda0
          if ((bData_20000a6c | bData_20000a6d))
@@ -690,6 +690,17 @@ int main(void)
 
             case 22:
                //800d084
+               menu_signal_information();
+
+               draw_main_screen(Data_20000a70,
+            		   &r7_c[bCurrentChannelNumber].Data_8,
+					   bCurrentVolume,
+            		   &Data_20000a78,
+					   Data_20000a78.bData_0x80,
+					   bCurrentChannelNumber,
+					   &Data_20000a5c,
+					   wMainloopEvents);
+               //->800D116
                break;
 
             case 23:
@@ -702,15 +713,15 @@ int main(void)
                break;
             }
 
-            Data_20000bc0.bData_0 = 1;
+            TouchEvent.bData_0 = 1;
          }
          //goto loc_800c9c4;
 	  } //if ((wMainloopEvents & 0x100) != 0)
 	  else
 	  {
          //loc_800d154
-         if ((Data_20000bc0.bData_0 == 0) ||
-        		 (Data_20000a48.bData_0 == 0))
+         if ((TouchEvent.bData_0 == 0) ||
+        		 (KeyEvent.bData_0 == 0))
          {
             //loc_800d164
             standbyCounter = 10800;
@@ -732,7 +743,7 @@ int main(void)
   				 wMainloopEvents
             	);
 
-            Data_20000bc0.bData_0 = 1;
+            TouchEvent.bData_0 = 1;
             //->loc_800d2ee
          }
          else

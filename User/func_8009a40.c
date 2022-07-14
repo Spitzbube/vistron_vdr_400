@@ -83,7 +83,7 @@ int Data_200009f8; //200009f8
 uint8_t bData_200009fc; //200009fc
 uint8_t Data_20000a00[8]; //20000a00, size?
 uint8_t Data_20000a08[0x40]; //20000a08, size?
-Struct_20000a48 Data_20000a48; //20000a48
+Struct_20000a48 KeyEvent; //20000a48
 Alarm_Time currentAlarmTime; //20000a4c
 Struct_20000a50 Data_20000a50; //20000a50
 uint8_t bData_20000a54; //20000a54
@@ -102,7 +102,7 @@ Struct_20000a78 Data_20000a78; //20000a78
 Struct_20000a78 Data_20000afc; //20000afc
 uint8_t sleepTimerCount; //20000b7d
 Struct_20000b90 Data_20000b90; //20000b90
-Struct_20000bc0 Data_20000bc0;
+Struct_20000bc0 TouchEvent;
 char** CurrentTextTable; //20000bc8
 char strFMVersion[12]; //20000bcc
 char strDABVersion[12]; //20000bd8
@@ -297,10 +297,305 @@ void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
 }
 
 
-/* 80040a4 - todo */
-void sub_80040a4(char* a, char* b)
+/* 80039b0 - todo */
+void draw_signal_information_screen(struct_8008d84* r7_c, uint8_t r7_b, Tuner_Values* r7_4)
 {
+   extern const char* Data_8012cdc[];
 
+   uint8_t r7_17;
+
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
+   sub_8003038(TEXT_ID_SIGNAL_INFORMATION, &Data_2000004c);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 72);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_CHANNEL]);
+   ili9341_set_cursor(140, 72);
+   if (bChannelCount == 0)
+   {
+      ili9341_draw_string(CurrentTextTable[TEXT_ID_NO_CHANNEL], sub_8001224(CurrentTextTable[TEXT_ID_NO_CHANNEL]));
+   }
+   else
+   {
+      //loc_8003a46
+      r7_17 = sub_800c88c(&r7_c[r7_b].Data_8, 16);
+      ili9341_draw_string(&r7_c[r7_b].Data_8, r7_17);
+   }
+   //loc_8003a80
+   draw_signal_level_line(r7_4);
+   draw_signal_quality_line(r7_4);
+
+   if (r7_4->frequency > 15000)
+   {
+      ili9341_set_font(&Data_20000044);
+      ili9341_set_text_color(0, 0xffff);
+      ili9341_set_cursor(0, 96);
+      ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_MULTIPLEX]);
+      ili9341_set_cursor(140, 96);
+      ili9341_draw_format_string("%s/%u.%03u MHz", Data_8012cdc[10 + r7_4->freq_index],
+    		  r7_4->frequency / 1000, r7_4->frequency % 1000);
+
+      draw_signal_error_rate_line(r7_4);
+   }
+   else
+   {
+      //loc_8003b08
+      ili9341_set_font(&Data_20000044);
+      ili9341_set_cursor(0, 96);
+      ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_FREQUENCY]);
+      ili9341_set_cursor(140, 96);
+      ili9341_draw_format_string("%u.%02uMHz",
+    		  r7_4->frequency / 100, r7_4->frequency % 100);
+
+      draw_signal_multipath_line(r7_4);
+   }
+   //loc_8003b5e
+   sub_8005198(8, 196, 0x1f, 1); //blue touch area, 1 = black arrow down
+   sub_8005198(61, 196, 0x7e0, 0); //x+53 green touch area, 0 = black arrow up
+   sub_8005198(114, 196, 0xf800, 2); //red touch area, 2 = black arrow left
+   sub_8005198(167, 196, 0xffe0, 3); //yellow touch area, 3 = black arrow right
+   sub_8005198(273, 196, 0xffff, 7); //
+}
+
+
+/* 8003bd4 - todo */
+void draw_signal_level_line(Tuner_Values* r7_4)
+{
+   uint16_t color;
+
+   if (r7_4->frequency > 15000)
+   {
+      if (r7_4->rssi < 20)
+      {
+         color = 0xf800;
+      }
+      else if (r7_4->rssi < 30)
+      {
+         color = 0xffe0;
+      }
+      else
+      {
+         color = 0x7e0;
+      }
+   }
+   else
+   {
+      //loc_8003c14
+      if (r7_4->rssi < 25)
+      {
+         color = 0xf800;
+      }
+      else if (r7_4->rssi < 35)
+      {
+         color = 0xffe0;
+      }
+      else
+      {
+         color = 0x7e0;
+      }
+   }
+   //loc_8003c3e
+   ili9341_draw_box(140, 120, 115, 23, 0xffff);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 120);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_LEVEL]);
+   ili9341_set_cursor(140, 120);
+   ili9341_draw_format_string("%d dBuV", r7_4->rssi);
+   ili9341_draw_box(280, 122, 20, 20, color);
+   sub_800581e(280, 122, 20, 20, 0);
+}
+
+
+/* 8003ccc - todo */
+void draw_signal_quality_line(Tuner_Values* r7_4)
+{
+   uint16_t color;
+
+   if (r7_4->frequency > 15000)
+   {
+	  if (r7_4->snr <= 0)
+	  {
+		 color = 0xf800;
+	  }
+	  else if (r7_4->snr < 4)
+	  {
+		 color = 0xffe0;
+	  }
+	  else
+	  {
+		 color = 0x7e0;
+	  }
+   }
+   else
+   {
+	  //loc_8003d0c
+	  if (r7_4->snr < 15)
+	  {
+		 color = 0xf800;
+	  }
+	  else if (r7_4->snr < 25)
+	  {
+		 color = 0xffe0;
+	  }
+	  else
+	  {
+		 color = 0x7e0;
+	  }
+   }
+   //loc_8003d36
+   ili9341_draw_box(140, 144, 115, 23, 0xffff);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 144);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_SNR]);
+   ili9341_set_cursor(140, 144);
+   ili9341_draw_format_string("%d dB", r7_4->snr);
+   ili9341_draw_box(280, 145, 20, 20, color);
+   sub_800581e(280, 145, 20, 20, 0);
+}
+
+
+/* 8003dc4 - todo */
+void draw_signal_error_rate_line(Tuner_Values* r7_4)
+{
+   uint16_t color;
+
+   if (r7_4->fib_error_count < 50)
+   {
+      color = 0x7e0;
+   }
+   else if (r7_4->fib_error_count < 1000)
+   {
+      color = 0xffe0;
+   }
+   else
+   {
+      color = 0xf800;
+   }
+
+   ili9341_draw_box(140, 168, 115, 23, 0xffff);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 168);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_ERROR_RATE]);
+   ili9341_set_cursor(140, 168);
+   ili9341_draw_format_string("%u", r7_4->fib_error_count);
+   ili9341_draw_box(280, 168, 20, 20, color);
+   sub_800581e(280, 168, 20, 20, 0);
+}
+
+
+/* 8003e80 - todo */
+void draw_signal_multipath_line(Tuner_Values* r7_4)
+{
+   uint16_t color;
+
+   if (r7_4->multipath < 5)
+   {
+	  color = 0x7e0;
+   }
+   else if (r7_4->multipath < 10)
+   {
+	  color = 0xffe0;
+   }
+   else
+   {
+	  color = 0xf800;
+   }
+
+   ili9341_draw_box(140, 168, 115, 23, 0xffff);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 168);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_MULTIPATH]);
+   ili9341_set_cursor(140, 168);
+   ili9341_draw_format_string("%u", r7_4->multipath);
+   ili9341_draw_box(280, 168, 20, 20, color);
+   sub_800581e(280, 168, 20, 20, 0);
+}
+
+
+/* 8003f38 - todo */
+int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
+{
+   if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
+   {
+	  ili9341_draw_box(8, 196, 36, 36, 0xce59);
+	  sub_800c7e0(100);
+	  sub_8005198(8, 196, 0x1f, 1);
+	  return 3;
+   }
+
+   if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
+   {
+	  ili9341_draw_box(61, 196, 36, 36, 0xce59);
+	  sub_800c7e0(100);
+	  sub_8005198(61, 196, 0x7e0, 0);
+	  return 2;
+   }
+
+   if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
+   {
+	  ili9341_draw_box(114, 196, 36, 36, 0xce59);
+	  sub_800c7e0(100);
+	  sub_8005198(114, 196, 0xf800, 2);
+	  return 1;
+   }
+
+   if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
+   {
+	  ili9341_draw_box(167, 196, 36, 36, 0xce59);
+	  sub_800c7e0(100);
+	  sub_8005198(167, 196, 0xffe0, 3);
+	  return 4;
+   }
+
+   if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
+   {
+	  ili9341_draw_box(273, 196, 36, 36, 0xce59);
+	  sub_800c7e0(100);
+	  sub_8005198(273, 196, 0xffff, 7);
+	  return 5;
+   }
+
+   return 0;
+}
+
+
+/* 80040a4 - todo */
+void draw_sw_information_screen(char* dab, char* fm)
+{
+   ili9341_fill_screen(0xffff);
+   ili9341_draw_hor_line(0, 320, 48, 0);
+   ili9341_draw_hor_line(0, 320, 192, 0);
+   sub_8003038(TEXT_ID_INFORMATION, &Data_2000004c);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, 0xffff);
+   ili9341_set_cursor(0, 72);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_PRODUCT]);
+   ili9341_set_cursor(140, 72);
+   ili9341_draw_format_string("DAB-Radio");
+   ili9341_set_cursor(0, 96);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_HARDWARE]);
+   ili9341_set_cursor(140, 96);
+   ili9341_draw_format_string("L3-02 Rev.1.2");
+   ili9341_set_cursor(0, 120);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_SOFTWARE]);
+   ili9341_set_cursor(140, 120);
+   ili9341_draw_format_string("4.0");
+   ili9341_set_cursor(0, 144);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_DAB_FIRMWARE]);
+   ili9341_set_cursor(140, 144);
+   ili9341_draw_format_string("%s", dab);
+   ili9341_set_cursor(0, 168);
+   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_FM_FIRMWARE]);
+   ili9341_set_cursor(140, 168);
+   ili9341_draw_format_string("%s", fm);
+
+   sub_8005198(273, 196, 0xffff, 7);
 }
 
 
@@ -752,9 +1047,9 @@ int touch_init(void)
 {
    uint8_t r7_7 = 1;
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000bc0.wData_2 = 0;
-   Data_20000bc0.wData_4 = 0;
+   TouchEvent.bData_0 = 1;
+   TouchEvent.wData_2 = 0;
+   TouchEvent.wData_4 = 0;
 
    Data_20000b90.Data_0 = 0;
    Data_20000b90.wData_4 = 0x8000;
@@ -871,14 +1166,14 @@ void touch_poll(void)
    {
       touch_read_xy(1);
       sub_8006730();
-      if ((0 == sub_8006838()) && (Data_20000bc0.bData_0 != 0))
+      if ((0 == sub_8006838()) && (TouchEvent.bData_0 != 0))
       {
-         Data_20000bc0.bData_0 = 0;
+         TouchEvent.bData_0 = 0;
       }
    }
-   else if (Data_20000bc0.bData_0 != 0)
+   else if (TouchEvent.bData_0 != 0)
    {
-      Data_20000bc0.bData_0 = 1;
+      TouchEvent.bData_0 = 1;
    }
 }
 
@@ -1001,8 +1296,8 @@ uint8_t sub_8006838(void)
 
    if (r7_7 == 0)
    {
-      Data_20000bc0.wData_2 = Data_20000b90.wData_8;
-      Data_20000bc0.wData_4 = Data_20000b90.wData_10;
+      TouchEvent.wData_2 = Data_20000b90.wData_8;
+      TouchEvent.wData_4 = Data_20000b90.wData_10;
    }
 
    return r7_7;
@@ -1125,25 +1420,6 @@ void sub_8006a70(int a)
 }
 
 
-/* 80073c0 - todo */
-int sub_80073c0(void)
-{
-   uint8_t r7_7 = 1;
-
-   sub_80040a4(strDABVersion, strFMVersion);
-
-   while (r7_7 != 0)
-   {
-      if (5 == sub_80041e0(Data_20000bc0.wData_2, Data_20000bc0.wData_4))
-      {
-         r7_7 = 0;
-      }
-   }
-
-   return 0;
-}
-
-
 /* 8007415 - todo */
 int sub_8007415(void)
 {
@@ -1180,7 +1456,7 @@ int menu_automatic_search(void)
    r7_17 = 0;
    r7_16 = 0;
 
-   Data_20000bc0.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
 
    sub_800b5e0();
 
@@ -1223,7 +1499,7 @@ int menu_automatic_search(void)
    if (r7_16 != 0)
    {
       sub_800c460();
-      sub_800ba74(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
+      persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
    }
    else
    {
@@ -1251,9 +1527,5 @@ void sub_800c460(void)
       }
    }
 }
-
-
-
-
 
 

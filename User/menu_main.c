@@ -12,7 +12,7 @@ void menu_main(void)
 	  menu_settings, //Settings
 	  sub_80088cc, //Factory reset
 	  menu_alarm, //Alarm
-	  sub_80073c0 //Information
+	  menu_sw_information //Information
    };
    uint8_t r7_1f = 1;
    uint8_t itemSelected = 0;
@@ -21,8 +21,8 @@ void menu_main(void)
    uint8_t r7_1b;
    uint8_t r7_1a;
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    sub_8002d70(TEXT_ID_MAIN_MENU, TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
    //->loc_8006d20
@@ -30,16 +30,16 @@ void menu_main(void)
    {
       //loc_8006b7a
       r7_1b = 0;
-      if (Data_20000a48.bData_0 == 0)
+      if (KeyEvent.bData_0 == 0)
       {
-         r7_1b = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
+         r7_1b = KeyEvent.bData_1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_8006b92
       r7_1a = 0;
-      if (Data_20000bc0.bData_0 == 0)
+      if (TouchEvent.bData_0 == 0)
       {
-         r7_1a = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+         r7_1a = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
       }
       //loc_8006bb2
       if ((r7_1a | r7_1b) != 0)
@@ -108,8 +108,8 @@ void menu_main(void)
                break;
          }
          //loc_8006cb0
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_8006cbc
       if (itemSelected != 0)
@@ -124,8 +124,8 @@ void menu_main(void)
          else
          {
             //loc_8006cf0
-            Data_20000bc0.bData_0 = 1;
-            Data_20000a48.bData_0 = 1;
+            TouchEvent.bData_0 = 1;
+            KeyEvent.bData_0 = 1;
 
             sub_8002d70(TEXT_ID_MAIN_MENU, TEXT_ID_MAIN_MENU_FIRST, TEXT_ID_MAIN_MENU_ITEMS, itemIndex);
          }

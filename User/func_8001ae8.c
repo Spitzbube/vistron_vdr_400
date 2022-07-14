@@ -598,7 +598,7 @@ void sub_800581e(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, uint16_t 
 /* 800b1c8 - todo */
 void button_gpio_check(void)
 {
-   if (Data_20000a48.bData_0 != 1)
+   if (KeyEvent.bData_0 != 1)
    {
       return;
    }
@@ -611,28 +611,28 @@ void button_gpio_check(void)
 
    bData_20000056 = 4;
 
-   if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5))
+   if (0 == HAL_GPIO_ReadPin(Button_Yellow_GPIO_Port, Button_Yellow_Pin))
    {
-      Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 4; //yellow
+      KeyEvent.bData_0 = 0;
+      KeyEvent.bData_1 = 4; //yellow
    }
 
-   if (0 == HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
+   if (0 == HAL_GPIO_ReadPin(Button_Red_GPIO_Port, Button_Red_Pin))
    {
-      Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 1; //red
+      KeyEvent.bData_0 = 0;
+      KeyEvent.bData_1 = 1; //red
    }
 
-   if (0 == HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
+   if (0 == HAL_GPIO_ReadPin(Button_Green_GPIO_Port, Button_Green_Pin))
    {
-      Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 2; //green
+      KeyEvent.bData_0 = 0;
+      KeyEvent.bData_1 = 2; //green
    }
 
-   if (0 == HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4))
+   if (0 == HAL_GPIO_ReadPin(Button_Blue_GPIO_Port, Button_Blue_Pin))
    {
-      Data_20000a48.bData_0 = 0;
-      Data_20000a48.bData_1 = 3; //blue
+      KeyEvent.bData_0 = 0;
+      KeyEvent.bData_1 = 3; //blue
    }
 }
 
@@ -680,31 +680,6 @@ void sub_8004b74(int a, int b, char* c)
 }
 
 
-/* 8006a8e - todo */
-int sub_8006a8e(uint32_t addr, uint16_t data[], uint16_t r7_6)
-{
-   uint8_t r7_17 = 0;
-   uint16_t i;
-
-   HAL_FLASH_Unlock();
-
-   for (i = 0; i < r7_6; i++)
-   {
-      //loc_8006aaa
-      if (0 != HAL_FLASH_Program(1, addr, (uint64_t)(data[i])))
-      {
-         r7_17 = 1;
-         break;
-      }
-
-      addr += 2;
-   }
-
-   HAL_FLASH_Lock();
-
-   return r7_17;
-}
-
 /* 800c830 - todo */
 uint32_t calculate_crc(uint32_t startVal, void* data, uint32_t count)
 {
@@ -719,180 +694,6 @@ uint32_t calculate_crc(uint32_t startVal, void* data, uint32_t count)
    }
 
    return ~crc;
-}
-
-
-/* 800ba74 - todo */
-int sub_800ba74(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7)
-{
-   uint8_t r7_1f = 0;
-
-   if (0 == sub_800bbbc())
-   {
-      uint16_t r7_16 = 0x524d;
-
-      if (0 != sub_8006a8e(0x807e800, &r7_16, 1))
-      {
-         r7_1f = 1;
-      }
-	  //loc_800baae
-	  r7_16 = 1;
-	  if (0 != sub_8006a8e(0x807e802, &r7_16, 1))
-	  {
-		 r7_1f = 1;
-	  }
-      //loc_800baca
-	  uint32_t r7_18 = calculate_crc(0, r7_c, 0x15e0);
-	  r7_18 = calculate_crc(r7_18, r7_8, 0xe0);
-	  r7_18 = calculate_crc(r7_18, r7_4, 4);
-	  r7_18 = calculate_crc(r7_18, r7, 4);
-	  r7_16 = r7_18;
-	  if (0 != sub_8006a8e(0x807e804, &r7_16, 1))
-	  {
-         r7_1f = 1;
-	  }
-	  //loc_800bb1a
-	  r7_16 = r7_18 >> 16;
-	  if (0 != sub_8006a8e(0x807e806, &r7_16, 1))
-	  {
-         r7_1f = 1;
-	  }
-	  //loc_800bb3a
-	  if (0 != sub_8006a8e(0x807e808, (uint16_t*)r7_c, 0xaf0))
-	  {
-         r7_1f = 1;
-	  }
-	  //loc_800bb50
-	  if (0 != sub_8006a8e(0x807fde8, (uint16_t*)r7_8, 0x70))
-	  {
-		r7_1f = 1;
-	  }
-	  //loc_800bb64
-	  if (0 != sub_8006a8e(0x807feca, (uint16_t*)r7_4, 2))
-	  {
-		r7_1f = 1;
-	  }
-	  //loc_800bb78
-	  if (0 != sub_8006a8e(0x807fece, (uint16_t*)r7, 2))
-	  {
-		r7_1f = 1;
-	  }
-   }
-   else
-   {
-      //loc_800bb8e
-      r7_1f = 1;
-   }
-
-   return r7_1f;
-}
-
-
-/* 800bbbc - todo */
-int sub_800bbbc(void)
-{
-   uint8_t r7_7;
-   uint8_t r7_6 = 0;
-   int r7 = 0x807e800;
-
-   for (r7_7 = 0; r7_7 < 3; r7_7++)
-   {
-      if (0 != sub_8006af4(r7))
-      {
-         r7_6 = 1;
-         break;
-      }
-
-      r7 += 0x800;
-   }
-
-   return r7_6;
-}
-
-
-/* 800bc04 - todo */
-int sub_800bc04(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7)
-{
-   uint16_t* r7_2c;
-   uint16_t* r7_28;
-   uint32_t r7_24;
-   uint32_t* r7_20;
-   uint32_t* r7_1c;
-   uint32_t r7_18;
-   uint32_t r7_14;
-
-   r7_20 = (void*) 0x807e804;
-   r7_1c = &r7_14;
-   *r7_1c = *r7_20;
-
-   r7_28 = (void*) 0x807e808;
-   r7_2c = (void*) r7_c;
-
-   for (r7_24 = 0; r7_24 < 2800; r7_24++)
-   {
-	   //loc_800bc32
-      *r7_2c++ = *r7_28++;
-   }
-
-   r7_28 = (void*) 0x807fde8;
-   r7_2c = (void*) r7_8;
-
-   for (r7_24 = 0; r7_24 < 112; r7_24++)
-   {
-	   //loc_800bc5e
-      *r7_2c++ = *r7_28++;
-   }
-
-   r7_20 = (void*) 0x807feca;
-   r7_1c = r7_4;
-   *r7_1c++ = *r7_20++;
-
-   r7_20 = (void*) 0x807fece;
-   r7_1c = r7;
-   *r7_1c = *r7_20;
-
-   r7_18 = calculate_crc(0, r7_c, 0x15e0);
-   r7_18 = calculate_crc(r7_18, r7_8, 0xe0);
-   r7_18 = calculate_crc(r7_18, r7_4, 4);
-   r7_18 = calculate_crc(r7_18, r7, 4);
-
-   if (r7_14 != r7_18)
-   {
-      sub_800bbbc();
-
-      memset(r7_c, 0xff, 0x15e0);
-      memset(r7_8, 0xff, 0xe0);
-      memset(r7_4, 0xff, 4);
-      memset(r7, 0xff, 4);
-
-      return 1;
-   }
-   //loc_800bd0e
-   return 0;
-}
-
-
-/* 8006af4 - todo */
-int sub_8006af4(uint32_t addr)
-{
-   uint8_t r7_1f = 0;
-   FLASH_EraseInitTypeDef eraseInit;
-   uint32_t r7_8;
-
-   eraseInit.PageAddress = addr;
-   eraseInit.NbPages = 1;
-   eraseInit.TypeErase = 0;
-   eraseInit.Banks = 1;
-
-   HAL_FLASH_Unlock();
-   if (0 != HAL_FLASHEx_Erase(&eraseInit, &r7_8))
-   {
-      r7_1f = 1;
-   }
-
-   HAL_FLASH_Lock();
-
-   return r7_1f;
 }
 
 

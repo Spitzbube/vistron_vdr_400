@@ -19,8 +19,8 @@ int menu_alarm(void)
 
    offOn = Data_20000a50.b1;
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    r7.hours = currentAlarmTime.hours;
    r7.minutes = currentAlarmTime.minutes;
@@ -49,16 +49,16 @@ int menu_alarm(void)
       }
       //loc_800718a
       r7_10 = 0;
-      if (Data_20000a48.bData_0 == 0)
+      if (KeyEvent.bData_0 == 0)
       {
-         r7_10 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
+         r7_10 = KeyEvent.bData_1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_80071a2
       r7_f = 0;
-      if (Data_20000bc0.bData_0 == 0)
+      if (TouchEvent.bData_0 == 0)
       {
-         r7_f = alarm_screen_check_touch_fields(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+         r7_f = alarm_screen_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
       }
       //loc_80071c2
       if ((r7_f | r7_10) != 0)
@@ -116,8 +116,8 @@ int menu_alarm(void)
             	break;
          }
          //8007288
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
          oldValue = 0xff;
       }
       //loc_8007298
@@ -169,7 +169,7 @@ int menu_alarm(void)
          }
       }
       //loc_8007380
-      if (0 != sub_800ba74(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50))
+      if (0 != persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50))
       {
          Error_Handler();
       }

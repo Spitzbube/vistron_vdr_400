@@ -18,23 +18,23 @@ int menu_sleep_timer(void)
 
    draw_sleep_timer_screen(r7_5);
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
 
    while (r7_7 != 0)
    {
       //loc_8008250
       r7_3 = 0;
-      if (Data_20000a48.bData_0 == 0)
+      if (KeyEvent.bData_0 == 0)
       {
-         r7_3 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
+         r7_3 = KeyEvent.bData_1;
+         KeyEvent.bData_0 = 1;
       }
 
       r7_2 = 0;
-      if (Data_20000bc0.bData_0 == 0)
+      if (TouchEvent.bData_0 == 0)
       {
-         r7_2 = sub_8004894(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+         r7_2 = sub_8004894(TouchEvent.wData_2, TouchEvent.wData_4);
       }
 
       if ((r7_2 | r7_3) != 0)
@@ -77,8 +77,8 @@ int menu_sleep_timer(void)
                break;
          }
          //loc_8008334
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
       }
       //loc_8008342
       if (r7_6 != r7_4)

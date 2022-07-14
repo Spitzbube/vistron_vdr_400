@@ -22,23 +22,23 @@ int menu_settings(void)
 
    sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
 
-   Data_20000bc0.bData_0 = 1;
-   Data_20000a48.bData_0 = 1;
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
    //->loc_80070f0
    while (r7_16 != 0)
    {
       //loc_8006f62
 	  r7_12 = 0;
-	  if (Data_20000a48.bData_0 == 0)
+	  if (KeyEvent.bData_0 == 0)
 	  {
-         r7_12 = Data_20000a48.bData_1;
-         Data_20000a48.bData_0 = 1;
+         r7_12 = KeyEvent.bData_1;
+         KeyEvent.bData_0 = 1;
 	  }
 
 	  r7_11 = 0;
-	  if (Data_20000bc0.bData_0 == 0)
+	  if (TouchEvent.bData_0 == 0)
 	  {
-         r7_11 = sub_8002e98(Data_20000bc0.wData_2, Data_20000bc0.wData_4);
+         r7_11 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
 	  }
 
 	  if ((r7_11 | r7_12) != 0)
@@ -91,8 +91,8 @@ int menu_settings(void)
                break;
          }
          //loc_800707c
-         Data_20000bc0.bData_0 = 1;
-         Data_20000a48.bData_0 = 1;
+         TouchEvent.bData_0 = 1;
+         KeyEvent.bData_0 = 1;
 	  }
 	  //loc_8007088
 	  if (itemSelected != 0)
@@ -110,8 +110,8 @@ int menu_settings(void)
             //loc_80070c0
             sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
 
-            Data_20000bc0.bData_0 = 1;
-            Data_20000a48.bData_0 = 1;
+            TouchEvent.bData_0 = 1;
+            KeyEvent.bData_0 = 1;
          }
 	  }
 	  //loc_80070d8
