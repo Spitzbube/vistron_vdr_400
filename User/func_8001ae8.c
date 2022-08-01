@@ -27,6 +27,87 @@ int sub_80016f0(int a)
 #endif
 
 
+/* 8001802 - todo */
+uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
+{
+   if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
+   {
+      //blue
+      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(8, 196, 0x1f, 1);
+      return 3;
+   }
+   //loc_8001852
+   if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
+   {
+      //green
+      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(61, 196, 0x7e0, 0);
+      return 2;
+   }
+   //loc_8001894
+   if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
+   {
+      //red
+      ili9341_draw_box(114, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(114, 196, 0xf800, 2);
+      return 1;
+   }
+   //loc_80018d6
+   if ((a > 166) && (a < 203) && (b > 195) && (b < 233))
+   {
+      //yellow
+      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(167, 196, 0xffe0, 3);
+      return 4;
+   }
+   //loc_8001918
+   if ((a > 78) && (a < 116) && (b > 5) && (b < 43))
+   {
+      //orange
+      ili9341_draw_box(79, 6, 36, 36, 0xce59);
+      sub_800c7e0(100);
+      sub_8005198(79, 6, 0xfd20, 4);
+      return 21;
+   }
+   //loc_800195a
+   if ((a < 320) && (b > 47) && (b < 97))
+   {
+      return 6;
+   }
+   //loc_8001972
+   if ((a > 274) && (a < 308) && (b > 197) && (b < 231))
+   {
+      //On-Off
+      ili9341_draw_circle(291, 214, 16, 0xce59);
+      sub_800c7e0(200);
+      draw_on_off_icon(291, 214);
+      return 14;
+   }
+   //loc_80019b2
+   if ((a > 11) && (a < 63) && (b > 5) && (b < 43))
+   {
+      return 20; //Channel number box
+   }
+   //loc_80019ce
+   if ((a > 141) && (a < 213) && (b > 6) && (b < 78))
+   {
+      return 22; //Signal strength bar
+   }
+   //loc_80019ea
+   if ((a > 241) && (a < 307) && (b > 5) && (b < 43))
+   {
+      return 23; //Volume bar?
+   }
+
+   return 0;
+}
+
+
 /* 8001ae8 - todo */
 void sub_8001ae8(RTC_TimeTypeDef a)
 {
@@ -56,6 +137,96 @@ void sub_8001b60(RTC_TimeTypeDef a)
 
    ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 96);
    ili9341_draw_string(buf, len);
+}
+
+
+/* 8001bd8 - todo */
+void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
+{
+   uint8_t r7_17;
+   uint16_t color;
+   uint8_t r7_c[8];
+
+   if (r7_2 != 0)
+   {
+      color = 0xf81f;
+      r7_17 = siprintf(r7_c, "F%u", r7_3 + 1);
+   }
+   else
+   {
+      color = 0x7ff;
+      r7_17 = siprintf(r7_c, "%u", r7_3 + 1);
+   }
+
+   ili9341_draw_box(r7_6, r7_4, 50, 36, color);
+   sub_800581e(r7_6, r7_4, 50, 36, 0);
+   ili9341_set_cursor(r7_6 - r7_17 * Data_20000044.width / 2 + 25, r7_4 - Data_20000044.height / 2 + 20);
+   ili9341_set_font(&Data_20000044);
+   ili9341_set_text_color(0, color);
+   ili9341_draw_string(r7_c, r7_17);
+}
+
+
+/* 8001cc4 - todo */
+void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
+{
+   int8_t r7_f = *r7;
+
+   if (r7_f < 20)
+   {
+      ili9341_draw_box(r7_6, r7_4 - 7, 10, 7, 0xffff);
+      sub_800581e(r7_6, r7_4 - 7, 10, 7, 0);
+   }
+   else
+   {
+      //loc_8001d16
+      ili9341_draw_box(r7_6, r7_4 - 7, 10, 7, 0);
+   }
+   //loc_8001d2e
+   if (r7_f < 25)
+   {
+      ili9341_draw_box(r7_6 + 15, r7_4 - 14, 10, 14, 0xffff);
+      sub_800581e(r7_6 + 15, r7_4 - 14, 10, 14, 0);
+   }
+   else
+   {
+      //loc_8001d72
+      ili9341_draw_box(r7_6 + 15, r7_4 - 14, 10, 14, 0);
+   }
+   //loc_8001d8e
+   if (r7_f < 35)
+   {
+      ili9341_draw_box(r7_6 + 30, r7_4 - 21, 10, 21, 0xffff);
+      sub_800581e(r7_6 + 30, r7_4 - 21, 10, 21, 0);
+   }
+   else
+   {
+      //loc_8001dd2
+      ili9341_draw_box(r7_6 + 30, r7_4 - 21, 10, 21, 0);
+   }
+   //loc_8001dee
+   if (r7_f < 45)
+   {
+      ili9341_draw_box(r7_6 + 45, r7_4 - 28, 10, 28, 0xffff);
+      sub_800581e(r7_6 + 45, r7_4 - 28, 10, 28, 0);
+   }
+   else
+   {
+      //loc_8001e32
+      ili9341_draw_box(r7_6 + 45, r7_4 - 28, 10, 28, 0);
+   }
+   //loc_8001e4e
+   if (r7_f < 50)
+   {
+      ili9341_draw_box(r7_6 + 60, r7_4 - 35, 10, 35, 0xffff);
+      sub_800581e(r7_6 + 60, r7_4 - 35, 10, 35, 0);
+   }
+   else
+   {
+      //loc_8001e92
+      ili9341_draw_box(r7_6 + 60, r7_4 - 35, 10, 35, 0);
+   }
+   //loc_8001eae
 }
 
 

@@ -1933,46 +1933,6 @@ static uint8_t RTC_WeekDayNum(uint32_t nYear, uint8_t nMonth, uint8_t nDay)
   return (uint8_t)weekday;
 }
 
-
-/* 801050c - todo */
-void sub_801050c(RTC_HandleTypeDef *hrtc)
-{
-   if (__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_SEC))
-   {
-      if (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_SEC) != (uint32_t)RESET)
-      {
-         if (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_OW) != (uint32_t)RESET)
-         {
-            sub_8010586(hrtc);
-            __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_OW);
-            hrtc->State = HAL_RTC_STATE_ERROR;
-         }
-         else
-         {
-            sub_8010574(hrtc);
-            hrtc->State = HAL_RTC_STATE_READY;
-         }
-
-         __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_SEC);
-      }
-   }
-}
-
-
-/* 8010574 - todo */
-void sub_8010574(RTC_HandleTypeDef *hrtc)
-{
-
-}
-
-
-/* 8010586 - todo */
-void sub_8010586(RTC_HandleTypeDef *hrtc)
-{
-
-}
-
-
 /**
   * @}
   */

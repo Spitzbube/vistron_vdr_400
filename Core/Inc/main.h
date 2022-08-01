@@ -295,6 +295,7 @@ void Error_Handler(void);
 
 int sub_8001224(char* a);
 void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t f, Tuner_Values* g, uint16_t h);
+uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b);
 void draw_volume_bar(uint8_t r7_7);
 void draw_channel_name(void* a);
 void draw_radio_text(void* r7_4, uint8_t r7_3);
@@ -369,6 +370,7 @@ void ili9341_setup_interface(void);
 void ili9341_write_command(uint8_t a);
 void ili9341_write_data(uint16_t a);
 uint8_t sub_8006254(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f);
+void touch_poll(void);
 void touch_toggle_clk_line(uint8_t a);
 void touch_toggle_cs_line(uint8_t a);
 void touch_toggle_mosi_line(uint8_t a);
@@ -455,6 +457,7 @@ void menu_signal_information(void);
 void sub_800c7e0(uint16_t a);
 uint32_t calculate_crc(uint32_t r7_c, void* r7_8, uint32_t r7_4);
 uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
+//800c8f4: main
 
 /* USER CODE END EFP */
 
