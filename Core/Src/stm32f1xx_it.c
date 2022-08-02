@@ -186,6 +186,11 @@ void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
+#ifdef FREE_RTOS
+  void xPortSysTickHandler( void );
+  xPortSysTickHandler();
+#endif
+
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -209,7 +214,9 @@ void RTC_IRQHandler(void)
 
   //800dd74
 
+#ifndef FREE_RTOS
   wMainloopEvents |= 0x10;
+#endif
 
   /* USER CODE END RTC_IRQn 0 */
   HAL_RTCEx_RTCIRQHandler(&hrtc);
@@ -227,7 +234,9 @@ void RTC_Alarm_IRQHandler(void)
 
   //800dd98
 
+#ifndef FREE_RTOS
   wMainloopEvents |= 0x08;
+#endif
 
   /* USER CODE END RTC_Alarm_IRQn 0 */
   HAL_RTC_AlarmIRQHandler(&hrtc);
@@ -245,10 +254,12 @@ void TIM5_IRQHandler(void)
 
   //800ddbc
 
+#ifndef FREE_RTOS
   Data_20000b90.Data_0++;
 
   touch_poll();
   button_gpio_check();
+#endif
 
   /* USER CODE END TIM5_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
