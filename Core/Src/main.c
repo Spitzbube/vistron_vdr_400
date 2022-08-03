@@ -138,6 +138,19 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
    return r7_e - 1;
 }
 
+int _write(int file, char *ptr, int len)
+{
+   uint8_t rc = USBD_OK;
+
+   do
+   {
+      rc = CDC_Transmit_FS((uint8_t*) ptr, len);
+   }
+   while (USBD_BUSY == rc);
+
+   return len;
+}
+
 #endif //FREE_RTOS
 
 /* USER CODE END 0 */
