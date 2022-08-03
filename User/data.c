@@ -3,6 +3,7 @@
 
 //_sdata: 20000000 - 200000c8 -> 080193f8 - 80194C0
 
+#if 0
 Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
 {
    sub_8004be8, //arrow up
@@ -15,6 +16,7 @@ Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
    sub_8004fc4,
    sub_8005074
 };
+#endif
 Screen_Resolution ScreenResolution = //20000024 (801941C)
 {
    320, 240

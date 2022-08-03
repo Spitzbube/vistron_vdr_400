@@ -10,6 +10,18 @@ extern SPI_HandleTypeDef hspi2;
 extern void Error_Handler(void);
 int sub_800b2ac(void* a, void* b);
 
+Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
+{
+   sub_8004be8, //arrow up
+   sub_8004c4c, //arrow down
+   sub_8004cb0, //arrow left
+   sub_8004d14, //arrow right
+   sub_8004d78, //three horizontal lines
+   sub_8004e74,
+   sub_8004f24,
+   sub_8004fc4,
+   sub_8005074
+};
 
 extern int sub_800bc04(struct_8008d84* a, struct_8008d84* b, void* c, void* d);
 
