@@ -23,17 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#ifdef FREE_RTOS
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#else //FREE_RTOS
-
 #include "../../User/func_8001ae8.h"
 #include <stdlib.h>
-
-#endif //FREE_RTOS
 
 /* USER CODE END Includes */
 
@@ -89,47 +80,6 @@ extern int sub_800a9a8(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#ifdef FREE_RTOS
-
-#define LED_TASK_STACK_SIZE 256
-void LED1_Task(void* p)
-{
-    // PE5 = Output for LED D2
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_5;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_RESET);
-
-	while (1)
-	{
-	    vTaskDelay(pdMS_TO_TICKS(250));
-		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_5);
-	}
-}
-
-void LED2_Task(void* p)
-{
-    // PE6 = Output for LED D3
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_6;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_RESET);
-
-	while (1)
-	{
-	    vTaskDelay(pdMS_TO_TICKS(500));
-		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_6);
-	}
-}
-
-#else //FREE_RTOS
-
 /* 800c7e0 - todo */
 void sub_800c7e0(uint16_t a)
 {
@@ -152,6 +102,7 @@ void sub_800c7e0(uint16_t a)
    HAL_TIM_Base_Stop_IT(&htim);
 }
 
+#ifndef FREE_RTOS
 
 /* 800c88c - todo */
 uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
@@ -224,22 +175,6 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 
-#ifdef FREE_RTOS
-
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-
-  TaskHandle_t led1Task;
-  (void) xTaskCreate( LED1_Task, "LED1", LED_TASK_STACK_SIZE,
-  		NULL/*pvParameters*/, 1/*uxPriority*/, &led1Task);
-
-  TaskHandle_t led2Task;
-  (void) xTaskCreate( LED2_Task, "LED2", LED_TASK_STACK_SIZE,
-  		NULL/*pvParameters*/, 1/*uxPriority*/, &led2Task);
-
-  vTaskStartScheduler();  // should never return
-
-#else //FREE_RTOS
-
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -253,12 +188,18 @@ int main(void)
   MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
 
+#ifndef FREE_RTOS
+  
   ili9341_init();
 
   touch_init();
+  
+#endif
 
   HAL_TIM_Base_Start_IT(&htim5);
 
+#ifndef FREE_RTOS
+  
   sub_800b270();
 
   if (0 != sub_800a9a8())
@@ -279,7 +220,17 @@ int main(void)
      draw_standby_screen(Data_20000a70, Data_20000a74, &currentAlarmTime, Data_20000a50.b1);
   }
   //loc_800c9b4
+  
+#endif //FREE_RTOS
+  
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
+  
+#ifdef FREE_RTOS
+
+  void freertos_main(void);
+  freertos_main();
+
+#else //FREE_RTOS
 
   /* USER CODE END 2 */
 
@@ -772,8 +723,6 @@ void SystemClock_Config(void)
   }
 }
 
-#ifndef FREE_RTOS
-
 /**
   * @brief I2C2 Initialization Function
   * @param None
@@ -1208,8 +1157,6 @@ static void MX_FSMC_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-#endif //FREE_RTOS
 
 /* USER CODE END 4 */
 
