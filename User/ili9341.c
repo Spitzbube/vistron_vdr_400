@@ -645,11 +645,11 @@ void ili9341_setup_interface(void)
    ili9341_configure_fsmc();
 
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-   sub_800c7e0(100);
+   main_delay(100);
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
-   sub_800c7e0(300);
+   main_delay(300);
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-   sub_800c7e0(100);
+   main_delay(100);
 
    ili9341_write_command(1);
 

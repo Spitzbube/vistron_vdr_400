@@ -6,11 +6,11 @@
 int menu_language(void)
 {
    uint8_t r7_7 = 1;
-   uint8_t itemIndex = Data_20000a50.b2;
-   uint8_t oldItem = Data_20000a50.b2;
+   uint8_t itemIndex = UserSettings.b2;
+   uint8_t oldItem = UserSettings.b2;
    uint8_t r7_4;
    uint8_t r7_3;
-   uint8_t r7_2 = Data_20000a50.b2;
+   uint8_t r7_2 = UserSettings.b2;
 
    sub_8002d70(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
 
@@ -59,9 +59,9 @@ int menu_language(void)
                //0x0800815f
                if (r7_2 != (r7_3 - 25))
                {
-                  Data_20000a50.b2 = (r7_3 - 25) & 1;
-                  menu_set_language(Data_20000a50.b2);
-                  persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
+                  UserSettings.b2 = (r7_3 - 25) & 1;
+                  menu_set_language(UserSettings.b2);
+                  persist_write(ChannelList, FavouriteList, &currentAlarmTime, &UserSettings);
                }
                //800819A
                r7_7 = 0;

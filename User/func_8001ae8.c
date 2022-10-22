@@ -34,7 +34,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    {
       //blue
       ili9341_draw_box(8, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
    }
@@ -43,7 +43,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    {
       //green
       ili9341_draw_box(61, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
    }
@@ -52,7 +52,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    {
       //red
       ili9341_draw_box(114, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(114, 196, 0xf800, 2);
       return 1;
    }
@@ -61,7 +61,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    {
       //yellow
       ili9341_draw_box(167, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(167, 196, 0xffe0, 3);
       return 4;
    }
@@ -70,7 +70,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    {
       //orange
       ili9341_draw_box(79, 6, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(79, 6, 0xfd20, 4);
       return 21;
    }
@@ -84,7 +84,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    {
       //On-Off
       ili9341_draw_circle(291, 214, 16, 0xce59);
-      sub_800c7e0(200);
+      main_delay(200);
       draw_on_off_icon(291, 214);
       return 14;
    }
@@ -109,7 +109,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
 
 
 /* 8001ae8 - todo */
-void sub_8001ae8(RTC_TimeTypeDef a)
+void draw_foreground_clock(RTC_TimeTypeDef a)
 {
    char buf[10];
    uint8_t len = 0;
@@ -125,7 +125,7 @@ void sub_8001ae8(RTC_TimeTypeDef a)
 
 
 /* 8001b60 - todo */
-void sub_8001b60(RTC_TimeTypeDef a)
+void draw_background_clock(RTC_TimeTypeDef a)
 {
    char buf[10];
    uint8_t len = 0;
@@ -141,13 +141,13 @@ void sub_8001b60(RTC_TimeTypeDef a)
 
 
 /* 8001bd8 - todo */
-void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
+void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t isFav)
 {
    uint8_t r7_17;
    uint16_t color;
    uint8_t r7_c[8];
 
-   if (r7_2 != 0)
+   if (isFav != 0)
    {
       color = 0xf81f;
       r7_17 = siprintf(r7_c, "F%u", r7_3 + 1);
@@ -309,7 +309,7 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
 
 
 /* 8002054 - todo */
-void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18)
+void sub_8002054(Tuner_Channel* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18)
 {
    ili9341_fill_screen(0xffff);
    ili9341_draw_hor_line(0, 320, 48, 0);
@@ -320,7 +320,7 @@ void sub_8002054(struct_8008d84* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, u
    sub_8005198(8, 196, 0x1f, 1);
    sub_8005198(61, 196, 0x7e0, 0);
 
-   if ((wMainloopEvents & 0x04) == 0)
+   if ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) == 0)
    {
 	   sub_8005198(114, 196, 0xf800, 5);
    }
@@ -346,7 +346,7 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(8, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
    }
@@ -354,16 +354,16 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(61, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
    }
 
    if ((a > 113) && (a < 151) && (b > 195) && (b < 233) &&
-		   ((wMainloopEvents & 0x04) == 0)) //TODO
+		   ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) == 0)) //TODO
    {
       ili9341_draw_box(114, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(114, 196, 0xf800, 5);
       return 1;
    }
@@ -371,7 +371,7 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(167, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
    }
@@ -379,7 +379,7 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 272) && (a < 311) && (b > 197) && (b < 233))
    {
       ili9341_draw_box(273, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
    }
@@ -429,7 +429,7 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
 
 
 /* 80023d0 - todo */
-void sub_80023d0(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2)
+void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
 {
    uint8_t r7_f;
    uint8_t r7_e = (r7_3 < 2)? 0: r7_3 - 2;
@@ -473,7 +473,7 @@ void sub_80023d0(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2)
          ili9341_draw_string(&r7_4[r7_e + r7_f].Data_8, r7_c);
       }
       //loc_8002516
-      if ((r7_4[r7_e + r7_f].wData_24 < 42) && (r7_4[r7_e + r7_f].service_id != 0))
+      if ((r7_4[r7_e + r7_f].frequency < 42) && (r7_4[r7_e + r7_f].service_id != 0))
       {
          ili9341_set_cursor(Data_20000044.width * 21, r7_f * 24 + 72);
          ili9341_draw_format_string(Data_8012cdc[0]);
@@ -512,26 +512,26 @@ void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6)
 
 
 /* 80027b8 - todo */
-void draw_channel_freq_mux_label(struct_8008d84* r7_4, uint8_t r7_3)
+void draw_channel_freq_mux_label(Tuner_Channel* r7_4, uint8_t r7_3)
 {
    ili9341_draw_box(0, 24, Data_20000044.width * 11, 23, 0xffff);
    ili9341_set_font(&Data_20000044);
    ili9341_set_text_color(0, 0xffff);
    ili9341_set_cursor(0, 24);
 
-   if ((r7_4[r7_3].wData_24 < 42) && (r7_4[r7_3].service_id != 0))
+   if ((r7_4[r7_3].frequency < 42) && (r7_4[r7_3].service_id != 0))
    {
-      ili9341_draw_format_string(" MUX:%s", Data_8012cdc[r7_4[r7_3].wData_24 + 10]);
+      ili9341_draw_format_string(" MUX:%s", Data_8012cdc[r7_4[r7_3].frequency + 10]);
    }
    else
    {
-      ili9341_draw_format_string(" %3u.%02uMHz", r7_4[r7_3].wData_24 / 100, r7_4[r7_3].wData_24 % 100);
+      ili9341_draw_format_string(" %3u.%02uMHz", r7_4[r7_3].frequency / 100, r7_4[r7_3].frequency % 100);
    }
 }
 
 
 /* 80028b8 - todo */
-void sub_80028b8(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2)
+void sub_80028b8(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
 {
    sub_80023d0(r7_4, r7_3, r7_2);
    draw_scroll_bar(r7_3, r7_2);
@@ -540,7 +540,7 @@ void sub_80028b8(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2)
 
 
 /* 80028f2 - todo */
-void draw_automatic_search_screen(struct_8008d84* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
+void draw_automatic_search_screen(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
 {
    ili9341_fill_screen(0xffff);
    ili9341_draw_hor_line(0, 320, 48, 0);
@@ -577,7 +577,7 @@ void draw_progress_bar(uint16_t x, uint16_t y, uint16_t currentValue, uint16_t m
 
 
 /* 8002a60 - todo */
-void draw_channel_list(struct_8008d84* r7_4, uint8_t r7_3)
+void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3)
 {
    uint8_t r7_f;
    uint8_t r7_e = (r7_3 < 6)? 0: r7_3 - 5;
@@ -598,7 +598,7 @@ void draw_channel_list(struct_8008d84* r7_4, uint8_t r7_3)
       ili9341_set_cursor(Data_20000044.width * 4, r7_f * 24 + 72);
       ili9341_draw_string(&r7_4[r7_e + r7_f].Data_8, r7_d);
 
-      if ((r7_4[r7_e + r7_f].wData_24 < 41) && (r7_4[r7_e + r7_f].service_id != 0))
+      if ((r7_4[r7_e + r7_f].frequency < 41) && (r7_4[r7_e + r7_f].service_id != 0))
       {
          ili9341_set_cursor(Data_20000044.width * 21, r7_f * 24 + 72);
          ili9341_draw_format_string("DAB");
@@ -731,7 +731,7 @@ int volume_change_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 113) && (r7_6 < 151) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(114, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(114, 196, 0xf800, 2);
       return 1;
    }
@@ -739,7 +739,7 @@ int volume_change_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(167, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(167, 196, 0xffe0, 3);
       return 4;
    }
@@ -747,7 +747,7 @@ int volume_change_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 272) && (r7_6 < 311) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(273, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
    }
@@ -767,7 +767,7 @@ void sub_800581e(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, uint16_t 
 
 
 /* 800b1c8 - todo */
-void button_gpio_check(void)
+void button_poll(void)
 {
    if (KeyEvent.bData_0 != 1)
    {

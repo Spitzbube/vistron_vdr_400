@@ -17,7 +17,7 @@ int menu_alarm(void)
    RTC_AlarmTypeDef sAlarm = {0};
    Alarm_Time r7;
 
-   offOn = Data_20000a50.b1;
+   offOn = UserSettings.b1;
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -91,14 +91,14 @@ int menu_alarm(void)
                    case 1:
                       //800723A
                       currentAlarmTime.minutes = currentValue;
-                      currentValue = Data_20000a50.b1;
+                      currentValue = UserSettings.b1;
                       editFocus = 2;
                       //->8007276
                       break;
 
                    default:
                 	   //8007256
-                	   Data_20000a50.b1 = (currentValue != 0)? 1: 0;
+                	   UserSettings.b1 = (currentValue != 0)? 1: 0;
                 	   r7_16 = 1;
                 	   r7_17 = 0;
                 	   break;
@@ -150,7 +150,7 @@ int menu_alarm(void)
 
    if (r7_16 != 0)
    {
-      if (Data_20000a50.b1 != 0)
+      if (UserSettings.b1 != 0)
       {
          sAlarm.AlarmTime.Hours = (currentAlarmTime.hours / 10 << 4) | (currentAlarmTime.hours % 10);
          sAlarm.AlarmTime.Minutes = (currentAlarmTime.minutes / 10 << 4) | (currentAlarmTime.minutes % 10);
@@ -169,7 +169,7 @@ int menu_alarm(void)
          }
       }
       //loc_8007380
-      if (0 != persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50))
+      if (0 != persist_write(ChannelList, FavouriteList, &currentAlarmTime, &UserSettings))
       {
          Error_Handler();
       }

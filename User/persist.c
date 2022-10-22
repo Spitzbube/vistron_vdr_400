@@ -3,7 +3,7 @@
 
 
 /* 800ba74 - todo */
-int persist_write(struct_8008d84* channels, struct_8008d84* favs, void* r7_4, void* r7)
+int persist_write(Tuner_Channel* channels, Tuner_Channel* favs, void* r7_4, void* r7)
 {
    uint8_t r7_1f = 0;
 
@@ -91,7 +91,7 @@ int persist_clear(void)
 
 
 /* 800bc04 - todo */
-int persist_read(struct_8008d84* r7_c, struct_8008d84* r7_8, void* r7_4, void* r7)
+int persist_read(Tuner_Channel* r7_c, Tuner_Channel* r7_8, void* r7_4, void* r7)
 {
    uint16_t* r7_2c;
    uint16_t* r7_28;

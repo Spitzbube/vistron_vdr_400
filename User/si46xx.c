@@ -52,11 +52,11 @@ extern const uint8_t si46xx_image_data[]; //8018af4
 int sub_8008670(void)
 {
    uint8_t r7_7 = 1;
-   uint8_t r7_6 = Data_20000a50.b2;
-   uint8_t r7_5 = Data_20000a50.b2;
+   uint8_t r7_6 = UserSettings.b2;
+   uint8_t r7_5 = UserSettings.b2;
    uint8_t r7_4;
    uint8_t r7_3;
-   uint8_t r7_2 = Data_20000a50.b2;
+   uint8_t r7_2 = UserSettings.b2;
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -105,9 +105,9 @@ int sub_8008670(void)
 			   //0x0800879f
 			   if (r7_2 != (r7_3 - 25))
 			   {
-				  Data_20000a50.b2 = r7_3 - 25;
+				  UserSettings.b2 = r7_3 - 25;
 
-				  menu_set_language(Data_20000a50.b2);
+				  menu_set_language(UserSettings.b2);
 			   }
 			   //80087CE
 			   r7_7 = 0;
@@ -124,9 +124,9 @@ int sub_8008670(void)
 	  //loc_80087ea
 	  if (r7_6 != r7_5)
 	  {
-		 Data_20000a50.b2 = r7_6;
+		 UserSettings.b2 = r7_6;
 
-		 menu_set_language(Data_20000a50.b2);
+		 menu_set_language(UserSettings.b2);
 
 		 sub_8003038(28, &Data_2000004c);
 
@@ -266,7 +266,7 @@ int si46xx_dab_search(uint8_t* r7_4)
 				  do
 				  {
 					  //loc_8008c52
-					  sub_8009f1c(100);
+					  si46xx_is_dab_service_list_avail(100);
 
 					  if (TouchEvent.bData_0 == 0)
 					  {
@@ -285,7 +285,7 @@ int si46xx_dab_search(uint8_t* r7_4)
 			  }
 			  while ((r7_1b == 0) && (++r7_25 < 10));
 			  //loc_8008cba
-			  sub_8009f1c(10);
+			  si46xx_is_dab_service_list_avail(10);
 
 			  si46xx_get_digital_service_list(mux, &r7_1c);
 			  //->loc_8008cd4
@@ -328,9 +328,9 @@ int si46xx_dab_tune_freq(uint8_t index)
 
 
 /* 8008d84 - todo */
-int si46xx_dab_start_digital_service(struct_8008d84* a)
+int si46xx_dab_start_digital_service(Tuner_Channel* a)
 {
-   if (si46xx_dab_tune_freq(a->wData_24) != 0)
+   if (si46xx_dab_tune_freq(a->frequency) != 0)
    {
       return 1;
    }
@@ -358,7 +358,7 @@ int si46xx_dab_start_digital_service(struct_8008d84* a)
 
 
 /* 8008e38 - todo */
-int si46xx_dab_stop_digital_service(struct_8008d84* a)
+int si46xx_dab_stop_digital_service(Tuner_Channel* a)
 {
    si46xx_buffer[0] = SI46XX_DAB_STOP_DIGITAL_SERVICE;
    si46xx_buffer[1] = 0x00;
@@ -452,7 +452,7 @@ int si46xx_start_dab(uint8_t a)
       return 1;
    }
 
-   wMainloopEvents |= 1;
+   wMainloopEvents |= MAIN_LOOP_EVENT_DAB_ACTIVE;
 
    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
 
@@ -560,7 +560,7 @@ int si46xx_fm_search(uint8_t* r7_4)
          //loc_80092e8
       }
       //loc_80092f6
-      if (0 != sub_800a174())
+      if (0 != si46xx_get_fm_received_signal_quality())
       {
     	  return 1;
       }
@@ -1186,7 +1186,7 @@ int si46xx_start_fm(uint8_t a)
 
    si46xx_mute(0);
 
-   wMainloopEvents &= ~1;
+   wMainloopEvents &= ~MAIN_LOOP_EVENT_DAB_ACTIVE;
 
    return 0;
 }
@@ -1201,7 +1201,7 @@ int si46xx_read_stc_reply(uint16_t a, uint16_t b)
    {
       i--;
 
-      sub_800c7e0(a);
+      main_delay(a);
 
       /* CS to low */
       HAL_GPIO_WritePin(SPI2_CS_SI46xx_GPIO_Port, SPI2_CS_SI46xx_Pin, GPIO_PIN_RESET);
@@ -1240,7 +1240,7 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes)
 
    while (i--)
    {
-      sub_800c7e0(a);
+      main_delay(a);
 
       /* CS to low */
       HAL_GPIO_WritePin(SPI2_CS_SI46xx_GPIO_Port, SPI2_CS_SI46xx_Pin, GPIO_PIN_RESET);
@@ -1287,7 +1287,7 @@ int si46xx_load_and_boot(uint8_t a)
 
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 
-   sub_800c7e0(10);
+   main_delay(10);
 
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
@@ -1496,7 +1496,7 @@ int si46xx_set_dab_config(void)
 
 
 /* 8009f1c - todo */
-int sub_8009f1c(uint8_t a)
+int si46xx_is_dab_service_list_avail(uint8_t a)
 {
    while (a-- != 0)
    {
@@ -1505,7 +1505,7 @@ int sub_8009f1c(uint8_t a)
 
       (void) si46xx_send_command(2, 12, 10);
 
-      if ((si46xx_buffer[5] & 1) != 0)
+      if ((si46xx_buffer[5] & 1) != 0) //SVRLIST
       {
          break;
       }
@@ -1540,14 +1540,14 @@ int sub_8009f70(uint8_t* a)
 /* 8009fb0 - todo */
 int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
 {
-   uint8_t* r7_24 = &si46xx_buffer[12];
+   uint8_t* pByte = &si46xx_buffer[12]; //r7_24
    uint8_t r7_23;
    uint8_t i; //r7_22
    uint8_t r7_21;
    uint8_t r7_20;
-   uint32_t r7_1c;
-   uint32_t r7_18;
-   uint8_t r7_8[16];
+   uint32_t service_id; //r7_1c
+   uint32_t component_id; //r7_18
+   uint8_t station_name[16]; //r7_8
 
    si46xx_buffer[0] = SI46XX_GET_DIGITAL_SERVICE_LIST;
    si46xx_buffer[1] = 0;
@@ -1563,19 +1563,19 @@ int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
    for (i = 0; i < r7_20; i++)
    {
       //loc_800a00a
-      r7_23 = r7_24[5] & 0x0f;
+      r7_23 = pByte[5] & 0x0f;
 
-      if ((r7_24[4] & 0x01) == 0)
+      if ((pByte[4] & 0x01) == 0)
       {
-         r7_1c = r7_24[0] | (r7_24[1] << 8) | (r7_24[2] << 16) | (r7_24[3] << 24);
-         r7_24 += 4;
-         r7_24 += 4;
-         memcpy(r7_8, r7_24, 16);
-         r7_24 += 16;
-         r7_18 = r7_24[0] | (r7_24[1] << 8) | (r7_24[2] << 16) | (r7_24[3] << 24);
-         r7_24 += 4;
+         service_id = pByte[0] | (pByte[1] << 8) | (pByte[2] << 16) | (pByte[3] << 24);
+         pByte += 4;
+         pByte += 4;
+         memcpy(station_name, pByte, 16);
+         pByte += 16;
+         component_id = pByte[0] | (pByte[1] << 8) | (pByte[2] << 16) | (pByte[3] << 24);
+         pByte += 4;
 
-         r7_21 = sub_800b8d4(mux, r7_1c, r7_18, r7_8);
+         r7_21 = persist_add_dab_station(mux, service_id, component_id, station_name);
 
          if ((r7_21 != 1) && (r7_23 > 2))
          {
@@ -1583,13 +1583,13 @@ int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
             do
             {
                //loc_800a0ca
-               if ((r7_24[1] & 0xc0) == 0)
+               if ((pByte[1] & 0xc0) == 0)
                {
-                  r7_18 = r7_24[0] | (r7_24[1] << 8) | (r7_24[2] << 16) | (r7_24[3] << 24);
-                  r7_21 = sub_800b8d4(mux, r7_1c, r7_18, r7_8);
+                  component_id = pByte[0] | (pByte[1] << 8) | (pByte[2] << 16) | (pByte[3] << 24);
+                  r7_21 = persist_add_dab_station(mux, service_id, component_id, station_name);
                }
                //loc_800a112
-               r7_24 += 4;
+               pByte += 4;
                r7_23--;
 
                if (r7_21 == 1)
@@ -1605,7 +1605,7 @@ int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
       else
       {
          //loc_800a134
-         r7_24 += 4*(r7_23 + 6);
+         pByte += 4*(r7_23 + 6);
       }
    }
 
@@ -1614,7 +1614,7 @@ int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
 
 
 /* 800a174 - todo */
-int sub_800a174(void)
+int si46xx_get_fm_received_signal_quality(void)
 {
    si46xx_buffer[0] = SI46XX_FM_RSQ_STATUS;
    si46xx_buffer[1] = 0;
@@ -1865,7 +1865,7 @@ int si46xx_get_fm_values(Tuner_Values* r7_4)
    int8_t rssi;
    int8_t snr;
 
-   if (0 != sub_800a174())
+   if (0 != si46xx_get_fm_received_signal_quality())
    {
       return 1;
    }
@@ -2048,7 +2048,7 @@ int si46xx_send_command(uint16_t numTxBytes, uint16_t numRxBytes, uint16_t c)
 int sub_800a9a8(void)
 {
    RTC_AlarmTypeDef sAlarm = {0};
-   uint8_t r7_f = 0;
+   uint8_t res = 0; //r7_f
 
    si46xx_start_dab(0);
 
@@ -2058,33 +2058,33 @@ int sub_800a9a8(void)
 
    si46xx_get_func_info(strFMVersion);
 
-   Data_20000a74.Date = 1;
-   Data_20000a74.Month = 1;
-   Data_20000a74.Year = 20;
-   Data_20000a74.WeekDay = 3;
+   rtcDate.Date = 1;
+   rtcDate.Month = 1;
+   rtcDate.Year = 20;
+   rtcDate.WeekDay = 3;
 
-   HAL_RTC_SetDate(&hrtc, &Data_20000a74, RTC_FORMAT_BIN);
+   HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BIN);
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
 
-   if (0 != sub_800b2ac(&currentAlarmTime, &Data_20000a50))
+   if (0 != sub_800b2ac(&currentAlarmTime, &UserSettings))
    {
-      Data_20000a50.b = 0x1f;
+      UserSettings.b = 0x1f;
    }
 
-   bCurrentVolume = Data_20000a50.b;
+   bCurrentVolume = UserSettings.b;
 
-   menu_set_language(Data_20000a50.b2);
+   menu_set_language(UserSettings.b2);
 
    if ((currentAlarmTime.hours > 23) || (currentAlarmTime.minutes > 59))
    {
       currentAlarmTime.hours = 0;
       currentAlarmTime.minutes = 0;
-      Data_20000a50.b1 = 0;
+      UserSettings.b1 = 0;
    }
 
-   if (Data_20000a50.b1 != 0)
+   if (UserSettings.b1 != 0)
    {
       sAlarm.AlarmTime.Hours = ((currentAlarmTime.hours / 10) << 4) |
                 ((currentAlarmTime.hours % 10));
@@ -2118,20 +2118,20 @@ int sub_800a9a8(void)
          si46xx_mute(1);
       }
 
-      wMainloopEvents |= 0x100;
-      r7_f = 1;
+      wMainloopEvents |= MAIN_LOOP_EVENT_FOREGROUND;
+      res = 1;
    }
    else
    {
-      wMainloopEvents &= ~0x100;
+      wMainloopEvents &= ~MAIN_LOOP_EVENT_FOREGROUND;
    }
 
-   menu_set_language(Data_20000a50.b2);
+   menu_set_language(UserSettings.b2);
 
    bData_20000a59 = 0;
    bCurrentChannelNumber = 0;
 
-   return r7_f;
+   return res;
 }
 
 
@@ -2183,7 +2183,7 @@ void volume_down(void)
 
 
 /* 800abb0 - todo */
-void channel_set(struct_8008d84* a)
+void channel_set(Tuner_Channel* a)
 {
    Data_200023e0 = a;
 
@@ -2192,9 +2192,9 @@ void channel_set(struct_8008d84* a)
       bData_20000054 = bCurrentChannelNumber;
    }
 
-   if ((a->wData_24 < 42) && (a->service_id != 0))
+   if ((a->frequency < 42) && (a->service_id != 0))
    {
-      if ((wMainloopEvents & 1) == 0)
+      if ((wMainloopEvents & MAIN_LOOP_EVENT_DAB_ACTIVE) == 0)
       {
          si46xx_start_dab(bCurrentVolume);
       }
@@ -2206,12 +2206,12 @@ void channel_set(struct_8008d84* a)
    }
    else
    {
-      if ((wMainloopEvents & 1) != 0)
+      if ((wMainloopEvents & MAIN_LOOP_EVENT_DAB_ACTIVE) != 0)
       {
          si46xx_start_fm(bCurrentVolume);
       }
 
-      if (0 == si46xx_fm_tune_freq(a->wData_24))
+      if (0 == si46xx_fm_tune_freq(a->frequency))
       {
          wMainloopEvents &= ~2;
       }
@@ -2224,7 +2224,7 @@ void channel_set(struct_8008d84* a)
 /* 800ac74 - todo */
 void channel_next(void)
 {
-   uint8_t r7_7 = (wMainloopEvents & 4)? bFavouriteCount: bChannelCount;
+   uint8_t r7_7 = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? bFavouriteCount: bChannelCount;
 
    if (r7_7 != 0)
    {
@@ -2246,7 +2246,7 @@ void channel_next(void)
 /* 800acf0 - todo */
 void channel_previous(void)
 {
-   uint8_t r7_7 = (wMainloopEvents & 4)? bFavouriteCount: bChannelCount;
+   uint8_t r7_7 = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? bFavouriteCount: bChannelCount;
 
    if (r7_7 != 0)
    {
@@ -2266,11 +2266,11 @@ void channel_previous(void)
 
 
 /* 800ae28 - todo */
-void sub_800ae28(void)
+void channel_start_current(void)
 {
-   struct_8008d84* a = (wMainloopEvents & 4)? FavouriteList: ChannelList;
+   Tuner_Channel* a = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? FavouriteList: ChannelList;
 
-   if ((a[bCurrentChannelNumber].wData_24 < 42) && (a[bCurrentChannelNumber].service_id != 0))
+   if ((a[bCurrentChannelNumber].frequency < 42) && (a[bCurrentChannelNumber].service_id != 0))
    {
       si46xx_start_dab(bCurrentVolume);
    }
@@ -2281,14 +2281,14 @@ void sub_800ae28(void)
 
    channel_set(&a[bCurrentChannelNumber]);
 
-   wMainloopEvents |= 0x100;
+   wMainloopEvents |= MAIN_LOOP_EVENT_FOREGROUND;
 }
 
 
 /* 800aed0 - todo */
-void sub_800aed0(void)
+void channel_stop_playing(void)
 {
-   struct_8008d84* r7_4 = (wMainloopEvents & 4)? FavouriteList: ChannelList;
+   Tuner_Channel* r7_4 = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? FavouriteList: ChannelList;
 
    si46xx_dab_stop_digital_service(&r7_4[bCurrentChannelNumber]);
 
@@ -2296,51 +2296,51 @@ void sub_800aed0(void)
 
    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
-   sub_800c7e0(10);
+   main_delay(10);
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
-   wMainloopEvents &= ~0x300;
+   wMainloopEvents &= ~(MAIN_LOOP_EVENT_SLEEP_TIMER | MAIN_LOOP_EVENT_FOREGROUND);
 }
 
 
 /* 800af5c - todo */
-int sub_800af5c(void)
+int channel_search_time(void)
 {
-   uint8_t r7_8f;
-   Struct_20000a78 r7_c;
+   uint8_t res;
+   Radio_Text r7_c;
    uint8_t r7[12];
 
-   memset(&r7_c, 0, sizeof(Struct_20000a78));
+   memset(&r7_c, 0, sizeof(Radio_Text));
 
-   r7_8f = 0;
+   res = 0;
 
    si46xx_mute(1);
 
-   if (((wMainloopEvents & 0x80) == 0) &&
+   if (((wMainloopEvents & MAIN_LOOP_EVENT_BACKGROUND_TIME) == 0) &&
 		   (bChannelCount != 0))
    {
-      if (bData_20000a54 != 0)
+      if (bBackgroundSearchRetry != 0)
       {
-         if ((ChannelList[bData_20000a55].wData_24 < 42) &&
-        		 (ChannelList[bData_20000a55].service_id != 0))
+         if ((ChannelList[bBackgroundChannelNr].frequency < 42) &&
+        		 (ChannelList[bBackgroundChannelNr].service_id != 0))
          {
-            if (0 != si46xx_dab_get_time_date(&Data_20000a70, &Data_20000a74))
+            if (0 != si46xx_dab_get_time_date(&rtcTime, &rtcDate))
             {
-               if (0 != HAL_RTC_SetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
+               if (0 != HAL_RTC_SetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN))
                {
                   Error_Handler();
                }
                //loc_800aff2
-               if (0 != HAL_RTC_SetDate(&hrtc, &Data_20000a74, RTC_FORMAT_BIN))
+               if (0 != HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BIN))
                {
                   Error_Handler();
                }
                //loc_800b006
-               wMainloopEvents |= 0x80;
-               r7_8f = 1;
+               wMainloopEvents |= MAIN_LOOP_EVENT_BACKGROUND_TIME;
+               res = 1;
             }
             //loc_800b01a
-            bData_20000a54 = 0;
+            bBackgroundSearchRetry = 0;
             //->loc_800b194
          }
          else
@@ -2348,57 +2348,57 @@ int sub_800af5c(void)
             //loc_800b022
             if ((0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0)) &&
             		((si46xx_fm_get_rds_data(r7,
-                 		   r7_c.arData_0,
-     					   &Data_20000a70,
-     					   &Data_20000a74,
+                 		   r7_c.str,
+     					   &rtcTime,
+     					   &rtcDate,
      					   &wMainloopEvents,
-     					   &r7_c.bData_0x80) & 0x08) != 0))
+     					   &r7_c.bLength) & 0x08) != 0))
             {
-                if (0 != HAL_RTC_SetTime(&hrtc, &Data_20000a70, RTC_FORMAT_BIN))
+                if (0 != HAL_RTC_SetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN))
                 {
                    Error_Handler();
                 }
                 //loc_800b068
-                if (0 != HAL_RTC_SetDate(&hrtc, &Data_20000a74, RTC_FORMAT_BIN))
+                if (0 != HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BIN))
                 {
                    Error_Handler();
                 }
                 //loc_800b07c
-                wMainloopEvents |= 0x80;
-                r7_8f = 1;
+                wMainloopEvents |= MAIN_LOOP_EVENT_BACKGROUND_TIME;
+                res = 1;
             }
             //loc_800b090
-            if ((wMainloopEvents & 0x10) != 0)
+            if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
             {
-            	bData_20000a54--;
+            	bBackgroundSearchRetry--;
             }
             //loc_800b194
          }
-      } //if (bData_20000a54 != 0)
+      } //if (bBackgroundSearchRetry != 0)
       else
       {
          //loc_800b0aa
-         bData_20000a55++;
-         if (bData_20000a55 > bChannelCount)
+         bBackgroundChannelNr++;
+         if (bBackgroundChannelNr > bChannelCount)
          {
-            bData_20000a55 = 0;
+            bBackgroundChannelNr = 0;
          }
          //loc_800b0c8
-         if ((ChannelList[bData_20000a55].wData_24 < 42) &&
-        		 (ChannelList[bData_20000a55].service_id != 0))
+         if ((ChannelList[bBackgroundChannelNr].frequency < 42) &&
+        		 (ChannelList[bBackgroundChannelNr].service_id != 0))
          {
-            if ((wMainloopEvents & 0x01) == 0)
+            if ((wMainloopEvents & MAIN_LOOP_EVENT_DAB_ACTIVE) == 0)
             {
                 si46xx_start_dab(bCurrentVolume);
                 si46xx_mute(1);
             }
             //loc_800b116
-            bData_20000a54 = 5;
-            while (0 != si46xx_dab_start_digital_service(&ChannelList[bData_20000a55]))
+            bBackgroundSearchRetry = 5;
+            while (0 != si46xx_dab_start_digital_service(&ChannelList[bBackgroundChannelNr]))
             {
                //loc_800b11e
-               bData_20000a54--;
-               if (bData_20000a54 == 0)
+               bBackgroundSearchRetry--;
+               if (bBackgroundSearchRetry == 0)
                {
             	   //->loc_800b152
             	   break;
@@ -2409,28 +2409,28 @@ int sub_800af5c(void)
          else
          {
             //loc_800b156
-            if ((wMainloopEvents & 0x01) != 0)
+            if ((wMainloopEvents & MAIN_LOOP_EVENT_DAB_ACTIVE) != 0)
             {
                si46xx_start_fm(bCurrentVolume);
                si46xx_mute(1);
             }
             //loc_800b172
-            si46xx_fm_tune_freq(ChannelList[bData_20000a55].wData_24);
+            si46xx_fm_tune_freq(ChannelList[bBackgroundChannelNr].frequency);
 
-            bData_20000a54 = 62;
+            bBackgroundSearchRetry = 62;
          }
       }
    }
    //loc_800b194
-   return r7_8f;
+   return res;
 }
 
 
 /* 800b270 - todo */
 int sub_800b270(void)
 {
-   memset(ChannelList, 0xff, 200 * sizeof(struct_8008d84));
-   memset(FavouriteList, 0xff, 8 * sizeof(struct_8008d84));
+   memset(ChannelList, 0xff, 200 * sizeof(Tuner_Channel));
+   memset(FavouriteList, 0xff, 8 * sizeof(Tuner_Channel));
 
    bChannelCount = 0;
    bFavouriteCount = 0;
@@ -2442,11 +2442,11 @@ int sub_800b270(void)
 /* 800b2ac - todo */
 int sub_800b2ac(void* a, void* b)
 {
-   struct_8008d84 empty;
+   Tuner_Channel empty;
    uint8_t res;
    uint8_t i;
 
-   memset(&empty, 0xff, sizeof(struct_8008d84));
+   memset(&empty, 0xff, sizeof(Tuner_Channel));
 
    bChannelCount = 0;
    bFavouriteCount = 0;
@@ -2455,7 +2455,7 @@ int sub_800b2ac(void* a, void* b)
 
    for (i = 0; i < 200; i++)
    {
-      if (0 == memcmp(&ChannelList[i], &empty, sizeof(struct_8008d84)))
+      if (0 == memcmp(&ChannelList[i], &empty, sizeof(Tuner_Channel)))
       {
          break;
       }
@@ -2465,7 +2465,7 @@ int sub_800b2ac(void* a, void* b)
 
    for (i = 0; i < 8; i++)
    {
-      if (0 == memcmp(&FavouriteList[i], &empty, sizeof(struct_8008d84)))
+      if (0 == memcmp(&FavouriteList[i], &empty, sizeof(Tuner_Channel)))
       {
          break;
       }
@@ -2486,7 +2486,7 @@ int sub_800b398(uint16_t r7_6, void* r7)
    {
       if (0xff == sub_800b43c(r7_6))
       {
-         ChannelList[bChannelCount].wData_24 = r7_6;
+         ChannelList[bChannelCount].frequency = r7_6;
          memset(&ChannelList[bChannelCount].Data_8, ' ', 16);
          memcpy(&ChannelList[bChannelCount].Data_8, r7, 8);
          bChannelCount++;
@@ -2516,7 +2516,7 @@ int sub_800b43c(uint16_t r7_6)
    while (r7_e < bChannelCount)
    {
       //loc_800b450
-      if (ChannelList[r7_e].wData_24 == r7_6)
+      if (ChannelList[r7_e].frequency == r7_6)
       {
          r7_f = r7_e;
          //->loc_800b47e
@@ -2531,7 +2531,7 @@ int sub_800b43c(uint16_t r7_6)
 
 
 /* 800b4ec - todo */
-int sub_800b4ec(struct_8008d84* r7_4)
+int sub_800b4ec(Tuner_Channel* r7_4)
 {
    uint8_t r7_f = 0xff;
    uint8_t r7_e;
@@ -2539,7 +2539,7 @@ int sub_800b4ec(struct_8008d84* r7_4)
    for (r7_e = 0; r7_e < 8; r7_e++)
    {
       //loc_800b4fe
-      if (0 == memcmp(&FavouriteList[r7_e], r7_4, sizeof(struct_8008d84)))
+      if (0 == memcmp(&FavouriteList[r7_e], r7_4, sizeof(Tuner_Channel)))
       {
          r7_f = r7_e;
          break;
@@ -2554,16 +2554,16 @@ int sub_800b4ec(struct_8008d84* r7_4)
 uint8_t sub_800b5e0(void)
 {
    uint8_t r7_7 = 0;
-   memset(ChannelList, 0xff, 200 * sizeof(struct_8008d84));
+   memset(ChannelList, 0xff, 200 * sizeof(Tuner_Channel));
    bChannelCount = 0;
    return r7_7;
 }
 
 
 /* 800b8d4 - todo */
-int sub_800b8d4(uint8_t r7_f, uint32_t r7_8, uint32_t r7_4, uint8_t* r7)
+int persist_add_dab_station(uint8_t frequency, uint32_t service_id, uint32_t component_id, uint8_t* station_name)
 {
-   uint8_t r7_17 = 0;
+   uint8_t res = 0;
    uint8_t i;
 
    if (bChannelCount < 200)
@@ -2571,21 +2571,21 @@ int sub_800b8d4(uint8_t r7_f, uint32_t r7_8, uint32_t r7_4, uint8_t* r7)
       for (i = 0; i < bChannelCount; i++)
       {
          //loc_800b8f6
-         if ((ChannelList[i].wData_24 == r7_f) &&
-        		 (ChannelList[i].service_id == r7_8))
+         if ((ChannelList[i].frequency == frequency) &&
+        		 (ChannelList[i].service_id == service_id))
          {
-            r7_17 = 2;
+            res = 2;
          }
          //loc_800b92a
       }
 
-      if (r7_17 == 0)
+      if (res == 0)
       {
-         ChannelList[bChannelCount].wData_24 = r7_f;
-         ChannelList[bChannelCount].service_id = r7_8;
-         ChannelList[bChannelCount].component_id = r7_4;
+         ChannelList[bChannelCount].frequency = frequency;
+         ChannelList[bChannelCount].service_id = service_id;
+         ChannelList[bChannelCount].component_id = component_id;
          memset(&ChannelList[bChannelCount].Data_8, ' ', 16);
-         memcpy(&ChannelList[bChannelCount].Data_8, r7, 16);
+         memcpy(&ChannelList[bChannelCount].Data_8, station_name, 16);
 
          bChannelCount++;
          //->loc_800b9d8
@@ -2595,9 +2595,9 @@ int sub_800b8d4(uint8_t r7_f, uint32_t r7_8, uint32_t r7_4, uint8_t* r7)
    else
    {
       //loc_800b9d4
-      r7_17 = 1;
+      res = 1;
    }
 
-   return r7_17;
+   return res;
 }
 

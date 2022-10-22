@@ -12,17 +12,17 @@ void menu_signal_information(void)
    uint8_t multipath = 0;
    uint8_t r7_18;
    uint8_t r7_17;
-   struct_8008d84* channels;
+   Tuner_Channel* channels;
    Tuner_Values r7 = {0};
 
-   channels = (wMainloopEvents & 0x04)? FavouriteList: ChannelList;
+   channels = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? FavouriteList: ChannelList;
 
    TouchEvent.bData_0 = 1;
 #if 0 //BUG?
    KeyEvent.bData_0 = 1;
 #endif
 
-   if ((channels[bCurrentChannelNumber].wData_24 < 42) && (channels[bCurrentChannelNumber].service_id != 0))
+   if ((channels[bCurrentChannelNumber].frequency < 42) && (channels[bCurrentChannelNumber].service_id != 0))
    {
       si46xx_get_dab_values(&r7);
    }
@@ -57,7 +57,7 @@ void menu_signal_information(void)
                //0x0800c5c1
                channel_previous();
                channel_set(&channels[bCurrentChannelNumber]);
-               if ((channels[bCurrentChannelNumber].wData_24 < 42) &&
+               if ((channels[bCurrentChannelNumber].frequency < 42) &&
             		   (channels[bCurrentChannelNumber].service_id != 0))
                {
                   si46xx_get_dab_values(&r7);
@@ -76,7 +76,7 @@ void menu_signal_information(void)
                 //0x0800c635
 	            channel_next();
 	            channel_set(&channels[bCurrentChannelNumber]);
-	            if ((channels[bCurrentChannelNumber].wData_24 < 42) &&
+	            if ((channels[bCurrentChannelNumber].frequency < 42) &&
 	            		   (channels[bCurrentChannelNumber].service_id != 0))
 	            {
 	               si46xx_get_dab_values(&r7);
@@ -114,11 +114,12 @@ void menu_signal_information(void)
       #endif
       }
       //loc_800c6c2
-      if ((wMainloopEvents & 0x10) != 0)
+      if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
       {
-         wMainloopEvents &= ~0x10;
+         wMainloopEvents &= ~MAIN_LOOP_EVENT_RTC;
 
-         if ((channels[bCurrentChannelNumber].wData_24 < 42) && (channels[bCurrentChannelNumber].service_id != 0))
+         if ((channels[bCurrentChannelNumber].frequency < 42) &&
+        		 (channels[bCurrentChannelNumber].service_id != 0))
          {
             if (0 == si46xx_get_dab_values(&r7))
             {

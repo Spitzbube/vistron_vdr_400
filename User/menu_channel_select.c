@@ -13,14 +13,14 @@ void menu_channel_select(void)
    uint8_t r7_1a;
    uint8_t r7_19 = bCurrentChannelNumber;
    uint8_t r7_18;
-   struct_8008d84* r7_14;
+   Tuner_Channel* r7_14;
    Tuner_Values r7_4 = {0};
 
    r7_1e = 0;
    r7_1d = 0;
    r7_1a = 0;
-   r7_18 = (wMainloopEvents & 0x04)? bFavouriteCount: bChannelCount;
-   r7_14 = (wMainloopEvents & 0x04)? FavouriteList: ChannelList;
+   r7_18 = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? bFavouriteCount: bChannelCount;
+   r7_14 = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? FavouriteList: ChannelList;
 
    if (bChannelCount == 0)
    {
@@ -34,7 +34,7 @@ void menu_channel_select(void)
    while (r7_1f != 0)
    {
       //loc_800bda8
-      r7_18 = (wMainloopEvents & 0x04)? bFavouriteCount: bChannelCount;
+      r7_18 = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)? bFavouriteCount: bChannelCount;
 
       r7_1c = 0;
       if (KeyEvent.bData_0 == 0)
@@ -74,14 +74,14 @@ void menu_channel_select(void)
         	 r7_1f = 0;
         	 if (r7_1a != 0)
         	 {
-        		 persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
+        		 persist_write(ChannelList, FavouriteList, &currentAlarmTime, &UserSettings);
         	 }
         	 //->800C1C6
         	 break;
 
          case 1:
         	 //800bef2
-        	 if ((wMainloopEvents & 4) == 0)
+        	 if ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) == 0)
         	 {
         		 sub_800b610(bCurrentChannelNumber);
         		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
@@ -220,11 +220,12 @@ void menu_channel_select(void)
     	 TouchEvent.bData_0 = 1;
       } //if ((r7_1b | r7_1c) != 0)
       //loc_800c1ee
-      if (wMainloopEvents & 0x10)
+      if (wMainloopEvents & MAIN_LOOP_EVENT_RTC)
       {
-    	  wMainloopEvents &= ~0x10;
+    	  wMainloopEvents &= ~MAIN_LOOP_EVENT_RTC;
 
-    	  if ((ChannelList[bCurrentChannelNumber].wData_24 < 41) && (ChannelList[bCurrentChannelNumber].service_id != 0))
+    	  if ((ChannelList[bCurrentChannelNumber].frequency < 41) &&
+    			  (ChannelList[bCurrentChannelNumber].service_id != 0))
     	  {
     		  //0800c23c
     		  si46xx_get_dab_values(&r7_4);

@@ -215,7 +215,7 @@ void RTC_IRQHandler(void)
   //800dd74
 
 #ifndef FREE_RTOS
-  wMainloopEvents |= 0x10;
+  wMainloopEvents |= MAIN_LOOP_EVENT_RTC;
 #endif
 
   /* USER CODE END RTC_IRQn 0 */
@@ -235,7 +235,7 @@ void RTC_Alarm_IRQHandler(void)
   //800dd98
 
 #ifndef FREE_RTOS
-  wMainloopEvents |= 0x08;
+  wMainloopEvents |= MAIN_LOOP_EVENT_ALARM;
 #endif
 
   /* USER CODE END RTC_Alarm_IRQn 0 */
@@ -258,7 +258,7 @@ void TIM5_IRQHandler(void)
   Data_20000b90.Data_0++;
 
   touch_poll();
-  button_gpio_check();
+  button_poll();
 #endif
 
   /* USER CODE END TIM5_IRQn 0 */

@@ -77,21 +77,21 @@ uint8_t Data_20000a00[8]; //20000a00, size?
 uint8_t Data_20000a08[0x40]; //20000a08, size?
 Struct_20000a48 KeyEvent; //20000a48
 Alarm_Time currentAlarmTime; //20000a4c
-Struct_20000a50 Data_20000a50; //20000a50
-uint8_t bData_20000a54; //20000a54
-uint8_t bData_20000a55; //20000a55
+User_Settings UserSettings; //20000a50
+uint8_t bBackgroundSearchRetry; //20000a54
+uint8_t bBackgroundChannelNr; //20000a55
 uint16_t wMainloopEvents; //20000a56
 uint8_t bCurrentChannelNumber; //20000a58
 uint8_t bData_20000a59; //20000a59
 int8_t Data_20000a5a; //20000a5a
 Tuner_Values Data_20000a5c; //20000a5c
-uint8_t bData_20000a6c; //20000a6c
-uint8_t bData_20000a6d; //20000a6d
-RTC_TimeTypeDef Data_20000a70; //20000a70
-RTC_DateTypeDef Data_20000a74; //20000a74
-Struct_20000a78 Data_20000a78; //20000a78
+uint8_t bMainTouchCode; //20000a6c
+uint8_t bMainKeyCode; //20000a6d
+RTC_TimeTypeDef rtcTime; //20000a70
+RTC_DateTypeDef rtcDate; //20000a74
+Radio_Text radioText; //20000a78
 //int Data_20000af8; //20000af8
-Struct_20000a78 Data_20000afc; //20000afc
+Radio_Text radioTextOld; //20000afc
 uint8_t sleepTimerCount; //20000b7d
 Struct_20000b90 Data_20000b90; //20000b90
 Struct_20000bc0 TouchEvent;
@@ -99,8 +99,8 @@ char** CurrentTextTable; //20000bc8
 char strFMVersion[12]; //20000bcc
 char strDABVersion[12]; //20000bd8
 uint8_t bFavouriteCount; //20000be4
-struct_8008d84 FavouriteList[8]; //20000be8 +224
-struct_8008d84 ChannelList[200]; //20000cc8 +5600
+Tuner_Channel FavouriteList[8]; //20000be8 +224
+Tuner_Channel ChannelList[200]; //20000cc8 +5600
 uint8_t bChannelCount; //200022a8
-struct_8008d84* Data_200023e0; //200023e0
+Tuner_Channel* Data_200023e0; //200023e0
 

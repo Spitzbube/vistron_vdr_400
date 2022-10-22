@@ -23,7 +23,7 @@ Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
    sub_8005074
 };
 
-extern int sub_800bc04(struct_8008d84* a, struct_8008d84* b, void* c, void* d);
+extern int sub_800bc04(Tuner_Channel* a, Tuner_Channel* b, void* c, void* d);
 
 
 /* 800173c - todo */
@@ -35,12 +35,12 @@ void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, 
 
    draw_channel_name(r7_8);
    draw_radio_text(r7, r7_18);
-   draw_channel_number_box(12, 6, channel_nr, h & 4);
+   draw_channel_number_box(12, 6, channel_nr, h & MAIN_LOOP_EVENT_FAV_ACTIVE);
    draw_signal_strength_bars(142, 42, &g->rssi);
 
    draw_volume_bar(r7_7);
 
-   sub_8001ae8(r7_c); //Clock display
+   draw_foreground_clock(r7_c);
 
    draw_on_off_icon(291, 214); //On-Off icon display (low right corner - red)
 
@@ -136,7 +136,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(8, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
    }
@@ -144,7 +144,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(61, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
    }
@@ -152,7 +152,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
    if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(167, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
    }
@@ -160,7 +160,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
    if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
    {
       ili9341_draw_box(273, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
    }
@@ -209,7 +209,7 @@ void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
 
 
 /* 80039b0 - todo */
-void draw_signal_information_screen(struct_8008d84* r7_c, uint8_t r7_b, Tuner_Values* r7_4)
+void draw_signal_information_screen(Tuner_Channel* r7_c, uint8_t r7_b, Tuner_Values* r7_4)
 {
    extern const char* Data_8012cdc[];
 
@@ -435,7 +435,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
 	  ili9341_draw_box(8, 196, 36, 36, 0xce59);
-	  sub_800c7e0(100);
+	  main_delay(100);
 	  sub_8005198(8, 196, 0x1f, 1);
 	  return 3;
    }
@@ -443,7 +443,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
 	  ili9341_draw_box(61, 196, 36, 36, 0xce59);
-	  sub_800c7e0(100);
+	  main_delay(100);
 	  sub_8005198(61, 196, 0x7e0, 0);
 	  return 2;
    }
@@ -451,7 +451,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
    {
 	  ili9341_draw_box(114, 196, 36, 36, 0xce59);
-	  sub_800c7e0(100);
+	  main_delay(100);
 	  sub_8005198(114, 196, 0xf800, 2);
 	  return 1;
    }
@@ -459,7 +459,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
    {
 	  ili9341_draw_box(167, 196, 36, 36, 0xce59);
-	  sub_800c7e0(100);
+	  main_delay(100);
 	  sub_8005198(167, 196, 0xffe0, 3);
 	  return 4;
    }
@@ -467,7 +467,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
    {
 	  ili9341_draw_box(273, 196, 36, 36, 0xce59);
-	  sub_800c7e0(100);
+	  main_delay(100);
 	  sub_8005198(273, 196, 0xffff, 7);
 	  return 5;
    }
@@ -516,7 +516,7 @@ int sub_80041e0(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(273, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
    }
@@ -593,7 +593,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 7) && (r7_6 < 45) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(8, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
    }
@@ -601,7 +601,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 60) && (r7_6 < 98) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(61, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
    }
@@ -609,7 +609,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(167, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
    }
@@ -617,7 +617,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(273, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
    }
@@ -646,7 +646,7 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time*
    ili9341_fill_screen(0);
    ili9341_draw_hor_line(0, 320, 48, 0xffff);
    ili9341_draw_hor_line(0, 320, 192, 0xffff);
-   sub_8001b60(r7_c);
+   draw_background_clock(r7_c);
    sub_800465c(r7_8);
 
    if (r7_3 != 0)
@@ -675,7 +675,7 @@ void sub_800465c(RTC_DateTypeDef a)
 /* 80046d8 - todo */
 void draw_alarm_time(Alarm_Time* a)
 {
-   char buf[10];
+   char buf[15];
    uint8_t len = 0;
 
    len = sprintf(buf, "%s %d:%02d", CurrentTextTable[TEXT_ID_ALARM], a->hours, a->minutes);
@@ -726,7 +726,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 7) && (r7_6 < 45) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(8, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
    }
@@ -734,7 +734,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 60) && (r7_6 < 98) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(61, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
    }
@@ -742,7 +742,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(167, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
    }
@@ -750,7 +750,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
    if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
    {
       ili9341_draw_box(273, 196, 36, 36, 0xce59);
-      sub_800c7e0(100);
+      main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
    }
@@ -1307,12 +1307,12 @@ int menu_automatic_search(void)
    if (r7_16 != 0)
    {
       sub_800c460();
-      persist_write(ChannelList, FavouriteList, &currentAlarmTime, &Data_20000a50);
+      persist_write(ChannelList, FavouriteList, &currentAlarmTime, &UserSettings);
    }
    else
    {
       //loc_800c426
-      sub_800b2ac(&currentAlarmTime, &Data_20000a50);
+      sub_800b2ac(&currentAlarmTime, &UserSettings);
    }
    //loc_800c42e
    bCurrentChannelNumber = 0;

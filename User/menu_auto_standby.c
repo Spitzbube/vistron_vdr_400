@@ -108,7 +108,7 @@ int menu_auto_standby(void)
       //loc_8008528
       if (r7_5 != 0)
       {
-         sub_800c7e0(500);
+         main_delay(500);
       }
       //loc_8008536
    }
