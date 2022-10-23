@@ -373,8 +373,10 @@ int main(void)
             //loc_800cc42
          } //if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
          //loc_800cc42
-         if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
+         if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
          {
+        	 HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
             if ((Data_200023e0->frequency < 41) && (Data_200023e0->service_id != 0))
             {
                if (0 == si46xx_get_digital_service_data(radioText.str, &radioText.bLength))
@@ -430,7 +432,10 @@ int main(void)
                   //loc_800cd5e
                }
             }
-         } //if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
+
+            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+
+         } //if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
          //loc_800cd5e
          bMainKeyCode = 0;
          if (KeyEvent.bData_0 == 0)
@@ -1024,11 +1029,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, LED1_Pin|LED2_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_RESET);
@@ -1051,11 +1059,18 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Touch_SPI_CS_GPIO_Port, Touch_SPI_CS_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PC0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  /*Configure GPIO pins : LED1_Pin LED2_Pin */
+  GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SI46xx_Interrupt_Pin */
+  GPIO_InitStruct.Pin = SI46xx_Interrupt_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(SI46xx_Interrupt_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PC1 PC2 PC3 PC4 */
   GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4;
