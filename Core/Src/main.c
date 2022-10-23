@@ -372,7 +372,9 @@ int main(void)
             }
             //loc_800cc42
          } //if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
-         //loc_800cc42
+
+         //loc_800cc42: Poll the SI46xx Interrup Pin
+
          if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
          {
         	 HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
@@ -383,7 +385,7 @@ int main(void)
                {
                   draw_radio_text(&radioText, radioText.bLength);
 
-                  printf("DAB Text: '%s'\r\n", radioText.str);
+                  printf("DAB Text: '%.*s'\r\n", radioText.bLength, radioText.str);
                }
                //loc_800cd5e
             }
@@ -407,7 +409,7 @@ int main(void)
 
                      draw_radio_text(&radioText, radioText.bLength);
 
-                     printf("FM Text: '%s'\r\n", radioText.str);
+                     printf("FM Text: '%.*s'\r\n", radioText.bLength, radioText.str);
                   }
                   //loc_800cd5e
                }
