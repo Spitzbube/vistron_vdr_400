@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -134,6 +135,21 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
    return r7_e - 1;
 }
 
+
+int _write(int file, char *ptr, int len)
+{
+   uint8_t rc = USBD_OK;
+
+   do
+   {
+      rc = CDC_Transmit_FS((uint8_t*) ptr, len);
+   }
+   while (USBD_BUSY == rc);
+
+   return len;
+}
+
+
 #endif //FREE_RTOS
 
 /* USER CODE END 0 */
@@ -185,6 +201,7 @@ int main(void)
   MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_FSMC_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
 #ifndef FREE_RTOS
@@ -200,6 +217,9 @@ int main(void)
 #ifndef FREE_RTOS
   
   sub_800b270();
+
+  //Pull up USB D+ to indicate the USB host our presence on the bus
+  HAL_GPIO_WritePin(USB_DP_Pull_GPIO_Port, USB_DP_Pull_Pin, GPIO_PIN_SET);
 
   if (0 != sub_800a9a8())
   {
@@ -237,6 +257,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+#if 0
+	  uint8_t Buf[] = "Mainloop\r\n";
+
+	  CDC_Transmit_FS(Buf, sizeof(Buf)+1);
+#else
+//	  printf("Mainloop\r\n");
+#endif
+
       //loc_800c9c4
 	  if ((wMainloopEvents & MAIN_LOOP_EVENT_FOREGROUND) != 0)
 	  {
@@ -352,6 +380,8 @@ int main(void)
                if (0 == si46xx_get_digital_service_data(radioText.str, &radioText.bLength))
                {
                   draw_radio_text(&radioText, radioText.bLength);
+
+                  printf("DAB Text: '%s'\r\n", radioText.str);
                }
                //loc_800cd5e
             }
@@ -374,6 +404,8 @@ int main(void)
                      memcpy(&radioTextOld, &radioText, sizeof(Radio_Text));
 
                      draw_radio_text(&radioText, radioText.bLength);
+
+                     printf("FM Text: '%s'\r\n", radioText.str);
                   }
                   //loc_800cd5e
                }
@@ -698,7 +730,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -712,12 +744,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USB;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV128;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -784,7 +817,7 @@ static void MX_RTC_Init(void)
   */
   hrtc.Instance = RTC;
   hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
-  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_ALARM;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
     Error_Handler();
@@ -1004,7 +1037,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, Display_Backlight_Pin|Touch_SPI_MOSI_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, Display_Backlight_Pin|Touch_SPI_MOSI_Pin|USB_DP_Pull_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
@@ -1031,8 +1064,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  /*Configure GPIO pins : PA1 USB_DP_Pull_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|USB_DP_Pull_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
