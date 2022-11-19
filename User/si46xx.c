@@ -1283,7 +1283,9 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes)
 /* 8009bb8 - todo */
 int si46xx_load_and_boot(uint8_t a)
 {
+#if 0
    uint8_t arData_8[943];
+#endif
 
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 
@@ -1334,7 +1336,9 @@ int si46xx_load_and_boot(uint8_t a)
       return 1;
    }
    //loc_8009c96: TODO
+#if 0
    memcpy(arData_8, si46xx_image_data, 943);
+#endif
 
    /* CS to low */
    HAL_GPIO_WritePin(SPI2_CS_SI46xx_GPIO_Port, SPI2_CS_SI46xx_Pin, GPIO_PIN_RESET);
@@ -1346,7 +1350,7 @@ int si46xx_load_and_boot(uint8_t a)
       return 1;
    }
 
-   if (0 != HAL_SPI_Transmit(&hspi2, arData_8, 943, 10))
+   if (0 != HAL_SPI_Transmit(&hspi2, /*arData_8*/si46xx_image_data, 943, 10))
    {
       return 1;
    }

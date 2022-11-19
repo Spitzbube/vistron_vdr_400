@@ -647,7 +647,7 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time*
    ili9341_draw_hor_line(0, 320, 48, 0xffff);
    ili9341_draw_hor_line(0, 320, 192, 0xffff);
    draw_background_clock(r7_c);
-   sub_800465c(r7_8);
+   draw_background_date(r7_8);
 
    if (r7_3 != 0)
    {
@@ -657,7 +657,7 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time*
 
 
 /* 800465c - todo */
-void sub_800465c(RTC_DateTypeDef a)
+void draw_background_date(RTC_DateTypeDef a)
 {
    char buf[10];
    uint8_t len = 0;

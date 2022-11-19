@@ -339,6 +339,7 @@ void draw_alarm_screen(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
 int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4);
 void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time* r7_4, uint8_t r7_3);
+void draw_background_date(RTC_DateTypeDef a);
 void draw_alarm_time(Alarm_Time* a);
 void draw_sleep_timer_screen(uint8_t a);
 void draw_sleep_timer_value(uint8_t r7_7);
