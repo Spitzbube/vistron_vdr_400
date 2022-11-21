@@ -3,6 +3,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+extern EventGroupHandle_t xEventGroup;
 
 extern const uint8_t si46xx_image_data[]; //8018af4
 
@@ -2254,6 +2255,7 @@ void channel_next(void)
       }
 
       wMainloopEvents |= 0x02;
+      xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_CHANNEL);
    }
 }
 
@@ -2276,6 +2278,7 @@ void channel_previous(void)
       }
 
       wMainloopEvents |= 0x02;
+      xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_CHANNEL);
    }
 }
 

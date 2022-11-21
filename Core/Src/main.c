@@ -1246,7 +1246,7 @@ void main_foreground_task(void* pTaskData)
 					  FavouriteList: ChannelList;
 	uint16_t standbyCounter = 10800;
 	EventBits_t uxBits;
-	EventBits_t uxExpectBits = (1 << 0);
+	EventBits_t uxExpectBits = EVENTGROUP_BIT_FOREGROUND;
 
 //	vTaskSuspend(NULL); //wait for startup
 
@@ -1264,9 +1264,9 @@ void main_foreground_task(void* pTaskData)
 #endif
 		uxBits = xEventGroupWaitBits(xEventGroup, uxExpectBits, pdFALSE, pdFALSE, portMAX_DELAY);
 
-		if (uxBits & (1 << 0))
+		if (uxBits & EVENTGROUP_BIT_FOREGROUND)
 		{
-			xEventGroupClearBits(xEventGroup, (1 << 0));
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_FOREGROUND);
 
             standbyCounter = 10800;
 
@@ -1276,6 +1276,7 @@ void main_foreground_task(void* pTaskData)
             channel_start_current();
 
             wMainloopEvents |= 0x02;
+			xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_CHANNEL);
 
             draw_main_screen(rtcTime,
                  &pChannels[bCurrentChannelNumber].Data_8,
@@ -1287,12 +1288,12 @@ void main_foreground_task(void* pTaskData)
   				 wMainloopEvents
             	);
 
-            uxExpectBits |= (1 << 1);
-		} //if (uxBits & (1 << 0))
+            uxExpectBits |= EVENTGROUP_BIT_TOUCH | EVENTGROUP_BIT_RTC | EVENTGROUP_BIT_CHANNEL;
+		} //if (uxBits & EVENTGROUP_BIT_FOREGROUND)
 
-		if (uxBits & (1 << 1))
+		if (uxBits & EVENTGROUP_BIT_TOUCH)
 		{
-			xEventGroupClearBits(xEventGroup, (1 << 1));
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_TOUCH);
 
 	         bMainKeyCode = 0;
 	         if (KeyEvent.bData_0 == 0)
@@ -1348,9 +1349,9 @@ void main_foreground_task(void* pTaskData)
 	               //800cf0c - OnOff
 	               channel_stop_playing();
 
-	               uxExpectBits = (1 << 0); //Wait for foreground
+	               uxExpectBits = EVENTGROUP_BIT_FOREGROUND; //Wait for foreground
 //	               vTaskResume(defaultTaskHandle); //Enable background
-	               xEventGroupSetBits(xEventGroup, (1 << 2));
+	               xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_BACKGROUND);
 	               //->800D116
 	               break;
 
@@ -1378,6 +1379,7 @@ void main_foreground_task(void* pTaskData)
 	                  bCurrentChannelNumber = 0;
 	                  wMainloopEvents &= ~MAIN_LOOP_EVENT_FAV_ACTIVE;
 	                  wMainloopEvents |= 0x02;
+                      xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_CHANNEL);
 	                  //->800CFC6
 	               }
 	               else
@@ -1387,6 +1389,7 @@ void main_foreground_task(void* pTaskData)
 	                  {
 	                     bCurrentChannelNumber = 0;
 	                     wMainloopEvents |= (0x02|MAIN_LOOP_EVENT_FAV_ACTIVE);
+                         xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_CHANNEL);
 	                  }
 	                  //800CFC6
 	               }
@@ -1455,7 +1458,31 @@ void main_foreground_task(void* pTaskData)
 	               break;
 	            }
 	         } //if ((bMainTouchCode | bMainKeyCode))
-		}
+		} //if (uxBits & EVENTGROUP_BIT_TOUCH)
+
+		if (uxBits & EVENTGROUP_BIT_RTC)
+		{
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_RTC);
+
+            if (0 == HAL_RTC_GetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN))
+            {
+               draw_foreground_clock(rtcTime);
+            }
+
+		} //if (uxBits & EVENTGROUP_BIT_RTC)
+
+		if (uxBits & EVENTGROUP_BIT_CHANNEL)
+		{
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_CHANNEL);
+
+		   channel_set(&pChannels[bCurrentChannelNumber]);
+
+		   radioText.bLength = 0;
+
+		   draw_radio_text(&radioText, radioText.bLength);
+
+		} //if (uxBits & EVENTGROUP_BIT_CHANNEL)
+
 	}
 }
 
@@ -1512,13 +1539,13 @@ void StartDefaultTask(void const * argument)
 //     draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
 //     vTaskResume(backgroundTaskHandle);
 //     vTaskSuspend(NULL);
-     xEventGroupSetBits(xEventGroup, (1 << 2));
+     xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_BACKGROUND);
   }
   //loc_800c9b4
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
 
   EventBits_t uxBits;
-  EventBits_t uxExpectBits = (1 << 2);
+  EventBits_t uxExpectBits = EVENTGROUP_BIT_BACKGROUND;
 
   /* Infinite loop */
   for(;;)
@@ -1531,13 +1558,13 @@ void StartDefaultTask(void const * argument)
 
 	uxBits = xEventGroupWaitBits(xEventGroup, uxExpectBits, pdFALSE, pdFALSE, portMAX_DELAY);
 
-	if ((uxBits & (1 << 2)) != 0)
+	if ((uxBits & EVENTGROUP_BIT_BACKGROUND) != 0)
 	{
-	     xEventGroupClearBits(xEventGroup, (1 << 2));
+	     xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_BACKGROUND);
 
          draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
 
-	     uxExpectBits |= (1 << 1);
+	     uxExpectBits |= EVENTGROUP_BIT_TOUCH|EVENTGROUP_BIT_RTC;
 	}
 
 #if 0
@@ -1885,7 +1912,7 @@ void StartDefaultTask(void const * argument)
 	  else
 #endif
 
-	  if ((uxBits & (1 << 1)) != 0)
+	  if ((uxBits & EVENTGROUP_BIT_TOUCH) != 0)
 	  {
          //loc_800d154
          if ((TouchEvent.bData_0 == 0) ||
@@ -1893,11 +1920,11 @@ void StartDefaultTask(void const * argument)
          {
             TouchEvent.bData_0 = 1;
 
-			xEventGroupClearBits(xEventGroup, (1 << 1));
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_TOUCH);
 
-			uxExpectBits = (1 << 2); //wait for background
+			uxExpectBits = EVENTGROUP_BIT_BACKGROUND; //wait for background
 
-			xEventGroupSetBits(xEventGroup, (1 << 0));
+			xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_FOREGROUND);
 
 //			vTaskSuspend(NULL); //wait for background
          }
@@ -1912,6 +1939,7 @@ void StartDefaultTask(void const * argument)
                channel_stop_playing();
             }
             //loc_800d202
+#if 0
             if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
             {
                wMainloopEvents &= ~MAIN_LOOP_EVENT_RTC;
@@ -1930,7 +1958,7 @@ void StartDefaultTask(void const * argument)
                }
                //loc_800d274
             }
-
+#endif
             //loc_800d274: Alarm
 
             if ((wMainloopEvents & MAIN_LOOP_EVENT_ALARM) != 0)
@@ -1957,7 +1985,17 @@ void StartDefaultTask(void const * argument)
          }
          //loc_800d2ee
          //->loc_800c9c4
-      }
+      } //if ((uxBits & EVENTGROUP_BIT_TOUCH) != 0)
+
+	  if ((uxBits & EVENTGROUP_BIT_RTC) != 0)
+	  {
+		  xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_RTC);
+
+          if (0 == HAL_RTC_GetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN))
+          {
+             draw_background_clock(rtcTime);
+          }
+	  }
   }
   /* USER CODE END 5 */
 }

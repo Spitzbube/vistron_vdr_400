@@ -983,7 +983,7 @@ void touch_poll(void)
          {
         	 BaseType_t xResult, xTask = pdFALSE;
 
-        	 xResult = xEventGroupSetBitsFromISR(xEventGroup, (1 << 1), &xTask);
+        	 xResult = xEventGroupSetBitsFromISR(xEventGroup, EVENTGROUP_BIT_TOUCH, &xTask);
         	 if (xResult != pdFAIL)
         	 {
      			portYIELD_FROM_ISR(xTask);

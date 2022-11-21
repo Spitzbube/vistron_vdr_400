@@ -23,6 +23,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,6 +43,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+extern EventGroupHandle_t xEventGroup;
 
 /* USER CODE END PV */
 
@@ -171,10 +173,16 @@ void RTC_IRQHandler(void)
   /* USER CODE BEGIN RTC_IRQn 0 */
 
   //800dd74
-
-#ifndef FREE_RTOS
   wMainloopEvents |= MAIN_LOOP_EVENT_RTC;
-#endif
+  {
+ 	 BaseType_t xResult, xTask = pdFALSE;
+
+ 	 xResult = xEventGroupSetBitsFromISR(xEventGroup, EVENTGROUP_BIT_RTC, &xTask);
+ 	 if (xResult != pdFAIL)
+ 	 {
+			portYIELD_FROM_ISR(xTask);
+ 	 }
+  }
 
   /* USER CODE END RTC_IRQn 0 */
   HAL_RTCEx_RTCIRQHandler(&hrtc);

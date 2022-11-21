@@ -251,6 +251,12 @@ extern UART_HandleTypeDef huart2; //20002438
 #define MAIN_LOOP_EVENT_SLEEP_TIMER         (1 << 9)
 #define MAIN_LOOP_EVENT_AUTO_STANDBY        (1 << 10)
 
+#define EVENTGROUP_BIT_BACKGROUND			(1 << 0)
+#define EVENTGROUP_BIT_FOREGROUND			(1 << 1)
+#define EVENTGROUP_BIT_TOUCH				(1 << 2)
+#define EVENTGROUP_BIT_RTC					(1 << 3)
+#define EVENTGROUP_BIT_CHANNEL				(1 << 4)
+
 #define TEXT_ID_NO_CHANNEL                  8
 #define TEXT_ID_FAV_LIST_FULL               9
 #define TEXT_ID_MAIN_MENU                   13
