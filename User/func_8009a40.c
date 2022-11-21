@@ -3,9 +3,12 @@
 #include "stm32f1xx_hal.h"
 #include "main.h"
 #include "func_8001ae8.h"
+#include "cmsis_os.h"
 
 extern RTC_HandleTypeDef hrtc;
 extern SPI_HandleTypeDef hspi2;
+
+extern EventGroupHandle_t xEventGroup;
 
 extern void Error_Handler(void);
 int sub_800b2ac(void* a, void* b);
@@ -977,6 +980,15 @@ void touch_poll(void)
       if ((0 == sub_8006838()) && (TouchEvent.bData_0 != 0))
       {
          TouchEvent.bData_0 = 0;
+         {
+        	 BaseType_t xResult, xTask = pdFALSE;
+
+        	 xResult = xEventGroupSetBitsFromISR(xEventGroup, (1 << 1), &xTask);
+        	 if (xResult != pdFAIL)
+        	 {
+     			portYIELD_FROM_ISR(xTask);
+        	 }
+         }
       }
    }
    else if (TouchEvent.bData_0 != 0)

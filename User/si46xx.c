@@ -1,6 +1,7 @@
 
 #include "stm32f1xx_hal.h"
 #include "main.h"
+#include "cmsis_os.h"
 
 
 extern const uint8_t si46xx_image_data[]; //8018af4
@@ -1916,6 +1917,7 @@ int si46xx_get_digital_service_data(uint8_t r7_4[], uint8_t* r7)
    uint8_t i;
    uint8_t r7_e;
 
+#if 0
    if (0 != si46xx_read_reply(10, 4))
    {
       return 1;
@@ -1923,8 +1925,9 @@ int si46xx_get_digital_service_data(uint8_t r7_4[], uint8_t* r7)
 
    if ((si46xx_buffer[0] & 0x10) != 0)
    {
+#endif
       si46xx_buffer[0] = SI46XX_GET_DIGITAL_SERVICE_DATA;
-      si46xx_buffer[1] = 1;
+      si46xx_buffer[1] = (1 << 0); //Acknowledge the interrupt
 
       if (0 != si46xx_send_command(2, 2048, 10))
       {
@@ -1955,12 +1958,14 @@ int si46xx_get_digital_service_data(uint8_t r7_4[], uint8_t* r7)
       //loc_800a808
       *r7 = si46xx_buffer[18] - 2;
       return 0;
+#if 0
    }
    else
    {
       //loc_800a818
       return 1;
    }
+#endif
 }
 
 
@@ -2048,11 +2053,17 @@ int si46xx_send_command(uint16_t numTxBytes, uint16_t numRxBytes, uint16_t c)
 }
 
 
+static void si46xx_interrupt_task(void*);
+static TaskHandle_t si46xx_irqTaskHandle;
+
+
 /* 800a9a8 - todo */
 int sub_800a9a8(void)
 {
    RTC_AlarmTypeDef sAlarm = {0};
    uint8_t res = 0; //r7_f
+
+   xTaskCreate(si46xx_interrupt_task, "Si46xxIrqTask", 2*configMINIMAL_STACK_SIZE, NULL, 1, &si46xx_irqTaskHandle);
 
    si46xx_start_dab(0);
 
@@ -2603,5 +2614,91 @@ int persist_add_dab_station(uint8_t frequency, uint32_t service_id, uint32_t com
    }
 
    return res;
+}
+
+
+void si46xx_handle_interrupt(void)
+{
+	BaseType_t xYieldRequired = pdFALSE;
+
+	if (si46xx_irqTaskHandle != NULL)
+	{
+		xYieldRequired = xTaskResumeFromISR(si46xx_irqTaskHandle);
+		if (xYieldRequired == pdTRUE)
+		{
+			portYIELD_FROM_ISR(si46xx_irqTaskHandle);
+		}
+	}
+}
+
+
+void si46xx_interrupt_task(void* pTaskData)
+{
+	while (1)
+	{
+		vTaskSuspend(NULL); //wait for Interrupt
+
+		if (0 == si46xx_read_reply(0, 4))
+		{
+			if ((si46xx_buffer[0] & (1 << 4)/*DSRVINT*/) != 0)
+			{
+				if (0 == si46xx_get_digital_service_data(radioText.str, &radioText.bLength))
+				{
+					draw_radio_text(&radioText, radioText.bLength);
+				}
+			}
+
+			if ((si46xx_buffer[0] & (1 << 2)/*RDSINT*/) != 0)
+			{
+#if 0
+				if (0 == si46xx_get_fm_rds_status(1/*INTACK*/, 2))
+				{
+				}
+#endif
+				struct_8008d84_Inner8 r7;
+				uint8_t r7_9 = si46xx_fm_get_rds_data(&r7,
+	            		   radioText.str,
+						   &rtcTime,
+						   &rtcDate,
+						   &wMainloopEvents,
+						   &radioText.bLength);
+
+	               if ((r7_9 & 4) != 0)
+	               {
+	                  if ((radioText.bLength != radioTextOld.bLength) ||
+	                		  (0 != memcmp(radioText.str, &radioTextOld, radioText.bLength)))
+	                  {
+	                     //loc_800cccc
+	                     memcpy(&radioTextOld, &radioText, sizeof(Radio_Text));
+
+	                     draw_radio_text(&radioText, radioText.bLength);
+
+	//                     printf("FM Text: '%.*s'\r\n", radioText.bLength, radioText.str);
+	                  }
+	                  //loc_800cd5e
+	               }
+	               //loc_800ccec
+	               else if ((r7_9 & 2) != 0)
+	               {
+	                  if (0 != memcmp(&Data_200023e0->Data_8, &r7, 8))
+	                  {
+	//                     memcpy(Data_200023e0->fill8, r7, 8);
+	                     Data_200023e0->Data_8 = r7;
+
+	                     if ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) != 0)
+	                     {
+	                        draw_channel_name(&FavouriteList[bCurrentChannelNumber].Data_8);
+	                     }
+	                     else
+	                     {
+	                        //loc_800cd44
+	                        draw_channel_name(&ChannelList[bCurrentChannelNumber].Data_8);
+	                     }
+	                  }
+	                  //loc_800cd5e
+	               }
+			}
+		}
+	}
 }
 

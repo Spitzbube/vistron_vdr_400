@@ -62,6 +62,9 @@ SRAM_HandleTypeDef hsram1;
 osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 
+EventGroupHandle_t xEventGroup;
+TaskHandle_t foregroundTaskHandle;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,6 +81,7 @@ void StartDefaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
+void main_foreground_task(void*);
 
 /* USER CODE END PFP */
 
@@ -87,6 +91,7 @@ void StartDefaultTask(void const * argument);
 /* 800c7e0 - todo */
 void main_delay(uint16_t a)
 {
+#if 0
    TIM_HandleTypeDef htim;
 
    htim.Instance = TIM6;
@@ -104,6 +109,9 @@ void main_delay(uint16_t a)
    }
 
    HAL_TIM_Base_Stop_IT(&htim);
+#else
+   osDelay(a);
+#endif
 }
 
 
@@ -254,6 +262,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+  xEventGroup = xEventGroupCreate();
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -263,6 +272,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  xTaskCreate(main_foreground_task, "ForegroundTask", 2*configMINIMAL_STACK_SIZE, NULL, 0/*20*/, &foregroundTaskHandle);
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -1087,7 +1097,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : SI46xx_Interrupt_Pin */
   GPIO_InitStruct.Pin = SI46xx_Interrupt_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(SI46xx_Interrupt_GPIO_Port, &GPIO_InitStruct);
 
@@ -1163,6 +1173,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Touch_SPI_IRQ_GPIO_Port, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
 }
 
 /* FSMC initialization function */
@@ -1226,6 +1240,226 @@ static void MX_FSMC_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void main_foreground_task(void* pTaskData)
+{
+	Tuner_Channel* pChannels = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
+					  FavouriteList: ChannelList;
+	uint16_t standbyCounter = 10800;
+	EventBits_t uxBits;
+	EventBits_t uxExpectBits = (1 << 0);
+
+//	vTaskSuspend(NULL); //wait for startup
+
+	while (1)
+	{
+#if 0
+		uint32_t ulNotificationValue;
+		if (pdTRUE == xTaskNotifyWait(0, 0xffffffff, &ulNotificationValue, portMAX_DELAY))
+		{
+			if ((ulNotificationValue & (1 << 0)) != 0)
+			{
+
+			}
+		}
+#endif
+		uxBits = xEventGroupWaitBits(xEventGroup, uxExpectBits, pdFALSE, pdFALSE, portMAX_DELAY);
+
+		if (uxBits & (1 << 0))
+		{
+			xEventGroupClearBits(xEventGroup, (1 << 0));
+
+            standbyCounter = 10800;
+
+            // Display On
+            HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_RESET);
+
+            channel_start_current();
+
+            wMainloopEvents |= 0x02;
+
+            draw_main_screen(rtcTime,
+                 &pChannels[bCurrentChannelNumber].Data_8,
+   				 bCurrentVolume,
+   				 &radioText,
+				 radioText.bLength,
+				 bCurrentChannelNumber,
+				 &Data_20000a5c,
+  				 wMainloopEvents
+            	);
+
+            uxExpectBits |= (1 << 1);
+		} //if (uxBits & (1 << 0))
+
+		if (uxBits & (1 << 1))
+		{
+			xEventGroupClearBits(xEventGroup, (1 << 1));
+
+	         bMainKeyCode = 0;
+	         if (KeyEvent.bData_0 == 0)
+	         {
+	            bMainKeyCode = KeyEvent.bData_1;
+	            KeyEvent.bData_0 = 1;
+	         }
+	         //loc_800cd7a
+	         bMainTouchCode = 0;
+	         if (TouchEvent.bData_0 == 0)
+	         {
+	            bMainTouchCode = main_screen_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
+	            TouchEvent.bData_0 = 1;
+	         }
+	         //loc_800cda0
+	         if ((bMainTouchCode | bMainKeyCode))
+	         {
+	            //800cdb2
+	            standbyCounter = 10800;
+
+	            switch (bMainTouchCode | bMainKeyCode)
+	            {
+	            case 2:
+	               //800ce78 - green
+	               channel_next();
+	               draw_channel_number_box(12, 6, bCurrentChannelNumber, wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE);
+	               draw_channel_name(&pChannels[bCurrentChannelNumber].Data_8);
+	               //->800D116
+	               break;
+
+	            case 3:
+	               //800ceb2 - blue
+	               channel_previous();
+	               draw_channel_number_box(12, 6, bCurrentChannelNumber, wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE);
+	               draw_channel_name(&pChannels[bCurrentChannelNumber].Data_8);
+	               //->800D116
+	               break;
+
+	            case 1:
+	               //800ceec - red
+	               volume_down();
+	               draw_volume_bar(bCurrentVolume);
+	               //->800D116
+	               break;
+
+	            case 4:
+	               //800cefc - yellow
+	               volume_up();
+	               draw_volume_bar(bCurrentVolume);
+	               break;
+
+	            case 14:
+	               //800cf0c - OnOff
+	               channel_stop_playing();
+
+	               uxExpectBits = (1 << 0); //Wait for foreground
+//	               vTaskResume(defaultTaskHandle); //Enable background
+	               xEventGroupSetBits(xEventGroup, (1 << 2));
+	               //->800D116
+	               break;
+
+	            case 6:
+	               //800cf2a
+	               menu_channel_select();
+
+	               radioText.bLength = 0;
+
+	               draw_main_screen(rtcTime,
+	            		   &pChannels[bCurrentChannelNumber].Data_8,
+						   bCurrentVolume,
+	            		   &radioText,
+						   radioText.bLength,
+						   bCurrentChannelNumber,
+						   &Data_20000a5c,
+						   wMainloopEvents);
+	               //->800D116
+	               break;
+
+	            case 20:
+	               //800cf7a - Channel number box
+	               if ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) != 0)
+	               {
+	                  bCurrentChannelNumber = 0;
+	                  wMainloopEvents &= ~MAIN_LOOP_EVENT_FAV_ACTIVE;
+	                  wMainloopEvents |= 0x02;
+	                  //->800CFC6
+	               }
+	               else
+	               {
+	                  //800CFAA
+	                  if (bFavouriteCount != 0)
+	                  {
+	                     bCurrentChannelNumber = 0;
+	                     wMainloopEvents |= (0x02|MAIN_LOOP_EVENT_FAV_ACTIVE);
+	                  }
+	                  //800CFC6
+	               }
+	               //800CFC6
+	               pChannels = ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) != 0)? FavouriteList: ChannelList;
+
+	               draw_channel_name(&pChannels[bCurrentChannelNumber].Data_8);
+	               draw_channel_number_box(12, 6, bCurrentChannelNumber, wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE);
+	               //800CFD6
+	               break;
+
+	            case 21:
+	               //800d010 - orange (Menu)
+	               menu_main();
+
+	               if (((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) != 0) && (bFavouriteCount == 0))
+	               {
+	                  bCurrentChannelNumber = 0;
+	                  pChannels = ChannelList;
+	                  wMainloopEvents &= ~MAIN_LOOP_EVENT_FAV_ACTIVE;
+	               }
+	               //800D040
+	               draw_main_screen(rtcTime,
+	            		   &pChannels[bCurrentChannelNumber].Data_8,
+						   bCurrentVolume,
+	            		   &radioText,
+						   radioText.bLength,
+						   bCurrentChannelNumber,
+						   &Data_20000a5c,
+						   wMainloopEvents);
+	               //->800D116
+	               break;
+
+	            case 22:
+	               //800d084
+	               menu_signal_information();
+
+	               draw_main_screen(rtcTime,
+	            		   &pChannels[bCurrentChannelNumber].Data_8,
+						   bCurrentVolume,
+	            		   &radioText,
+						   radioText.bLength,
+						   bCurrentChannelNumber,
+						   &Data_20000a5c,
+						   wMainloopEvents);
+	               //->800D116
+	               break;
+
+	            case 23:
+	               //800d0cc
+	               menu_volume_change();
+
+	               draw_main_screen(rtcTime,
+	            		   &pChannels[bCurrentChannelNumber].Data_8,
+						   bCurrentVolume,
+	            		   &radioText,
+						   radioText.bLength,
+						   bCurrentChannelNumber,
+						   &Data_20000a5c,
+						   wMainloopEvents);
+	               break;
+
+	            default:
+	               //loc_800d114
+	               //goto loc_800c9c4;
+	               break;
+	            }
+	         } //if ((bMainTouchCode | bMainKeyCode))
+		}
+	}
+}
+
+
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -1237,17 +1471,15 @@ static void MX_FSMC_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void const * argument)
 {
-  Tuner_Channel* pChannels/*r7_c*/ = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
-			  FavouriteList: ChannelList;
-  uint16_t standbyCounter = 10800;
-  uint8_t r7_9;
-  struct_8008d84_Inner8 r7; //???
-
 #if 0
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 5 */
 #endif
+
+  Tuner_Channel* pChannels = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
+				  FavouriteList: ChannelList;
+  uint16_t standbyCounter = 10800;
 
   ili9341_init();
 
@@ -1277,28 +1509,38 @@ void StartDefaultTask(void const * argument)
   else //if (0 != sub_800a9a8())
   {
      //loc_800c99c
-     draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
+//     draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
+//     vTaskResume(backgroundTaskHandle);
+//     vTaskSuspend(NULL);
+     xEventGroupSetBits(xEventGroup, (1 << 2));
   }
   //loc_800c9b4
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
+
+  EventBits_t uxBits;
+  EventBits_t uxExpectBits = (1 << 2);
 
   /* Infinite loop */
   for(;;)
   {
     //HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+#if 0
     HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-#if 0
-    osDelay(1000);
+    osDelay(10);
 #endif
 
+	uxBits = xEventGroupWaitBits(xEventGroup, uxExpectBits, pdFALSE, pdFALSE, portMAX_DELAY);
+
+	if ((uxBits & (1 << 2)) != 0)
+	{
+	     xEventGroupClearBits(xEventGroup, (1 << 2));
+
+         draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
+
+	     uxExpectBits |= (1 << 1);
+	}
+
 #if 0
-	  uint8_t Buf[] = "Mainloop\r\n";
-
-	  CDC_Transmit_FS(Buf, sizeof(Buf)+1);
-#else
-//	  printf("Mainloop\r\n");
-#endif
-
       //loc_800c9c4
 	  if ((wMainloopEvents & MAIN_LOOP_EVENT_FOREGROUND) != 0)
 	  {
@@ -1407,6 +1649,7 @@ void StartDefaultTask(void const * argument)
             //loc_800cc42
          } //if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
 
+#if 0
          //loc_800cc42: Poll the SI46xx Interrup Pin
 
          if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
@@ -1426,6 +1669,9 @@ void StartDefaultTask(void const * argument)
             else
             {
                //loc_800cc84
+               struct_8008d84_Inner8 r7;
+               uint8_t r7_9;
+
                r7_9 = si46xx_fm_get_rds_data(&r7,
             		   radioText.str,
 					   &rtcTime,
@@ -1472,6 +1718,7 @@ void StartDefaultTask(void const * argument)
             HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
 
          } //if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
+#endif
 
          //loc_800cd5e
          bMainKeyCode = 0;
@@ -1636,33 +1883,23 @@ void StartDefaultTask(void const * argument)
          //goto loc_800c9c4;
 	  } //if ((wMainloopEvents & MAIN_LOOP_EVENT_FOREGROUND) != 0)
 	  else
+#endif
+
+	  if ((uxBits & (1 << 1)) != 0)
 	  {
          //loc_800d154
          if ((TouchEvent.bData_0 == 0) ||
         		 (KeyEvent.bData_0 == 0))
          {
-            //loc_800d164
-            standbyCounter = 10800;
-
-            // Display On
-            HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_RESET);
-
-            channel_start_current();
-
-            wMainloopEvents |= 0x02;
-
-            draw_main_screen(rtcTime,
-                 &pChannels[bCurrentChannelNumber].Data_8,
-   				 bCurrentVolume,
-   				 &radioText,
-				 radioText.bLength,
-				 bCurrentChannelNumber,
-				 &Data_20000a5c,
-  				 wMainloopEvents
-            	);
-
             TouchEvent.bData_0 = 1;
-            //->loc_800d2ee
+
+			xEventGroupClearBits(xEventGroup, (1 << 1));
+
+			uxExpectBits = (1 << 2); //wait for background
+
+			xEventGroupSetBits(xEventGroup, (1 << 0));
+
+//			vTaskSuspend(NULL); //wait for background
          }
          else
          {
@@ -1723,6 +1960,27 @@ void StartDefaultTask(void const * argument)
       }
   }
   /* USER CODE END 5 */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM1 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM1) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
 }
 
 /**
