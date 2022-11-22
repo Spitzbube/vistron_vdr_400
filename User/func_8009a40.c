@@ -1176,7 +1176,7 @@ int touch_read_miso_line(void)
 /* 800699c - todo */
 int touch_read_irq(void)
 {
-   return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);
+   return HAL_GPIO_ReadPin(Touch_Interrupt_GPIO_Port, Touch_Interrupt_Pin);
 }
 
 

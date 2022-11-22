@@ -68,13 +68,15 @@ uint8_t bData_200000eb; //200000eb
 char Data_200000ec[256]; //200000ec, size?
 uint16_t wData_200001ec; //200001ec
 uint16_t wData_200001ee; //200001ee
+
 uint8_t si46xx_buffer[2048]; //200001f0 size?
-uint8_t bData_200009f0; //200009f0
-int Data_200009f4; //200009f4
-int Data_200009f8; //200009f8
-uint8_t bData_200009fc; //200009fc
-uint8_t Data_20000a00[8]; //20000a00, size?
-uint8_t Data_20000a08[0x40]; //20000a08, size?
+uint8_t g_bGroup2AMaxAddress; //200009f0
+uint32_t g_dwGroup2AFlagsLow; //200009f4
+uint32_t g_dwGroup2AFlagsHigh; //200009f8
+uint8_t g_bGroup0AFlags; //200009fc
+uint8_t g_bGroup0ABuffer[8]; //20000a00
+uint8_t g_bGroup2ABuffer[0x40]; //20000a08, size?
+
 Struct_20000a48 KeyEvent; //20000a48
 Alarm_Time currentAlarmTime; //20000a4c
 User_Settings UserSettings; //20000a50

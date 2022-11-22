@@ -190,13 +190,15 @@ extern uint8_t bData_200000eb; //200000eb
 extern char Data_200000ec[]; //200000ec
 extern uint16_t wData_200001ec; //200001ec
 extern uint16_t wData_200001ee; //200001ee
+
 extern uint8_t si46xx_buffer[]; //200001f0
-extern uint8_t bData_200009f0; //200009f0
-extern int Data_200009f4; //200009f4
-extern int Data_200009f8; //200009f8
-extern uint8_t bData_200009fc; //200009fc
-extern uint8_t Data_20000a00[]; //20000a00
-extern uint8_t Data_20000a08[]; //20000a08
+extern uint8_t g_bGroup2AMaxAddress; //200009f0
+extern uint32_t g_dwGroup2AFlagsLow; //200009f4
+extern uint32_t g_dwGroup2AFlagsHigh; //200009f8
+extern uint8_t g_bGroup0AFlags; //200009fc
+extern uint8_t g_bGroup0ABuffer[]; //20000a00
+extern uint8_t g_bGroup2ABuffer[]; //20000a08
+
 extern Struct_20000a48 KeyEvent; //20000a48
 extern Alarm_Time currentAlarmTime; //20000a4c
 extern User_Settings UserSettings; //20000a50
@@ -254,8 +256,10 @@ extern UART_HandleTypeDef huart2; //20002438
 #define EVENTGROUP_BIT_BACKGROUND			(1 << 0)
 #define EVENTGROUP_BIT_FOREGROUND			(1 << 1)
 #define EVENTGROUP_BIT_TOUCH				(1 << 2)
-#define EVENTGROUP_BIT_RTC					(1 << 3)
-#define EVENTGROUP_BIT_CHANNEL				(1 << 4)
+#define EVENTGROUP_BIT_BUTTON				(1 << 3)
+#define EVENTGROUP_BIT_RTC					(1 << 4)
+#define EVENTGROUP_BIT_CHANNEL				(1 << 5)
+#define EVENTGROUP_BIT_RADIO_TEXT			(1 << 6)
 
 #define TEXT_ID_NO_CHANNEL                  8
 #define TEXT_ID_FAV_LIST_FULL               9
@@ -436,7 +440,7 @@ int si46xx_fm_tune_freq(uint16_t khz);
 int si46xx_dab_search(uint8_t* r7_4);
 int si46xx_fm_search(uint8_t* r7_4);
 int si46xx_dab_get_time_date(RTC_TimeTypeDef* r7_4, RTC_DateTypeDef* r7);
-int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint16_t* r7_30, uint8_t* r7_34);
+int si46xx_fm_get_rds_data(void*, uint8_t*, RTC_TimeTypeDef*, RTC_DateTypeDef*, uint16_t*, uint8_t*);
 int sub_8009868(uint8_t r7_4[]);
 int si46xx_is_dab_service_list_avail(uint8_t);
 int sub_8009f70(uint8_t* a);
@@ -458,7 +462,7 @@ void channel_start_current(void);
 void channel_stop_playing(void);
 int channel_search_time(void);
 void button_poll(void);
-int sub_800b270(void);
+int channel_list_clear(void);
 int sub_800b2ac(void* a, void* b);
 int sub_800b398(uint16_t a, void* b);
 int sub_800b43c(uint16_t a);
@@ -489,6 +493,8 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 #define SI46xx_Interrupt_Pin GPIO_PIN_0
 #define SI46xx_Interrupt_GPIO_Port GPIOC
 #define SI46xx_Interrupt_EXTI_IRQn EXTI0_IRQn
+#define SI46xx_Reset_Pin GPIO_PIN_2
+#define SI46xx_Reset_GPIO_Port GPIOC
 #define Button_Blue_Pin GPIO_PIN_4
 #define Button_Blue_GPIO_Port GPIOA
 #define Display_Backlight_Pin GPIO_PIN_5
@@ -509,8 +515,9 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 #define Touch_SPI_CLK_GPIO_Port GPIOD
 #define USB_DP_Pull_Pin GPIO_PIN_10
 #define USB_DP_Pull_GPIO_Port GPIOA
-#define Touch_SPI_IRQ_Pin GPIO_PIN_6
-#define Touch_SPI_IRQ_GPIO_Port GPIOB
+#define Touch_Interrupt_Pin GPIO_PIN_6
+#define Touch_Interrupt_GPIO_Port GPIOB
+#define Touch_Interrupt_EXTI_IRQn EXTI9_5_IRQn
 #define Touch_SPI_CS_Pin GPIO_PIN_7
 #define Touch_SPI_CS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */

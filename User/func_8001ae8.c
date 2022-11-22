@@ -3,6 +3,9 @@
 #include "stm32f1xx_hal.h"
 #include "main.h"
 #include "func_8001ae8.h"
+#include "cmsis_os.h"
+
+extern EventGroupHandle_t xEventGroup;
 
 
 #if 0
@@ -804,6 +807,17 @@ void button_poll(void)
    {
       KeyEvent.bData_0 = 0;
       KeyEvent.bData_1 = 3; //blue
+   }
+
+   if (KeyEvent.bData_0 == 0)
+   {
+  	 BaseType_t xResult, xTask = pdFALSE;
+
+  	 xResult = xEventGroupSetBitsFromISR(xEventGroup, EVENTGROUP_BIT_BUTTON, &xTask);
+  	 if (xResult != pdFAIL)
+  	 {
+			portYIELD_FROM_ISR(xTask);
+  	 }
    }
 }
 

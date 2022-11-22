@@ -221,6 +221,20 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles EXTI line[9:5] interrupts.
+  */
+void EXTI9_5_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+//  touch_poll();
+  /* USER CODE END EXTI9_5_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+  /* USER CODE BEGIN EXTI9_5_IRQn 1 */
+
+  /* USER CODE END EXTI9_5_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 update interrupt.
   */
 void TIM1_UP_IRQHandler(void)
@@ -243,9 +257,7 @@ void RTC_Alarm_IRQHandler(void)
 
   //800dd98
 
-#ifndef FREE_RTOS
   wMainloopEvents |= MAIN_LOOP_EVENT_ALARM;
-#endif
 
   /* USER CODE END RTC_Alarm_IRQn 0 */
   HAL_RTC_AlarmIRQHandler(&hrtc);
@@ -263,12 +275,10 @@ void TIM5_IRQHandler(void)
 
   //800ddbc
 
-#ifndef FREE_RTOS
   Data_20000b90.Data_0++;
 
   touch_poll();
   button_poll();
-#endif
 
   /* USER CODE END TIM5_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);

@@ -56,6 +56,7 @@ void DebugMon_Handler(void);
 void RTC_IRQHandler(void);
 void EXTI0_IRQHandler(void);
 void USB_LP_CAN1_RX0_IRQHandler(void);
+void EXTI9_5_IRQHandler(void);
 void TIM1_UP_IRQHandler(void);
 void RTC_Alarm_IRQHandler(void);
 void TIM5_IRQHandler(void);
