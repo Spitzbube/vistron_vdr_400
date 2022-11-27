@@ -345,7 +345,7 @@ int main(void)
             //loc_800cc42
          } //if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
          //loc_800cc42
-         if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
+         if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
          {
             if ((Data_200023e0->frequency < 41) && (Data_200023e0->service_id != 0))
             {
@@ -398,7 +398,7 @@ int main(void)
                   //loc_800cd5e
                }
             }
-         } //if (0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0))
+         } //if (0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin))
          //loc_800cd5e
          bMainKeyCode = 0;
          if (KeyEvent.bData_0 == 0)
@@ -784,7 +784,7 @@ static void MX_RTC_Init(void)
   */
   hrtc.Instance = RTC;
   hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
-  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_ALARM;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
     Error_Handler();
@@ -1018,11 +1018,11 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Touch_SPI_CS_GPIO_Port, Touch_SPI_CS_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PC0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  /*Configure GPIO pin : SI46xx_Interrupt_Pin */
+  GPIO_InitStruct.Pin = SI46xx_Interrupt_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(SI46xx_Interrupt_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PC1 PC2 PC3 PC4 */
   GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4;

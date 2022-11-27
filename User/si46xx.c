@@ -2346,7 +2346,7 @@ int channel_search_time(void)
          else
          {
             //loc_800b022
-            if ((0 == HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0)) &&
+            if ((0 == HAL_GPIO_ReadPin(SI46xx_Interrupt_GPIO_Port, SI46xx_Interrupt_Pin)) &&
             		((si46xx_fm_get_rds_data(r7,
                  		   r7_c.str,
      					   &rtcTime,

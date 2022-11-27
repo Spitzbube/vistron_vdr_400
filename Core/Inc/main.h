@@ -475,6 +475,8 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SI46xx_Interrupt_Pin GPIO_PIN_0
+#define SI46xx_Interrupt_GPIO_Port GPIOC
 #define Button_Blue_Pin GPIO_PIN_4
 #define Button_Blue_GPIO_Port GPIOA
 #define Display_Backlight_Pin GPIO_PIN_5
