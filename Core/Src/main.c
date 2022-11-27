@@ -110,7 +110,9 @@ void main_delay(uint16_t a)
 
    HAL_TIM_Base_Stop_IT(&htim);
 #else
-   osDelay(a);
+//   osDelay(a);
+   HAL_Delay(a);
+//   vTaskDelay(pdMS_TO_TICKS(a));
 #endif
 }
 
@@ -150,6 +152,7 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
 
 int _write(int file, char *ptr, int len)
 {
+#if 0
    uint8_t rc = USBD_OK;
 
    do
@@ -157,6 +160,9 @@ int _write(int file, char *ptr, int len)
       rc = CDC_Transmit_FS((uint8_t*) ptr, len);
    }
    while (USBD_BUSY == rc);
+#else
+   HAL_UART_Transmit(&huart2, ptr, len, HAL_MAX_DELAY);
+#endif
 
    return len;
 }
@@ -267,12 +273,17 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 200);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+#if 0
   xTaskCreate(main_foreground_task, "ForegroundTask", 2*configMINIMAL_STACK_SIZE, NULL, 0/*20*/, &foregroundTaskHandle);
+#else
+  osThreadDef(foregroundTask, main_foreground_task, osPriorityNormal, 0, 200);
+  foregroundTaskHandle = osThreadCreate(osThread(foregroundTask), NULL);
+#endif
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -1252,11 +1263,9 @@ static void MX_FSMC_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void const * argument)
 {
-#if 0
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 5 */
-#endif
 
   Tuner_Channel* pChannels = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
 				  FavouriteList: ChannelList;
@@ -1312,6 +1321,8 @@ void StartDefaultTask(void const * argument)
 	uxBits = xEventGroupWaitBits(xEventGroup, uxExpectBits, pdFALSE, pdFALSE, portMAX_DELAY);
 
     HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+
+//    HAL_UART_Transmit(&huart2, uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
 
 	if ((uxBits & EVENTGROUP_BIT_BACKGROUND) != 0)
 	{

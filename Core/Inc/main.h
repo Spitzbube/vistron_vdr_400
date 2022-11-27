@@ -260,6 +260,10 @@ extern UART_HandleTypeDef huart2; //20002438
 #define EVENTGROUP_BIT_RTC					(1 << 4)
 #define EVENTGROUP_BIT_CHANNEL				(1 << 5)
 #define EVENTGROUP_BIT_RADIO_TEXT			(1 << 6)
+#define EVENTGROUP_BIT_DACQ					(1 << 7)
+#define EVENTGROUP_BIT_SEEK_TUNE_COMPLETE	(1 << 8)
+#define EVENTGROUP_BIT_CLEAR_TO_SEND		(1 << 9)
+#define EVENTGROUP_BIT_DIGITAL_RADIO_EVENT	(1 << 10)
 
 #define TEXT_ID_NO_CHANNEL                  8
 #define TEXT_ID_FAV_LIST_FULL               9
@@ -432,7 +436,7 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes);
 int si46xx_load_and_boot(uint8_t a);
 int si46xx_get_dab_status(void);
 int si46xx_set_dab_config(void);
-int si46xx_set_config(void);
+int si46xx_set_fm_config(void);
 int si46xx_set_audio_output(uint8_t a);
 int si46xx_set_property(uint16_t name, uint16_t value);
 int si46xx_dab_tune_freq(uint8_t index);
@@ -442,7 +446,7 @@ int si46xx_fm_search(uint8_t* r7_4);
 int si46xx_dab_get_time_date(RTC_TimeTypeDef* r7_4, RTC_DateTypeDef* r7);
 int si46xx_fm_get_rds_data(void*, uint8_t*, RTC_TimeTypeDef*, RTC_DateTypeDef*, uint16_t*, uint8_t*);
 int sub_8009868(uint8_t r7_4[]);
-int si46xx_is_dab_service_list_avail(uint8_t);
+int si46xx_is_dab_service_list_avail(uint16_t);
 int sub_8009f70(uint8_t* a);
 int si46xx_get_digital_service_list(uint8_t r7_7, uint16_t* r7);
 int si46xx_get_fm_received_signal_quality(void);

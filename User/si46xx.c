@@ -47,7 +47,8 @@ extern const uint8_t si46xx_image_data[]; //8018af4
 #define SI46XX_DAB_TUNE_FE_CFG               0x1712
 #define SI46XX_DAB_TUNE_FE_VARM              0x1710
 #define SI46XX_DAB_TUNE_FE_VARB              0x1711
-
+#define SI46XX_DAB_DIGRAD_INTERRUPT_SOURCE   0xB000
+#define SI46XX_DAB_EVENT_INTERRUPT_SOURCE	 0xB300
 
 
 /* 8008670 - todo */
@@ -259,6 +260,7 @@ int si46xx_dab_search(uint8_t* r7_4)
 		  if (((si46xx_buffer[5] & (1 << 0)/*VALID*/) != 0) &&
 				  (si46xx_buffer[8] > 29))
 		  {
+#if 0
 			  r7_1b = 0;
 			  r7_25 = 0;
 			  do
@@ -288,6 +290,9 @@ int si46xx_dab_search(uint8_t* r7_4)
 			  while ((r7_1b == 0) && (++r7_25 < 10));
 			  //loc_8008cba
 			  si46xx_is_dab_service_list_avail(10);
+#else
+			  if (0 == si46xx_is_dab_service_list_avail(3600))
+#endif
 
 			  si46xx_get_digital_service_list(mux, &r7_1c);
 			  //->loc_8008cd4
@@ -309,6 +314,9 @@ int si46xx_dab_tune_freq(uint8_t index)
 {
    uint8_t f;
 
+   xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE |
+		   EVENTGROUP_BIT_DIGITAL_RADIO_EVENT | EVENTGROUP_BIT_DACQ);
+
    si46xx_buffer[0] = SI46XX_DAB_TUNE_FREQ;
    si46xx_buffer[1] = 0x00;
    si46xx_buffer[2] = index;
@@ -321,7 +329,22 @@ int si46xx_dab_tune_freq(uint8_t index)
       return 1;
    }
 
+#if 0
    f = si46xx_read_stc_reply(200, 4);
+#else
+   f = 0;
+   TickType_t ticks = xTaskGetTickCount();
+   EventBits_t bits = xEventGroupWaitBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE, pdFALSE, pdTRUE, pdMS_TO_TICKS(2000)); //portMAX_DELAY);
+   printf("si46xx_dab_tune_freq: ticks=%u, bits=0x%x\n\r", xTaskGetTickCount() - ticks, bits);
+   if (bits & EVENTGROUP_BIT_SEEK_TUNE_COMPLETE)
+   {
+	   xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE);
+   }
+   else
+   {
+	   f = 1;
+   }
+#endif
 
    f |= si46xx_read_reply(100, 4);
 
@@ -1169,7 +1192,7 @@ int si46xx_start_fm(uint8_t a)
       return 1;
    }
 
-   if (0 != si46xx_set_config())
+   if (0 != si46xx_set_fm_config())
    {
       return 1;
    }
@@ -1240,6 +1263,7 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes)
    uint8_t f = 0;
    uint8_t i = 10;
 
+#if 1
    while (i--)
    {
       main_delay(a);
@@ -1267,6 +1291,10 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes)
          break;
       }
    }
+#else
+   xEventGroupWaitBits(xEventGroup, EVENTGROUP_BIT_CLEAR_TO_SEND, pdFALSE, pdFALSE, pdMS_TO_TICKS(a)); //portMAX_DELAY);
+   xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_CLEAR_TO_SEND);
+#endif
 
    if (si46xx_buffer[0] & 0x40) //ERR_CMD
    {
@@ -1456,13 +1484,31 @@ int si46xx_load_and_boot(uint8_t a)
 /* 8009e7c - todo */
 int si46xx_get_dab_status(void)
 {
+#if 0
+   TickType_t ticks = xTaskGetTickCount();
+   EventBits_t bits = xEventGroupWaitBits(xEventGroup, EVENTGROUP_BIT_DACQ, pdFALSE, pdTRUE, pdMS_TO_TICKS(20)); //portMAX_DELAY);
+   printf("si46xx_get_dab_status: ticks=%u, bits=0x%x\n\r", xTaskGetTickCount() - ticks, bits);
+   if (bits & EVENTGROUP_BIT_DACQ)
+   {
+	   xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_DACQ);
+
+	   si46xx_buffer[0] = SI46XX_DAB_DIGRAD_STATUS;
+	   si46xx_buffer[1] = (1 << 3); //DIGRAD_ACK
+
+	   if (0 != si46xx_send_command(2, 23, 20))
+	   {
+		  return 1;
+	   }
+   }
+#else
    si46xx_buffer[0] = SI46XX_DAB_DIGRAD_STATUS;
-   si46xx_buffer[1] = 0;
+   si46xx_buffer[1] = (1 << 3); //DIGRAD_ACK
 
    if (0 != si46xx_send_command(2, 23, 20))
    {
 	  return 1;
    }
+#endif
 
    return 0;
 }
@@ -1491,7 +1537,21 @@ int si46xx_set_dab_config(void)
       return 1;
    }
 
+   if (0 != si46xx_set_property(SI46XX_DAB_DIGRAD_INTERRUPT_SOURCE, 0x000f))
+   {
+      return 1;
+   }
+
+   if (0 != si46xx_set_property(SI46XX_DAB_EVENT_INTERRUPT_SOURCE, 1 << 0/*SRVLIST_INTEN*/))
+   {
+      return 1;
+   }
+
    if (0 != si46xx_set_property(SI46XX_FM_INT_CTL_ENABLE,
+		   	   (1 << 13)/*DEVNTIEN (Interrupt when DEVNTINT is set)*/ |
+//		   	   (1 << 7)/*CTSIEN (Interrupt when CTS is set)*/ |
+		   	   (1 << 0)/*STCIEN (Interrupt when STCINT is set)*/ |
+		   	   (1 << 5)/*DACQIEN (Interrupt when DACQINT is set)*/ |
                (1 << 4)/*DSRVIEN (Interrupt when DSRVINT is set)*/))
    {
       return 1;
@@ -1502,8 +1562,9 @@ int si46xx_set_dab_config(void)
 
 
 /* 8009f1c - todo */
-int si46xx_is_dab_service_list_avail(uint8_t a)
+int si46xx_is_dab_service_list_avail(uint16_t a)
 {
+#if 0
    while (a-- != 0)
    {
       si46xx_buffer[0] = SI46XX_DAB_GET_EVENT_STATUS;
@@ -1523,6 +1584,27 @@ int si46xx_is_dab_service_list_avail(uint8_t a)
    }
 
    return 0;
+#else
+   TickType_t ticks = xTaskGetTickCount();
+   EventBits_t bits = xEventGroupWaitBits(xEventGroup, EVENTGROUP_BIT_DIGITAL_RADIO_EVENT, pdFALSE, pdTRUE, pdMS_TO_TICKS(a)); //portMAX_DELAY);
+   printf("si46xx_is_dab_service_list_avail: ticks=%u, bits=0x%x\n\r", xTaskGetTickCount() - ticks, bits);
+   if (bits & EVENTGROUP_BIT_DIGITAL_RADIO_EVENT)
+   {
+	   xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_DIGITAL_RADIO_EVENT);
+
+	   si46xx_buffer[0] = SI46XX_DAB_GET_EVENT_STATUS;
+	   si46xx_buffer[1] = 1 << 0; //EVENT_ACK
+
+	   (void) si46xx_send_command(2, 12, 10);
+
+       if ((si46xx_buffer[5] & 1) != 0) //SVRLIST
+	   {
+    	   return 0;
+	   }
+   }
+
+   return 1;
+#endif
 }
 
 
@@ -1683,7 +1765,7 @@ int si46xx_start_fm_seek(void)
 
 
 /* 800a25c - todo */
-int si46xx_set_config(void)
+int si46xx_set_fm_config(void)
 {
    if (0 != si46xx_set_property(SI46XX_FM_SEEK_FREQUENCY_SPACING, 5/*50kHz*/))
    {
@@ -2066,7 +2148,12 @@ int sub_800a9a8(void)
    RTC_AlarmTypeDef sAlarm = {0};
    uint8_t res = 0; //r7_f
 
+#if 0
    xTaskCreate(si46xx_interrupt_task, "Si46xxIrqTask", 2*configMINIMAL_STACK_SIZE, NULL, 1, &si46xx_irqTaskHandle);
+#else
+   osThreadDef(si46xxInterruptTask, si46xx_interrupt_task, osPriorityAboveNormal, 0, 200);
+   si46xx_irqTaskHandle = osThreadCreate(osThread(si46xxInterruptTask), NULL);
+#endif
 
    si46xx_start_dab(0);
 
@@ -2648,6 +2735,37 @@ void si46xx_interrupt_task(void* pTaskData)
 
 		if (0 == si46xx_read_reply(0, 4))
 		{
+			printf("si46xx_interrupt_task: [0]=0x%x, [1]=0x%x\r\n", si46xx_buffer[0], si46xx_buffer[1]);
+
+			if ((si46xx_buffer[1] & (1 << 5)/*DEVNTINT*/) != 0)
+			{
+	            xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_DIGITAL_RADIO_EVENT);
+			}
+
+#if 0
+			if ((si46xx_buffer[0] & (1 << 7)/*CTS*/) != 0)
+			{
+	            xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_CLEAR_TO_SEND);
+			}
+#endif
+
+			if ((si46xx_buffer[0] & (1 << 0)/*STCINT*/) != 0)
+			{
+	            xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE);
+			}
+
+			if ((si46xx_buffer[0] & (1 << 5)/*DACQINT*/) != 0)
+			{
+	            xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_DACQ);
+
+#if 0
+	            si46xx_buffer[0] = SI46XX_DAB_DIGRAD_STATUS;
+	            si46xx_buffer[1] = (1 << 3); //DIGRAD_ACK
+
+	            si46xx_send_command(2, 23, 20);
+#endif
+			}
+
 			if ((si46xx_buffer[0] & (1 << 4)/*DSRVINT*/) != 0)
 			{
 				if (0 == si46xx_get_digital_service_data(radioText.str, &radioText.bLength))

@@ -125,7 +125,7 @@ sub_80013a0:
          nop
          ands       r3, r0, #0x80000000
          it         mi
-         rsbsmi     r0, r0, #0x0
+         rsbmi     r0, r0, #0x0
 
 loc_80013b0:
          movs.w     ip, r0
@@ -153,7 +153,7 @@ loc_80013E8:
          ittt       eq
          moveq      ip, r0
          moveq      r1, r0
-         movseq     r0, #0x0
+         moveq     r0, #0x0
          orr        r3, r3, #0x5b000000
          it         eq
          subeq.w    r3, r3, #0x10000000
@@ -212,9 +212,9 @@ loc_8001468:
          and        r0, ip, #0x80000000
          cmp.w      r1, #0x800000
          ittt       lo
-         lslslo     r1, r1, #0x1
+         lsllo     r1, r1, #0x1
          orrlo.w    r1, r1, r3, lsr #31
-         lslslo     r3, r3, #0x1
+         lsllo     r3, r3, #0x1
          orr.w      r0, r0, r1
          sbc        r2, r2, #0x7f
          cmp        r2, #0xfd
@@ -230,7 +230,7 @@ loc_80014b6:
          teq.w      r0, #0x0
          and        ip, ip, #0x80000000
          it         eq
-         lslseq     r1, r1, #0x9
+         lsleq     r1, r1, #0x9
          orr.w      r0, ip, r0, lsr #9
          orr.w      r0, r0, r1, lsr #9
          subs       r2, #0x7f
@@ -267,9 +267,9 @@ loc_8001516:
 
 loc_800151e:
          ittt       eq
-         lslseq     r0, r0, #0x1
+         lsleq     r0, r0, #0x1
          tsteq.w    r0, #0x800000
-         subseq     r2, #0x1
+         subeq     r2, #0x1
          beq        loc_800151e
 
          orr.w      r0, r0, ip
@@ -278,9 +278,9 @@ loc_800151e:
 
 loc_8001536:
          ittt       eq
-         lslseq     r1, r1, #0x1
+         lsleq     r1, r1, #0x1
          tsteq.w    r1, #0x800000
-         subseq     r3, #0x1
+         subeq     r3, #0x1
          beq        loc_8001536
 
          orr.w      r1, r1, ip
@@ -355,7 +355,7 @@ sub_80016f0:
          tst.w      r0, #0x80000000
          lsr.w      r0, r3, r2
          it         ne
-         rsbsne       r0, r0, #0x0
+         rsbne       r0, r0, #0x0
          bx         lr
 
              loc_800171a:

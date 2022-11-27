@@ -59,7 +59,8 @@ void main_foreground_task(void* pTaskData)
             		EVENTGROUP_BIT_BUTTON |
             		EVENTGROUP_BIT_RTC |
 					EVENTGROUP_BIT_CHANNEL |
-					EVENTGROUP_BIT_RADIO_TEXT;
+					EVENTGROUP_BIT_RADIO_TEXT |
+					EVENTGROUP_BIT_DACQ;
 
 		} //if (uxBits & EVENTGROUP_BIT_FOREGROUND)
 
@@ -241,6 +242,53 @@ void main_foreground_task(void* pTaskData)
                draw_foreground_clock(rtcTime);
             }
 
+            if ((Data_200023e0->frequency < 41) && (Data_200023e0->service_id != 0))
+            {
+#if 0
+               if (((wMainloopEvents & MAIN_LOOP_EVENT_BACKGROUND_TIME) == 0) &&
+            		   (0 != si46xx_dab_get_time_date(&rtcTime, &rtcDate)))
+               {
+                  if (0 != HAL_RTC_SetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN))
+                  {
+                     Error_Handler();
+                  }
+                  //loc_800ca48
+                  if (0 != HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BIN))
+                  {
+                     Error_Handler();
+                  }
+                  //loc_800ca5c
+                  wMainloopEvents |= MAIN_LOOP_EVENT_BACKGROUND_TIME;
+
+                  si46xx_mute(0);
+               }
+#endif
+
+#if 0
+               if ((0 == si46xx_get_dab_values(&Data_20000a5c)) &&
+            		   (Data_20000a5c.rssi/5 != Data_20000a5a/5))
+               {
+           	      Data_20000a5a = Data_20000a5c.rssi;
+
+                  draw_signal_strength_bars(142, 42, &Data_20000a5c.rssi);
+               }
+#endif
+            }
+            else
+            {
+               //loc_800cabe
+#if 0
+               if ((0 == si46xx_get_fm_values(&Data_20000a5c)) &&
+             		   (Data_20000a5c.rssi/5 != Data_20000a5a/5))
+               {
+                  Data_20000a5a = Data_20000a5c.rssi;
+
+                  draw_signal_strength_bars(142, 42, &Data_20000a5c.rssi);
+               }
+#endif
+               //loc_800cb0e
+            }
+
 		} //if (uxBits & EVENTGROUP_BIT_RTC)
 
 		if (uxBits & EVENTGROUP_BIT_CHANNEL)
@@ -263,6 +311,18 @@ void main_foreground_task(void* pTaskData)
 
 		} //if (uxBits & EVENTGROUP_BIT_RADIO_TEXT)
 
+		if (uxBits & EVENTGROUP_BIT_DACQ)
+		{
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_DACQ);
+
+            if ((0 == si46xx_get_dab_values(&Data_20000a5c)) &&
+         		   (Data_20000a5c.rssi/5 != Data_20000a5a/5))
+            {
+        	      Data_20000a5a = Data_20000a5c.rssi;
+
+               draw_signal_strength_bars(142, 42, &Data_20000a5c.rssi);
+            }
+		}
 	}
 }
 
