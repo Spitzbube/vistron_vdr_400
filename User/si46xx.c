@@ -1285,11 +1285,11 @@ int si46xx_load_and_boot(uint8_t a)
 {
    uint8_t arData_8[943];
 
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+   HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_RESET);
 
    main_delay(10);
 
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_SET);
 
    if (0 != si46xx_read_reply(100, 6))
    {
@@ -2295,9 +2295,9 @@ void channel_stop_playing(void)
    si46xx_mute(1);
 
    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+   HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_RESET);
    main_delay(10);
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_SET);
 
    wMainloopEvents &= ~(MAIN_LOOP_EVENT_SLEEP_TIMER | MAIN_LOOP_EVENT_FOREGROUND);
 }
