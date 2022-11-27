@@ -435,7 +435,7 @@ int si46xx_is_dab_service_list_avail(uint8_t);
 int sub_8009f70(uint8_t* a);
 int si46xx_get_digital_service_list(uint8_t r7_7, uint16_t* r7);
 int si46xx_get_fm_received_signal_quality(void);
-int sub_800a1a4(uint8_t r7_7, uint8_t r7_6);
+int si46xx_get_fm_rds_status(uint8_t ackBits, uint8_t numRetry);
 int si46xx_start_fm_seek(void);
 void si46xx_get_rds_time(RTC_TimeTypeDef* a, RTC_DateTypeDef* b);
 int si46xx_get_fm_values(Tuner_Values* r7_4);

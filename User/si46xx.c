@@ -569,7 +569,7 @@ int si46xx_fm_search(uint8_t* r7_4)
 
       if ((si46xx_buffer[10] != 0) &&
     		  ((si46xx_buffer[10] & 0x80) == 0) &&
-			  (0 == sub_800a1a4(3, 50)) &&
+			  (0 == si46xx_get_fm_rds_status((1 << 1)/*MTFIFO*/ | (1 << 0)/*INTACK*/, 50)) &&
 			  (0 == sub_8009868(r7_1c)) &&
 			  (1 == sub_800b398(freq, r7_1c)))
       {
@@ -877,7 +877,7 @@ int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint
    if ((si46xx_buffer[0] & 4) != 0) do
    {
       //loc_80093fc
-      if (0 != sub_800a1a4(1, 2))
+      if (0 != si46xx_get_fm_rds_status((1 << 0)/*INTACK*/, 2))
       {
          return 1;
       }
@@ -1092,7 +1092,7 @@ int sub_8009868(uint8_t r7_4[])
    do
    {
       //loc_800987c
-      if (0 != sub_800a1a4(1, 2))
+      if (0 != si46xx_get_fm_rds_status((1 << 0)/*INTACK*/, 2))
       {
          return 1;
       }
@@ -1629,26 +1629,26 @@ int si46xx_get_fm_received_signal_quality(void)
 
 
 /* 800a1a4 - todo */
-int sub_800a1a4(uint8_t r7_7, uint8_t r7_6)
+int si46xx_get_fm_rds_status(uint8_t ackBits, uint8_t numRetry)
 {
-   uint8_t r7_f = 0;
+   uint8_t i = 0;
 
    do
    {
       //loc_800a1b8
       si46xx_buffer[0] = SI46XX_FM_RDS_STATUS;
-      si46xx_buffer[1] = r7_7 & 0x07;
+      si46xx_buffer[1] = ackBits & 0x07; //STATUSONLY MTFIFO INTACK
 
       if (0 != si46xx_send_command(2, 20, 1))
       {
          return 1;
       }
       //loc_800a1de
-      r7_f++;
+      i++;
    }
-   while (((si46xx_buffer[5] & 0x02) == 0) && (r7_f < r7_6));
+   while (((si46xx_buffer[5] & (1 << 1)/*RDSSYNC*/) == 0) && (i < numRetry));
    //loc_800a1f8
-   if (r7_f == r7_6)
+   if (i == numRetry)
    {
       return 1;
    }
