@@ -45,7 +45,7 @@ extern const uint8_t si46xx_image_data[]; //8018af4
 #define SI46XX_DAB_TUNE_FE_CFG               0x1712
 #define SI46XX_DAB_TUNE_FE_VARM              0x1710
 #define SI46XX_DAB_TUNE_FE_VARB              0x1711
-
+#define SI46XX_DIGITAL_SERVICE_INT_SOURCE    0x8100
 
 
 /* 8008670 - todo */
@@ -570,7 +570,7 @@ int si46xx_fm_search(uint8_t* r7_4)
       if ((si46xx_buffer[10] != 0) &&
     		  ((si46xx_buffer[10] & 0x80) == 0) &&
 			  (0 == si46xx_get_fm_rds_status((1 << 1)/*MTFIFO*/ | (1 << 0)/*INTACK*/, 50)) &&
-			  (0 == sub_8009868(r7_1c)) &&
+			  (0 == si46xx_get_fm_station_name(r7_1c)) &&
 			  (1 == sub_800b398(freq, r7_1c)))
       {
          return 1;
@@ -850,23 +850,23 @@ const uint8_t Data_8018ea4[] = //8018ea4
 };
 
 /* 80093a8 - todo */
-int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint16_t* r7_30, uint8_t* r7_34)
+int si46xx_fm_get_rds_data(void* pStationName, uint8_t* pRadioText, RTC_TimeTypeDef* pTime, RTC_DateTypeDef* pDate, uint16_t* pwMainloopEvents, uint8_t* pbRadioTextLength)
 {
-   uint8_t r7_27;
-   uint8_t* r7_20;
-   uint8_t r7_1f;
-   uint32_t r7_18;
+   uint8_t i;
+   uint8_t* pByte;
+   uint8_t resultMask;
+   uint32_t dwGroup2AFlagsHighExpected;
    uint8_t r7_17;
-   uint8_t r7_16;
+   uint8_t addr;
 
    r7_17 = 0;
-   r7_1f = 0;
+   resultMask = 0;
 
-   if (*r7_30 != 0)
+   if (*pwMainloopEvents != 0)
    {
-      bData_200009f0 = 0;
-      Data_200009f4 = 0;
-      Data_200009f8 = 0;
+      g_bGroup2AMaxAddress = 0;
+      g_dwGroup2AFlagsLow = 0;
+      g_dwGroup2AFlagsHigh = 0;
    }
    //loc_80093dc
    if (0 != si46xx_read_reply(0, 4))
@@ -888,42 +888,42 @@ int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint
          {
             case 0:
             case 0x08:
-               //loc_8009442
-               if (r7_c != 0)
+               //loc_8009442: Group 0A
+               if (pStationName != NULL)
                {
-                  r7_16 = (si46xx_buffer[14] << 1) & 0x06;
-                  if ((r7_16 == 0) || ((*r7_30 & 0x40) != 0))
+                  addr = (si46xx_buffer[14] << 1) & 0x06;
+                  if ((addr == 0) || ((*pwMainloopEvents & 0x40) != 0))
                   {
                      //loc_800946a
-                     bData_200009fc = 0;
-                     *r7_30 &= ~0x40;
+                     g_bGroup0AFlags = 0;
+                     *pwMainloopEvents &= ~0x40;
                   }
                   //loc_800947e
                   if (((si46xx_buffer[11]) & 0x03) < 3)
                   {
-                     r7_20 = &Data_20000a00[r7_16];
-                     *r7_20 = si46xx_buffer[19];
-                     bData_200009fc |= (1 << r7_16);
+                     pByte = &g_bGroup0ABuffer[addr];
+                     *pByte = si46xx_buffer[19];
+                     g_bGroup0AFlags |= (1 << addr);
                   }
                   //loc_80094b4
                   if (((si46xx_buffer[11]) & 0x0c) < 12)
                   {
-                     r7_20 = &Data_20000a00[r7_16 + 1];
-                     *r7_20 = si46xx_buffer[18];
-                     bData_200009fc |= (1 << (r7_16 + 1));
+                     pByte = &g_bGroup0ABuffer[addr + 1];
+                     *pByte = si46xx_buffer[18];
+                     g_bGroup0AFlags |= (1 << (addr + 1));
                   }
                   //loc_80094f0
-                  if (bData_200009fc == 0xff)
+                  if (g_bGroup0AFlags == 0xff)
                   {
-                	  r7_20 = r7_c;
-                	  for (r7_27 = 0; r7_27 < 8; r7_27++)
+                	  pByte = pStationName;
+                	  for (i = 0; i < 8; i++)
                 	  {
                          //loc_8009506
-                	     *r7_20++ = Data_8018ea4[ Data_20000a00[r7_27] ];
+                	     *pByte++ = Data_8018ea4[ g_bGroup0ABuffer[i] ];
                 	  }
 
-                	  r7_1f |= 0x02;
-                	  bData_200009fc = 0;
+                	  resultMask |= 0x02;
+                	  g_bGroup0AFlags = 0;
                   }
                   //loc_800982c
                }
@@ -932,122 +932,122 @@ int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint
 
             case 0x20:
             case 0x28:
-               //loc_800953e
-               if ((r7_34 != 0) && (r7_8 != 0))
+               //loc_800953e: Group 2A
+               if ((pbRadioTextLength != NULL) && (pRadioText != NULL))
                {
-                  r7_16 = (si46xx_buffer[14] << 2) & 0x3c;
-                  if (r7_16 == 0)
+                  addr = (si46xx_buffer[14] << 2) & 0x3c;
+                  if (addr == 0)
                   {
-                     Data_200009f4 = 0;
-                     Data_200009f8 = 0;
+                     g_dwGroup2AFlagsLow = 0;
+                     g_dwGroup2AFlagsHigh = 0;
                   }
                   //loc_800956e
                   if ((si46xx_buffer[11] & 0x03) < 3)
                   {
-                     r7_20 = &Data_20000a08[r7_16];
-                     *r7_20 = si46xx_buffer[17];
+                     pByte = &g_bGroup2ABuffer[addr];
+                     *pByte = si46xx_buffer[17];
 
-                     if (r7_16 > 31)
+                     if (addr > 31)
                      {
-                        Data_200009f8 |= (1 << (r7_16 - 32));
+                        g_dwGroup2AFlagsHigh |= (1 << (addr - 32));
                      }
                      else
                      {
                         //loc_80095aa
-                        Data_200009f4 |= (1 << r7_16);
+                        g_dwGroup2AFlagsLow |= (1 << addr);
                      }
                   }
                   //loc_80095be
                   if ((si46xx_buffer[11] & 0x0c) < 12)
                   {
-                     r7_20 = &Data_20000a08[r7_16 + 1];
-                     *r7_20 = si46xx_buffer[16];
+                     pByte = &g_bGroup2ABuffer[addr + 1];
+                     *pByte = si46xx_buffer[16];
 
-                     if (r7_16 > 31)
+                     if (addr > 31)
                      {
-                        Data_200009f8 |= (1 << (r7_16 - 31));
+                        g_dwGroup2AFlagsHigh |= (1 << (addr - 31));
                      }
                      else
                      {
                         //loc_80095fc
-                        Data_200009f4 |= (1 << (r7_16 + 1));
+                        g_dwGroup2AFlagsLow |= (1 << (addr + 1));
                      }
                   }
                   //loc_8009614
                   if ((si46xx_buffer[11] & 0x30) < 48)
                   {
-                     r7_20 = &Data_20000a08[r7_16 + 2];
-                     *r7_20 = si46xx_buffer[19];
+                     pByte = &g_bGroup2ABuffer[addr + 2];
+                     *pByte = si46xx_buffer[19];
 
-                     if (r7_16 > 31)
+                     if (addr > 31)
                      {
-                        Data_200009f8 |= (1 << (r7_16 - 30));
+                        g_dwGroup2AFlagsHigh |= (1 << (addr - 30));
                      }
                      else
                      {
                         //loc_8009674
-                        Data_200009f4 |= (1 << (r7_16 + 2));
+                        g_dwGroup2AFlagsLow |= (1 << (addr + 2));
                      }
                   }
                   //loc_800968c
                   if ((si46xx_buffer[11] & 0xC0) < 192)
                   {
-                     r7_20 = &Data_20000a08[r7_16 + 3];
-                     *r7_20 = si46xx_buffer[18];
+                     pByte = &g_bGroup2ABuffer[addr + 3];
+                     *pByte = si46xx_buffer[18];
 
-                     if (r7_16 > 31)
+                     if (addr > 31)
                      {
-                        Data_200009f8 |= (1 << (r7_16 - 29));
+                        g_dwGroup2AFlagsHigh |= (1 << (addr - 29));
                      }
                      else
                      {
                         //loc_80096ca
-                        Data_200009f4 |= (1 << (r7_16 + 3));
+                        g_dwGroup2AFlagsLow |= (1 << (addr + 3));
                      }
                   }
                   //loc_80096e2
-                  if (bData_200009f0 < r7_16)
+                  if (g_bGroup2AMaxAddress < addr)
                   {
-                     bData_200009f0 = r7_16;
+                     g_bGroup2AMaxAddress = addr;
                   }
                   //loc_80096f2
-                  r7_18 = 1;
+                  dwGroup2AFlagsHighExpected = 1;
 
-                  for (r7_27 = 0; r7_27 < (uint8_t)(bData_200009f0 - 29); r7_27++)
+                  for (i = 0; i < (uint8_t)(g_bGroup2AMaxAddress - 29); i++)
                   {
                      //loc_80096fe
-                     r7_18 = (r7_18 << 1) + 1;
+                     dwGroup2AFlagsHighExpected = (dwGroup2AFlagsHighExpected << 1) + 1;
                   }
                   //08009720
-                  if ((Data_200009f4 == 0xffffffff) &&
-                		  (Data_200009f8 == r7_18))
+                  if ((g_dwGroup2AFlagsLow == 0xffffffff) &&
+                		  (g_dwGroup2AFlagsHigh == dwGroup2AFlagsHighExpected))
                   {
-                     *r7_34 = bData_200009f0 + 4;
+                     *pbRadioTextLength = g_bGroup2AMaxAddress + 4;
 
-                     for (r7_27 = 0; r7_27 < *r7_34; r7_27++)
+                     for (i = 0; i < *pbRadioTextLength; i++)
                      {
                         //loc_800974a
-                        r7_8[r7_27] = Data_8018ea4[ Data_20000a08[r7_27] ];
+                        pRadioText[i] = Data_8018ea4[ g_bGroup2ABuffer[i] ];
                      }
 
-                     r7_1f |= 0x04;
-                     Data_200009f4 = 0;
-                     Data_200009f8 = 0;
+                     resultMask |= 0x04;
+                     g_dwGroup2AFlagsLow = 0;
+                     g_dwGroup2AFlagsHigh = 0;
 
-                     for (r7_27 = 0; r7_27 < (uint8_t)(*r7_34 - 3); r7_27++)
+                     for (i = 0; i < (uint8_t)(*pbRadioTextLength - 3); i++)
                      {
                         //loc_8009794
-                        if ((r7_8[r7_27] == ' ') &&
-                        		(r7_8[r7_27 + 1] == ' ') &&
-								(r7_8[r7_27 + 2] == ' '))
+                        if ((pRadioText[i] == ' ') &&
+                        		(pRadioText[i + 1] == ' ') &&
+								(pRadioText[i + 2] == ' '))
                         {
-                           *r7_34 = r7_27 + 1;
+                           *pbRadioTextLength = i + 1;
                            //->loc_80097ea
                            break;
                         }
                      }
                      //loc_80097ea
-                     r7_1f |= 0x04;
+                     resultMask |= 0x04;
                   }
                }
                //loc_8009830
@@ -1055,12 +1055,12 @@ int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint
 
             case 0x40:
                //loc_80097f4
-               si46xx_get_rds_time(r7_4, r7);
-               HAL_RTC_SetTime(&hrtc, r7_4, RTC_FORMAT_BIN);
-               HAL_RTC_SetDate(&hrtc, r7, RTC_FORMAT_BIN);
+               si46xx_get_rds_time(pTime, pDate);
+               HAL_RTC_SetTime(&hrtc, pTime, RTC_FORMAT_BIN);
+               HAL_RTC_SetDate(&hrtc, pDate, RTC_FORMAT_BIN);
 
-               *r7_30 |= 0x80;
-               r7_1f |= 0x08;
+               *pwMainloopEvents |= 0x80;
+               resultMask |= 0x08;
                break;
 
             default:
@@ -1075,18 +1075,18 @@ int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint
    }
    while (r7_17 != 0);
    //loc_8009840
-   return r7_1f;
+   return resultMask;
 }
 
 
 /* 8009868 - todo */
-int sub_8009868(uint8_t r7_4[])
+int si46xx_get_fm_station_name(uint8_t buf[])
 {
-   uint8_t r7_1f = 0;
+   uint8_t bGroupFlags = 0;
    uint8_t r7_1e = 0;
-   uint32_t r7_18 = 0;
-   uint8_t* r7_10;
-   uint8_t r7_17;
+   uint32_t retry = 0;
+   uint8_t* pByte;
+   uint8_t addr;
    uint8_t r7_f;
 
    do
@@ -1103,21 +1103,21 @@ int sub_8009868(uint8_t r7_4[])
         		 ((si46xx_buffer[15] & 0xf8) == 0))
          {
              //loc_80098ae
-             r7_17 = (si46xx_buffer[14] << 1) & 0x06;
+             addr = (si46xx_buffer[14] << 1) & 0x06;
 
              if ((si46xx_buffer[11] & 0x03) < 3)
              {
-                r7_10 = &r7_4[r7_17];
-                *r7_10 = si46xx_buffer[19];
+                pByte = &buf[addr];
+                *pByte = si46xx_buffer[19];
                 r7_1e = 1;
-                r7_1f |= r7_1e << r7_17;
+                bGroupFlags |= r7_1e << addr;
              }
              //loc_80098f0
              if ((si46xx_buffer[11] & 0x0c) < 12)
              {
-                r7_10 = &r7_4[r7_17 + 1];
-                *r7_10 = si46xx_buffer[18];
-                r7_1f |= r7_1e << (uint8_t)(r7_17 + 1);
+                pByte = &buf[addr + 1];
+                *pByte = si46xx_buffer[18];
+                bGroupFlags |= r7_1e << (uint8_t)(addr + 1);
              }
          }
          //loc_8009924
@@ -1125,9 +1125,9 @@ int sub_8009868(uint8_t r7_4[])
       //loc_8009924
       r7_f = si46xx_buffer[10];
    }
-   while ((r7_f != 0) || ((r7_1f != 0xff) && (r7_18++ < 1000)));
+   while ((r7_f != 0) || ((bGroupFlags != 0xff) && (retry++ < 1000)));
 
-   if (r7_18 >= 1000)
+   if (retry >= 1000)
    {
       return 1;
    }
@@ -1283,7 +1283,7 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes)
 /* 8009bb8 - todo */
 int si46xx_load_and_boot(uint8_t a)
 {
-   uint8_t arData_8[943];
+   uint8_t fwBuf[943];
 
    HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_RESET);
 
@@ -1334,7 +1334,7 @@ int si46xx_load_and_boot(uint8_t a)
       return 1;
    }
    //loc_8009c96: TODO
-   memcpy(arData_8, si46xx_image_data, 943);
+   memcpy(fwBuf, si46xx_image_data, 943);
 
    /* CS to low */
    HAL_GPIO_WritePin(SPI2_CS_SI46xx_GPIO_Port, SPI2_CS_SI46xx_Pin, GPIO_PIN_RESET);
@@ -1346,7 +1346,7 @@ int si46xx_load_and_boot(uint8_t a)
       return 1;
    }
 
-   if (0 != HAL_SPI_Transmit(&hspi2, arData_8, 943, 10))
+   if (0 != HAL_SPI_Transmit(&hspi2, fwBuf, 943, 10))
    {
       return 1;
    }
@@ -1465,7 +1465,7 @@ int si46xx_get_dab_status(void)
 /* 8009eac - todo */
 int si46xx_set_dab_config(void)
 {
-   if (0 != si46xx_set_property(0x8100, 1))
+   if (0 != si46xx_set_property(SI46XX_DIGITAL_SERVICE_INT_SOURCE, (1 << 0)/*DSRVPCKTINT*/))
    {
       return 1;
    }

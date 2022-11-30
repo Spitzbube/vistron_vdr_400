@@ -190,13 +190,15 @@ extern uint8_t bData_200000eb; //200000eb
 extern char Data_200000ec[]; //200000ec
 extern uint16_t wData_200001ec; //200001ec
 extern uint16_t wData_200001ee; //200001ee
+
 extern uint8_t si46xx_buffer[]; //200001f0
-extern uint8_t bData_200009f0; //200009f0
-extern int Data_200009f4; //200009f4
-extern int Data_200009f8; //200009f8
-extern uint8_t bData_200009fc; //200009fc
-extern uint8_t Data_20000a00[]; //20000a00
-extern uint8_t Data_20000a08[]; //20000a08
+extern uint8_t g_bGroup2AMaxAddress; //200009f0
+extern uint32_t g_dwGroup2AFlagsLow; //200009f4
+extern uint32_t g_dwGroup2AFlagsHigh; //200009f8
+extern uint8_t g_bGroup0AFlags; //200009fc
+extern uint8_t g_bGroup0ABuffer[]; //20000a00
+extern uint8_t g_bGroup2ABuffer[]; //20000a08
+
 extern Struct_20000a48 KeyEvent; //20000a48
 extern Alarm_Time currentAlarmTime; //20000a4c
 extern User_Settings UserSettings; //20000a50
@@ -429,8 +431,8 @@ int si46xx_fm_tune_freq(uint16_t khz);
 int si46xx_dab_search(uint8_t* r7_4);
 int si46xx_fm_search(uint8_t* r7_4);
 int si46xx_dab_get_time_date(RTC_TimeTypeDef* r7_4, RTC_DateTypeDef* r7);
-int si46xx_fm_get_rds_data(void* r7_c, uint8_t* r7_8, void* r7_4, void* r7, uint16_t* r7_30, uint8_t* r7_34);
-int sub_8009868(uint8_t r7_4[]);
+int si46xx_fm_get_rds_data(void* pStationName, uint8_t* pRadioText, RTC_TimeTypeDef*, RTC_DateTypeDef*, uint16_t* pwMainloopEvents, uint8_t* pbRadioTextLength);
+int si46xx_get_fm_station_name(uint8_t[]);
 int si46xx_is_dab_service_list_avail(uint8_t);
 int sub_8009f70(uint8_t* a);
 int si46xx_get_digital_service_list(uint8_t r7_7, uint16_t* r7);
