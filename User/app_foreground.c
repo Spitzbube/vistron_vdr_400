@@ -1,6 +1,7 @@
 
 #include "main.h"
 #include "cmsis_os.h"
+#include "event_groups.h"
 
 extern EventGroupHandle_t xEventGroup;
 
@@ -60,7 +61,8 @@ void main_foreground_task(void* pTaskData)
             		EVENTGROUP_BIT_RTC |
 					EVENTGROUP_BIT_CHANNEL |
 					EVENTGROUP_BIT_RADIO_TEXT |
-					EVENTGROUP_BIT_DACQ;
+					EVENTGROUP_BIT_DACQ |
+					EVENTGROUP_BIT_DIGITAL_RADIO_EVENT;
 
 		} //if (uxBits & EVENTGROUP_BIT_FOREGROUND)
 
@@ -322,6 +324,21 @@ void main_foreground_task(void* pTaskData)
 
                draw_signal_strength_bars(142, 42, &Data_20000a5c.rssi);
             }
+		}
+
+		if (uxBits & EVENTGROUP_BIT_DIGITAL_RADIO_EVENT)
+		{
+			xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_DIGITAL_RADIO_EVENT);
+
+			if (0 == si46xx_is_dab_service_list_avail(10))
+			{
+#if 0
+				uint8_t mux = 0;
+				uint16_t r7_1c;
+
+				si46xx_get_digital_service_list(mux, &r7_1c);
+#endif
+			}
 		}
 	}
 }

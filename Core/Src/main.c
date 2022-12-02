@@ -28,6 +28,7 @@
 
 #include "../../User/func_8001ae8.h"
 #include <stdlib.h>
+#include "event_groups.h"
 
 /* USER CODE END Includes */
 
@@ -63,7 +64,17 @@ osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 
 EventGroupHandle_t xEventGroup;
-TaskHandle_t foregroundTaskHandle;
+//TaskHandle_t foregroundTaskHandle;
+#if 0
+osThreadId_t foregroundTaskHandle;
+const osThreadAttr_t foregroundTask_attributes = {
+  .name = "foregroundTask",
+  .stack_size = 200,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+#else
+osThreadId foregroundTaskHandle;
+#endif
 
 /* USER CODE END PV */
 
@@ -110,9 +121,11 @@ void main_delay(uint16_t a)
 
    HAL_TIM_Base_Stop_IT(&htim);
 #else
+//   TickType_t ticks = xTaskGetTickCount();
 //   osDelay(a);
    HAL_Delay(a);
 //   vTaskDelay(pdMS_TO_TICKS(a));
+//   printf("main_delay: a=%u, ticks=%u\n\r", a, xTaskGetTickCount() - ticks);
 #endif
 }
 
@@ -281,8 +294,12 @@ int main(void)
 #if 0
   xTaskCreate(main_foreground_task, "ForegroundTask", 2*configMINIMAL_STACK_SIZE, NULL, 0/*20*/, &foregroundTaskHandle);
 #else
+#if 1
   osThreadDef(foregroundTask, main_foreground_task, osPriorityNormal, 0, 200);
   foregroundTaskHandle = osThreadCreate(osThread(foregroundTask), NULL);
+#else
+  foregroundTaskHandle = osThreadNew(main_foreground_task, NULL, &foregroundTask_attributes);
+#endif
 #endif
   /* USER CODE END RTOS_THREADS */
 
@@ -1305,7 +1322,8 @@ void StartDefaultTask(void const * argument)
 //     draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
 //     vTaskResume(backgroundTaskHandle);
 //     vTaskSuspend(NULL);
-     xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_BACKGROUND);
+
+	  xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_BACKGROUND);
   }
   //loc_800c9b4
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);

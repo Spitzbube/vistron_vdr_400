@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cmsis_os.h"
+#include "event_groups.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

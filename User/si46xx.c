@@ -2,6 +2,7 @@
 #include "stm32f1xx_hal.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include "event_groups.h"
 
 extern EventGroupHandle_t xEventGroup;
 
@@ -208,6 +209,8 @@ int si46xx_dab_search(uint8_t* r7_4)
    do
    {
 	   //loc_8008b54
+	   main_delay(100);
+
 	   if (0 != si46xx_dab_tune_freq(mux))
 	   {
 		   //->loc_8008cd2
@@ -257,8 +260,15 @@ int si46xx_dab_search(uint8_t* r7_4)
 			 return 1;
 		  }
 		  //loc_8008c30
+#if 0
+		  printf("dab status:\r\n");
+		  printf("VALID = %u\r\n", (si46xx_buffer[5] & (1 << 0)/*VALID*/)? 1: 0);
+		  printf("ACQ = %u\r\n", (si46xx_buffer[5] & (1 << 2)/*ACQ*/)? 1: 0);
+		  printf("FIC_QUALITY = %u\r\n", si46xx_buffer[8]);
+#endif
+
 		  if (((si46xx_buffer[5] & (1 << 0)/*VALID*/) != 0) &&
-				  (si46xx_buffer[8] > 29))
+				  (si46xx_buffer[8]/*FIC_QUALITY*/ > 29))
 		  {
 #if 0
 			  r7_1b = 0;
@@ -286,6 +296,8 @@ int si46xx_dab_search(uint8_t* r7_4)
 				  while (((si46xx_buffer[5] & 1) == 0) && (r7_22++ < 3600));
 				  //loc_8008c98
 				  sub_8009f70(&r7_1b);
+
+				  printf("sub_8009f70: r7_1b=0x%x\r\n", r7_1b);
 			  }
 			  while ((r7_1b == 0) && (++r7_25 < 10));
 			  //loc_8008cba
@@ -314,6 +326,8 @@ int si46xx_dab_tune_freq(uint8_t index)
 {
    uint8_t f;
 
+//   printf("si46xx_dab_tune_freq: index=%u\n\r", index);
+
    xEventGroupClearBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE |
 		   EVENTGROUP_BIT_DIGITAL_RADIO_EVENT | EVENTGROUP_BIT_DACQ);
 
@@ -330,11 +344,13 @@ int si46xx_dab_tune_freq(uint8_t index)
    }
 
 #if 0
+   TickType_t ticks = xTaskGetTickCount();
    f = si46xx_read_stc_reply(200, 4);
+   printf("si46xx_dab_tune_freq: ticks=%u\n\r", xTaskGetTickCount() - ticks);
 #else
    f = 0;
    TickType_t ticks = xTaskGetTickCount();
-   EventBits_t bits = xEventGroupWaitBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE, pdFALSE, pdTRUE, pdMS_TO_TICKS(2000)); //portMAX_DELAY);
+   EventBits_t bits = xEventGroupWaitBits(xEventGroup, EVENTGROUP_BIT_SEEK_TUNE_COMPLETE, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000)); //portMAX_DELAY);
    printf("si46xx_dab_tune_freq: ticks=%u, bits=0x%x\n\r", xTaskGetTickCount() - ticks, bits);
    if (bits & EVENTGROUP_BIT_SEEK_TUNE_COMPLETE)
    {
@@ -1278,7 +1294,7 @@ uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes)
          return 0;
       }
 
-      if (0 != HAL_SPI_Receive(&hspi2, si46xx_buffer, numRxBytes, 10))
+      if (0 != HAL_SPI_Receive(&hspi2, si46xx_buffer, numRxBytes, 20))
       {
          return 0;
       }
@@ -1502,7 +1518,7 @@ int si46xx_get_dab_status(void)
    }
 #else
    si46xx_buffer[0] = SI46XX_DAB_DIGRAD_STATUS;
-   si46xx_buffer[1] = (1 << 3); //DIGRAD_ACK
+   si46xx_buffer[1] = (1 << 3)/*DIGRAD_ACK*/ | (1 << 0)/*STC_ACK*/;
 
    if (0 != si46xx_send_command(2, 23, 20))
    {
@@ -1597,8 +1613,10 @@ int si46xx_is_dab_service_list_avail(uint16_t a)
 
 	   (void) si46xx_send_command(2, 12, 10);
 
-       if ((si46xx_buffer[5] & 1) != 0) //SVRLIST
+       if ((si46xx_buffer[5] & (1 << 0)) != 0) //SVRLIST
 	   {
+    	   uint16_t srvListVer = si46xx_buffer[6] | (si46xx_buffer[7] << 8);
+//    	   printf("SVRLISTVER = %u\r\n", srvListVer);
     	   return 0;
 	   }
    }
@@ -2139,8 +2157,17 @@ int si46xx_send_command(uint16_t numTxBytes, uint16_t numRxBytes, uint16_t c)
 
 
 static void si46xx_interrupt_task(void*);
+//static TaskHandle_t si46xx_irqTaskHandle;
+#if 0
+osThreadId_t si46xx_irqTaskHandle;
+const osThreadAttr_t si46xxTask_attributes = {
+  .name = "Si46xxIrqTask",
+  .stack_size = 200,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+#else
 static TaskHandle_t si46xx_irqTaskHandle;
-
+#endif
 
 /* 800a9a8 - todo */
 int sub_800a9a8(void)
@@ -2151,8 +2178,12 @@ int sub_800a9a8(void)
 #if 0
    xTaskCreate(si46xx_interrupt_task, "Si46xxIrqTask", 2*configMINIMAL_STACK_SIZE, NULL, 1, &si46xx_irqTaskHandle);
 #else
-   osThreadDef(si46xxInterruptTask, si46xx_interrupt_task, osPriorityAboveNormal, 0, 200);
-   si46xx_irqTaskHandle = osThreadCreate(osThread(si46xxInterruptTask), NULL);
+#if 1
+   osThreadDef(Si46xxIrqTask, si46xx_interrupt_task, osPriorityAboveNormal, 0, 200);
+   si46xx_irqTaskHandle = osThreadCreate(osThread(Si46xxIrqTask), NULL);
+#else
+   si46xx_irqTaskHandle = osThreadNew(si46xx_interrupt_task, NULL, &si46xxTask_attributes);
+#endif
 #endif
 
    si46xx_start_dab(0);
@@ -2676,6 +2707,11 @@ int persist_add_dab_station(uint8_t frequency, uint32_t service_id, uint32_t com
    uint8_t res = 0;
    uint8_t i;
 
+#if 1
+   printf("persist_add_dab_station: freq=%u, serv_id=%u, comp_id=%u, name='%.*s'\r\n",
+		   frequency, service_id, component_id, 16, station_name);
+#endif
+
    if (bChannelCount < 200)
    {
       for (i = 0; i < bChannelCount; i++)
@@ -2757,13 +2793,6 @@ void si46xx_interrupt_task(void* pTaskData)
 			if ((si46xx_buffer[0] & (1 << 5)/*DACQINT*/) != 0)
 			{
 	            xEventGroupSetBits(xEventGroup, EVENTGROUP_BIT_DACQ);
-
-#if 0
-	            si46xx_buffer[0] = SI46XX_DAB_DIGRAD_STATUS;
-	            si46xx_buffer[1] = (1 << 3); //DIGRAD_ACK
-
-	            si46xx_send_command(2, 23, 20);
-#endif
 			}
 
 			if ((si46xx_buffer[0] & (1 << 4)/*DSRVINT*/) != 0)

@@ -1,6 +1,8 @@
 #MicroXplorer Configuration settings - do not modify
-FREERTOS.IPParameters=Tasks01,configUSE_TIMERS
+FREERTOS.IPParameters=Tasks01,configUSE_TIMERS,configUSE_NEWLIB_REENTRANT,configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
 FREERTOS.Tasks01=defaultTask,0,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY=5
+FREERTOS.configUSE_NEWLIB_REENTRANT=1
 FREERTOS.configUSE_TIMERS=1
 File.Version=6
 GPIO.groupedBy=Show All

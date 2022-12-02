@@ -4,6 +4,7 @@
 #include "main.h"
 #include "func_8001ae8.h"
 #include "cmsis_os.h"
+#include "event_groups.h"
 
 extern RTC_HandleTypeDef hrtc;
 extern SPI_HandleTypeDef hspi2;

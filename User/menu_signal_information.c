@@ -1,6 +1,7 @@
 
 #include "main.h"
 #include "cmsis_os.h"
+#include "event_groups.h"
 
 extern EventGroupHandle_t xEventGroup;
 
