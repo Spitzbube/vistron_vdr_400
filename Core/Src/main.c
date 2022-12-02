@@ -100,7 +100,6 @@ void main_delay(uint16_t a)
    HAL_TIM_Base_Stop_IT(&htim);
 }
 
-#ifndef FREE_RTOS
 
 /* 800c88c - todo */
 uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
@@ -134,7 +133,6 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
    return r7_e - 1;
 }
 
-#endif //FREE_RTOS
 
 /* USER CODE END 0 */
 
@@ -147,16 +145,11 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   //800c8f4
-
-#ifndef FREE_RTOS
-
   Tuner_Channel* pChannels/*r7_c*/ = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
 		  FavouriteList: ChannelList;
   uint16_t standbyCounter = 10800;
   uint8_t r7_9;
   struct_8008d84_Inner8 r7; //???
-
-#endif
 
   /* USER CODE END 1 */
 
@@ -186,18 +179,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
-
-#ifndef FREE_RTOS
   
   ili9341_init();
 
   touch_init();
   
-#endif
-
   HAL_TIM_Base_Start_IT(&htim5);
-
-#ifndef FREE_RTOS
   
   sub_800b270();
 
@@ -219,18 +206,8 @@ int main(void)
      draw_standby_screen(rtcTime, rtcDate, &currentAlarmTime, UserSettings.b1);
   }
   //loc_800c9b4
-  
-#endif //FREE_RTOS
-  
   __HAL_RTC_ALARM_ENABLE_IT(&hrtc, RTC_IT_SEC);
   
-#ifdef FREE_RTOS
-
-  void freertos_main(void);
-  freertos_main();
-
-#else //FREE_RTOS
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -673,8 +650,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
   } //while (1)
-
-#endif //FREE_RTOS
 
   /* USER CODE END 3 */
 }

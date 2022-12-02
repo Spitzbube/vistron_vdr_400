@@ -1538,16 +1538,16 @@ int sub_8009f70(uint8_t* a)
 
 
 /* 8009fb0 - todo */
-int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
+int si46xx_get_digital_service_list(uint8_t mux, uint16_t* pwVersion)
 {
    uint8_t* pByte = &si46xx_buffer[12]; //r7_24
-   uint8_t r7_23;
+   uint8_t num_components; //r7_23
    uint8_t i; //r7_22
-   uint8_t r7_21;
-   uint8_t r7_20;
+   uint8_t listResult; //r7_21
+   uint8_t num_services; //r7_20
    uint32_t service_id; //r7_1c
    uint32_t component_id; //r7_18
-   uint8_t station_name[16]; //r7_8
+   uint8_t service_label[16]; //r7_8
 
    si46xx_buffer[0] = SI46XX_GET_DIGITAL_SERVICE_LIST;
    si46xx_buffer[1] = 0;
@@ -1557,55 +1557,55 @@ int si46xx_get_digital_service_list(uint8_t mux, uint16_t* r7)
       return 1;
    }
 
-   *r7 = si46xx_buffer[6] | (si46xx_buffer[7] << 8);
-   r7_20 = si46xx_buffer[8];
+   *pwVersion = si46xx_buffer[6] | (si46xx_buffer[7] << 8);
+   num_services = si46xx_buffer[8];
 
-   for (i = 0; i < r7_20; i++)
+   for (i = 0; i < num_services; i++)
    {
       //loc_800a00a
-      r7_23 = pByte[5] & 0x0f;
+      num_components = pByte[5] & 0x0f;
 
       if ((pByte[4] & 0x01) == 0)
       {
          service_id = pByte[0] | (pByte[1] << 8) | (pByte[2] << 16) | (pByte[3] << 24);
          pByte += 4;
          pByte += 4;
-         memcpy(station_name, pByte, 16);
+         memcpy(service_label, pByte, 16);
          pByte += 16;
          component_id = pByte[0] | (pByte[1] << 8) | (pByte[2] << 16) | (pByte[3] << 24);
          pByte += 4;
 
-         r7_21 = persist_add_dab_station(mux, service_id, component_id, station_name);
+         listResult = persist_add_dab_station(mux, service_id, component_id, service_label);
 
-         if ((r7_21 != 1) && (r7_23 > 2))
+         if ((listResult != 1) && (num_components > 1))
          {
-            r7_23--;
+            num_components--;
             do
             {
                //loc_800a0ca
                if ((pByte[1] & 0xc0) == 0)
                {
                   component_id = pByte[0] | (pByte[1] << 8) | (pByte[2] << 16) | (pByte[3] << 24);
-                  r7_21 = persist_add_dab_station(mux, service_id, component_id, station_name);
+                  listResult = persist_add_dab_station(mux, service_id, component_id, service_label);
                }
                //loc_800a112
                pByte += 4;
-               r7_23--;
+               num_components--;
 
-               if (r7_21 == 1)
+               if (listResult == 1)
                {
             	   //->loc_800a146
             	   break;
                }
             }
-            while (r7_23 != 0);
+            while (num_components != 0);
          }
          //loc_800a148
       }
       else
       {
          //loc_800a134
-         pByte += 4*(r7_23 + 6);
+         pByte += 4*(num_components + 6);
       }
    }
 
@@ -2561,7 +2561,7 @@ uint8_t sub_800b5e0(void)
 
 
 /* 800b8d4 - todo */
-int persist_add_dab_station(uint8_t frequency, uint32_t service_id, uint32_t component_id, uint8_t* station_name)
+int persist_add_dab_station(uint8_t frequency, uint32_t service_id, uint32_t component_id, uint8_t* service_label)
 {
    uint8_t res = 0;
    uint8_t i;
@@ -2585,7 +2585,7 @@ int persist_add_dab_station(uint8_t frequency, uint32_t service_id, uint32_t com
          ChannelList[bChannelCount].service_id = service_id;
          ChannelList[bChannelCount].component_id = component_id;
          memset(&ChannelList[bChannelCount].Data_8, ' ', 16);
-         memcpy(&ChannelList[bChannelCount].Data_8, station_name, 16);
+         memcpy(&ChannelList[bChannelCount].Data_8, service_label, 16);
 
          bChannelCount++;
          //->loc_800b9d8
