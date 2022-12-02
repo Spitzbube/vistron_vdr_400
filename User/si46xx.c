@@ -182,22 +182,22 @@ int si46xx_mute(uint8_t a)
 
 
 /* 8008b18 - todo */
-int si46xx_dab_search(uint8_t* r7_4)
+int si46xx_dab_search(uint8_t* pwNewChannels)
 {
    uint8_t mux = 0; //r7_27
-   uint8_t r7_26;
+   uint8_t newChannelCount; //r7_26
    uint8_t r7_25;
-   uint16_t r7_22;
-   uint8_t r7_21;
-   uint8_t r7_20;
-   uint8_t r7_1f = bChannelCount;
-   uint16_t r7_1c;
+   uint16_t eventStatusRetry; //r7_22;
+   uint8_t keyCode; //r7_21
+   uint8_t touchCode; //r7_20
+   uint8_t oldChannelCount = bChannelCount; //r7_1f
+   uint16_t wSrvListVersion; //r7_1c
    uint8_t r7_1b;
 
-   r7_26 = bChannelCount;
+   newChannelCount = bChannelCount;
    r7_25 = 0;
 
-   Tuner_Values r7_8 = {0};
+   Tuner_Values statusValues = {0}; //r7_8
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -214,23 +214,23 @@ int si46xx_dab_search(uint8_t* r7_4)
 	   {
 		  if (TouchEvent.bData_0 == 0)
 		  {
-			 r7_21 = 0;
+			 keyCode = 0;
 			 if (KeyEvent.bData_0 == 0)
 			 {
-				r7_21 = KeyEvent.bData_1;
+				keyCode = KeyEvent.bData_1;
 				KeyEvent.bData_0 = 1;
 			 }
 			 //loc_8008b8a
-			 r7_20 = 0;
+			 touchCode = 0;
 			 if (TouchEvent.bData_0 == 0)
 			 {
-				r7_20 = menu_automatic_search_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
+				touchCode = menu_automatic_search_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
 			 }
 			 //loc_8008bae
 			 TouchEvent.bData_0 = 1;
 			 KeyEvent.bData_0 = 1;
 
-			 if ((r7_20 | r7_21) == 5)
+			 if ((touchCode | keyCode) == 5)
 			 {
 				return 1;
 			 }
@@ -240,29 +240,29 @@ int si46xx_dab_search(uint8_t* r7_4)
 		  draw_freq_mux_label(mux);
 		  draw_progress_bar(242, 42, mux, 41);
 
-		  if (bChannelCount != r7_26)
+		  if (bChannelCount != newChannelCount)
 		  {
-			 r7_26 = bChannelCount;
+			 newChannelCount = bChannelCount;
 
 			 draw_channel_list(ChannelList, bChannelCount);
 		  }
 		  //loc_8008c0a
-		  si46xx_get_dab_values(&r7_8);
-		  draw_signal_strength_bars(142, 42, &r7_8.rssi);
+		  si46xx_get_dab_values(&statusValues);
+		  draw_signal_strength_bars(142, 42, &statusValues.rssi);
 		  if (0 != si46xx_get_dab_status())
 		  {
 			 return 1;
 		  }
 		  //loc_8008c30
-		  if (((si46xx_buffer[5] & 1) != 0) &&
-				  (si46xx_buffer[8] > 29))
+		  if (((si46xx_buffer[5] & (1 << 0)/*VALID*/) != 0) &&
+				  (si46xx_buffer[8]/*FIC_QUALITY*/ > 29))
 		  {
 			  r7_1b = 0;
 			  r7_25 = 0;
 			  do
 			  {
 				  //loc_8008c4e
-				  r7_22 = 0;
+				  eventStatusRetry = 0;
 				  do
 				  {
 					  //loc_8008c52
@@ -279,7 +279,7 @@ int si46xx_dab_search(uint8_t* r7_4)
 					  }
 					  //loc_8008c80
 				  }
-				  while (((si46xx_buffer[5] & 1) == 0) && (r7_22++ < 3600));
+				  while (((si46xx_buffer[5] & 1/*SVRLIST*/) == 0) && (eventStatusRetry++ < 3600));
 				  //loc_8008c98
 				  sub_8009f70(&r7_1b);
 			  }
@@ -287,7 +287,7 @@ int si46xx_dab_search(uint8_t* r7_4)
 			  //loc_8008cba
 			  si46xx_is_dab_service_list_avail(10);
 
-			  si46xx_get_digital_service_list(mux, &r7_1c);
+			  si46xx_get_digital_service_list(mux, &wSrvListVersion);
 			  //->loc_8008cd4
 		  }
 		  //loc_8008cd4
@@ -296,7 +296,7 @@ int si46xx_dab_search(uint8_t* r7_4)
    }
    while (++mux < 41);
 
-   *r7_4 = bChannelCount - r7_1f;
+   *pwNewChannels = bChannelCount - oldChannelCount;
 
    return 0;
 }
