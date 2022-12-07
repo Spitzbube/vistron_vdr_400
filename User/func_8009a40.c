@@ -1228,15 +1228,107 @@ void sub_8006a70(int a)
 }
 
 
-/* 8007415 - todo */
-int sub_8007415(void)
+/* 8007414 - todo */
+int sub_8007414(void)
 {
+   typedef int (*funcs)(void);
+   funcs r7[] = //8012c80
+   {
+	  sub_80078c4, //
+	  sub_8007b48, //
+   };
 
+   uint8_t r7_9;
+   uint8_t r7_a;
+
+   uint8_t r7_f = 0;
+   uint8_t r7_e = 1;
+   uint8_t r7_d = 0;
+   uint8_t r7_c = 0;
+   uint8_t r7_b = 0;
+
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
+
+   sub_8002d70(24, 26, 2, r7_c);
+
+   //->loc_80075c6
+   while (r7_e != 0)
+   {
+	   //loc_8007454
+	   r7_a = 0;
+	   if (KeyEvent.bData_0 == 0)
+	   {
+		   r7_a = KeyEvent.bData_1;
+		   KeyEvent.bData_0 = 1;
+	   }
+	   //loc_800746c
+	   r7_9 = 0;
+	   if (TouchEvent.bData_0 == 0)
+	   {
+		   r7_9 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
+	   }
+	   //loc_800748c
+	   if ((r7_9 | r7_a) != 0)
+	   {
+		   switch (r7_9 | r7_a)
+		   {
+		   default:
+			   //loc_8007554
+			   break;
+		   }
+		   //loc_800755e
+		   TouchEvent.bData_0 = 1;
+		   KeyEvent.bData_0 = 1;
+	   }
+	   //loc_800756a
+	   if (r7_d != 0)
+	   {
+		   r7_d = 0;
+
+	       if (0 != r7[r7_c]())
+	       {
+	            wMainloopEvents |= 0x02;
+	            r7_e = 0;
+	            r7_f = 1;
+	            //->loc_80075ae
+	       }
+	       else
+	       {
+	    	   //loc_80075a2
+	    	   sub_8002d70(24, 26, 2, r7_c);
+	       }
+	   }
+	   //loc_80075ae
+	   if (r7_c != r7_b)
+	   {
+		   r7_b = r7_c;
+
+		   sub_8002cac(26, 2, r7_c);
+	   }
+	   //loc_80075c6
+   }
+   //80075ce
+   return r7_f;
 }
 
 
 /* 80075e9 - todo */
 int sub_80075e9(void)
+{
+
+}
+
+
+/* 80078c4 - todo */
+int sub_80078c4(void)
+{
+
+}
+
+
+/* 8007b48 - todo */
+int sub_8007b48(void)
 {
 
 }

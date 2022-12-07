@@ -9,7 +9,7 @@ int menu_channel_list(void)
    funcs r7_4[] = //8012c68
    {
 	  menu_automatic_search, //Automatic search
-	  sub_8007415, //Manual search
+	  sub_8007414, //Manual search
 	  sub_80075e9 //Delete channel
    };
    uint8_t r7_17 = 0;
