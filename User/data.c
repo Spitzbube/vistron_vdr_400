@@ -61,10 +61,10 @@ uint8_t bCurrentVolume = 31; //20000057 (801944F)
 //_impure_ptr; //?? //20000064 (801945C)
 //impure_data; //?? //20000068 (8019460 -> 80194C0?)
 Struct_200000e4 TextCursor; //200000e4
-uint8_t bData_200000e8; //200000e8
-uint8_t bData_200000e9; //200000e9
-uint8_t bData_200000ea; //200000ea
-uint8_t bData_200000eb; //200000eb
+uint8_t g_bDisplayMemoryAccessCtrl1; //200000e8
+uint8_t g_bDisplayMemoryAccessCtrl2; //200000e9
+uint8_t g_bDisplayMemoryAccessCtrl3; //200000ea
+uint8_t g_bDisplayMemoryAccessCtrl4; //200000eb
 char Data_200000ec[256]; //200000ec, size?
 uint16_t wData_200001ec; //200001ec
 uint16_t wData_200001ee; //200001ee

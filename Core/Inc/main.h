@@ -183,10 +183,10 @@ extern uint32_t SystemCoreClock; //20000058
 extern uint32_t uwTickPrio; //2000005C
 extern HAL_TickFreqTypeDef uwTickFreq; //20000060
 extern Struct_200000e4 TextCursor; //200000e4
-extern uint8_t bData_200000e8; //200000e8
-extern uint8_t bData_200000e9; //200000e9
-extern uint8_t bData_200000ea; //200000ea
-extern uint8_t bData_200000eb; //200000eb
+extern uint8_t g_bDisplayMemoryAccessCtrl1; //200000e8
+extern uint8_t g_bDisplayMemoryAccessCtrl2; //200000e9
+extern uint8_t g_bDisplayMemoryAccessCtrl3; //200000ea
+extern uint8_t g_bDisplayMemoryAccessCtrl4; //200000eb
 extern char Data_200000ec[]; //200000ec
 extern uint16_t wData_200001ec; //200001ec
 extern uint16_t wData_200001ee; //200001ee
@@ -379,7 +379,7 @@ void ili9341_set_address(uint16_t a, uint16_t b, uint16_t c, uint16_t d);
 void ili9341_setup_interface(void);
 void ili9341_write_command(uint8_t a);
 void ili9341_write_data(uint16_t a);
-uint8_t sub_8006254(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f);
+uint8_t ili9341_get_madctl(uint8_t my, uint8_t mx, uint8_t mv, uint8_t ml, uint8_t bgr, uint8_t mh);
 void touch_poll(void);
 void touch_toggle_clk_line(uint8_t a);
 void touch_toggle_cs_line(uint8_t a);

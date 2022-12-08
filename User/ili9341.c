@@ -13,13 +13,15 @@
 /* 8005238 - todo */
 void ili9341_init(void)
 {
-   bData_200000e8 = sub_8006254(0, 1, 0, 0, 1, 0);
-   bData_200000e9 = sub_8006254(0, 0, 1, 0, 1, 0);
-   bData_200000ea = sub_8006254(1, 0, 0, 0, 1, 0);
-   bData_200000eb = sub_8006254(1, 1, 1, 0, 1, 0);
+   g_bDisplayMemoryAccessCtrl1 = ili9341_get_madctl(0, 1, 0, 0, 1, 0);
+   g_bDisplayMemoryAccessCtrl2 = ili9341_get_madctl(0, 0, 1, 0, 1, 0);
+   g_bDisplayMemoryAccessCtrl3 = ili9341_get_madctl(1, 0, 0, 0, 1, 0);
+   g_bDisplayMemoryAccessCtrl4 = ili9341_get_madctl(1, 1, 1, 0, 1, 0);
 
    ili9341_setup_interface();
    ili9341_write_command(0x28);
+   // display off
+
    ili9341_write_command(0xcf);
    ili9341_write_data(0x00);
    ili9341_write_data(0x83);
@@ -44,30 +46,35 @@ void ili9341_init(void)
    ili9341_write_command(0xea);
    ili9341_write_data(0x00);
    ili9341_write_data(0x00);
+   //------------power control------------------------------
    ili9341_write_command(0xc0);
    ili9341_write_data(0x26);
    ili9341_write_command(0xc1);
    ili9341_write_data(0x11);
+   //--------------VCOM
    ili9341_write_command(0xc5);
    ili9341_write_data(0x35);
    ili9341_write_data(0x3e);
    ili9341_write_command(0xc7);
    ili9341_write_data(0xbe);
-
+   //------------memory access control------------------------
    ili9341_write_command(0x36);
-   ili9341_write_data(bData_200000eb);
+   ili9341_write_data(g_bDisplayMemoryAccessCtrl4); //my,mx,mv,ml,BGR,mh,0.0
 
-   ili9341_write_command(0x3a);
-   ili9341_write_data(0x55);
-
+   ili9341_write_command(0x3a); // pixel format set
+   ili9341_write_data(0x55); //16bit /pixel
+   //----------------- frame rate------------------------------
    ili9341_write_command(0xb1);
+   // frame rate
    ili9341_write_data(0x00);
    ili9341_write_data(0x1b);
-   ili9341_write_command(0xf2);
+   //----------------Gamma---------------------------------
+   ili9341_write_command(0xf2);  // 3Gamma Function Disable
    ili9341_write_data(0x08);
    ili9341_write_command(0x26);
-   ili9341_write_data(0x01);
-   ili9341_write_command(0xe0);
+   ili9341_write_data(0x01); // gamma set 4 gamma curve 01/02/04/08
+
+   ili9341_write_command(0xe0); //positive gamma correction
    ili9341_write_data(0x1f);
    ili9341_write_data(0x1a);
    ili9341_write_data(0x18);
@@ -83,7 +90,7 @@ void ili9341_init(void)
    ili9341_write_data(0x07);
    ili9341_write_data(0x05);
    ili9341_write_data(0x00);
-   ili9341_write_command(0xe1);
+   ili9341_write_command(0xe1); //negamma correction
    ili9341_write_data(0x00);
    ili9341_write_data(0x25);
    ili9341_write_data(0x27);
@@ -99,30 +106,38 @@ void ili9341_init(void)
    ili9341_write_data(0x38);
    ili9341_write_data(0x3a);
    ili9341_write_data(0x1f);
-
+   //--------------ddram ---------------------
    ili9341_write_command(ILI9341_COLUMN_ADDRESS_SET);
+   // column set
+   // size = 239
    ili9341_write_data(0x00);
    ili9341_write_data(0x00);
    ili9341_write_data(0x00);
    ili9341_write_data(0xef); //240-1
-
    ili9341_write_command(ILI9341_PAGE_ADDRESS_SET);
+   // page address set
+   // size = 319
    ili9341_write_data(0x00);
    ili9341_write_data(0x00);
    ili9341_write_data(0x01);
    ili9341_write_data(0x3f); //320-1
-
-   ili9341_write_command(0xb7);
+	// ili9341_write_command(0x34);
+	//ili9341_write_command(0x35);
+	// tearing effect off
+	// tearing effect on
+	// ili9341_write_command(0xb4); // display inversion
+	// ili9341_write_data(0x00);
+   ili9341_write_command(0xb7); //entry mode set
    ili9341_write_data(0x07);
+   //-----------------display---------------------
    ili9341_write_command(0xb6);
    ili9341_write_data(0x0a);
    ili9341_write_data(0x82);
    ili9341_write_data(0x27);
    ili9341_write_data(0x00);
-   ili9341_write_command(0x11);
-
+   ili9341_write_command(0x11); //sleep out
    HAL_Delay(100);
-   ili9341_write_command(0x29);
+   ili9341_write_command(0x29); // display on
    HAL_Delay(100);
 
    ili9341_write_command(ILI9341_MEMORY_WRITE);
@@ -672,41 +687,47 @@ void ili9341_write_data(uint16_t a)
 
 
 /* 8006254 - todo */
-uint8_t sub_8006254(uint8_t r7_7, uint8_t r7_6, uint8_t r7_5, uint8_t r7_4, uint8_t r7_18, uint8_t r7_1c)
+uint8_t ili9341_get_madctl(uint8_t my, uint8_t mx, uint8_t mv, uint8_t ml, uint8_t bgr, uint8_t mh)
 {
-   uint8_t r7_f = 0;
+   uint8_t madctl = 0;
 
-   if (r7_1c != 0)
+   //Horizontal Refresh ORDER
+   if (mh != 0)
    {
-      r7_f |= 0x04;
+      madctl |= 0x04;
    }
 
-   if (r7_18 != 0)
+   //RGB-BGR Order
+   if (bgr != 0)
    {
-      r7_f |= 0x08;
+      madctl |= 0x08;
    }
 
-   if (r7_4 != 0)
+   //Vertical Refresh Order
+   if (ml != 0)
    {
-      r7_f |= 0x10;
+      madctl |= 0x10;
    }
 
-   if (r7_5 != 0)
+   //Row / Column Exchange
+   if (mv != 0)
    {
-      r7_f |= 0x20;
+      madctl |= 0x20;
    }
 
-   if (r7_6 != 0)
+   //Column Address Order
+   if (mx != 0)
    {
-      r7_f |= 0x40;
+      madctl |= 0x40;
    }
 
-   if (r7_7 != 0)
+   //Row Address Order
+   if (my != 0)
    {
-      r7_f |= 0x80;
+      madctl |= 0x80;
    }
 
-   return r7_f;
+   return madctl;
 }
 
 
