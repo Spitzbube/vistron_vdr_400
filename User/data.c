@@ -29,14 +29,14 @@ Text_Attributes TextAttributes = //2000002c (8019424)
    &Data_2000003c, //0x2000003c,
    1
 };
-Struct_2000002c_Inner8 Data_2000003c = //2000003c (8019434)
+sFONT Data_2000003c = //2000003c (8019434)
 {
    0, //0x08012f90/TODO*/,
    7,
    12
 };
 #if 0 //->font2.c
-Struct_2000002c_Inner8 Data_20000044 = //20000044 (801943c)
+sFONT Data_20000044 = //20000044 (801943c)
 {
    0, //8013404
    11,
@@ -44,7 +44,7 @@ Struct_2000002c_Inner8 Data_20000044 = //20000044 (801943c)
 };
 #endif
 #if 0 //->font1.c
-Struct_2000002c_Inner8 Data_2000004c = //2000004c (8019444)
+sFONT Data_2000004c = //2000004c (8019444)
 {
    0, //8014ec4
    17,

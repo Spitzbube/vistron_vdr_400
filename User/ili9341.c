@@ -480,20 +480,20 @@ void ili9341_draw_char(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
 
    if ((x >= ScreenResolution.width) ||
 		   (y >= ScreenResolution.height) ||
-		   ((x + TextAttributes.pFont->width) < 0) ||
-		   ((y + TextAttributes.pFont->height) < 0))
+		   ((x + TextAttributes.pFont->Width) < 0) ||
+		   ((y + TextAttributes.pFont->Height) < 0))
    {
 	   return;
    }
 
-   num_bytes = TextAttributes.pFont->height / 8;
+   num_bytes = TextAttributes.pFont->Height / 8;
    col = 0;
 
-   for (row = 0; row < TextAttributes.pFont->height; row++)
+   for (row = 0; row < TextAttributes.pFont->Height; row++)
    {
       for (bytes = 0; bytes < num_bytes; bytes++)
       {
-         pixels = TextAttributes.pFont->Data_0[((c - ' ') * TextAttributes.pFont->height + row) * num_bytes + bytes];
+         pixels = TextAttributes.pFont->table[((c - ' ') * TextAttributes.pFont->Height + row) * num_bytes + bytes];
 
          for (bit = 0; bit < 8; bit++)
          {
@@ -528,14 +528,14 @@ void ili9341_draw_format_string(const char * format, ...)
    {
       if (*pch == 10)
       {
-         TextCursor.y += TextAttributes.pFont->height;
+         TextCursor.y += TextAttributes.pFont->Height;
          TextCursor.x = 0;
       }
       else if (*pch != 13)
       {
          if (*pch == 9)
          {
-            TextCursor.x += TextAttributes.pFont->width * 4;
+            TextCursor.x += TextAttributes.pFont->Width * 4;
          }
          else
          {
@@ -545,13 +545,13 @@ void ili9341_draw_format_string(const char * format, ...)
 					TextAttributes.fg_color,
 					TextAttributes.bg_color);
 
-            TextCursor.x += TextAttributes.pFont->width;
+            TextCursor.x += TextAttributes.pFont->Width;
 
             if (TextAttributes.bData_12 != 0)
             {
-            	if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->width))
+            	if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->Width))
             	{
-                   TextCursor.y += TextAttributes.pFont->height;
+                   TextCursor.y += TextAttributes.pFont->Height;
                    TextCursor.x = 0;
             	}
             }
@@ -584,13 +584,13 @@ void ili9341_draw_string(char* a, uint8_t len)
 			  TextAttributes.fg_color,
 			  TextAttributes.bg_color);
 
-      TextCursor.x += TextAttributes.pFont->width;
+      TextCursor.x += TextAttributes.pFont->Width;
 
       if (TextAttributes.bData_12 != 0)
       {
-         if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->width))
+         if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->Width))
          {
-            TextCursor.y += TextAttributes.pFont->height;
+            TextCursor.y += TextAttributes.pFont->Height;
             TextCursor.x = 0;
          }
       }
@@ -606,7 +606,7 @@ void ili9341_draw_string(char* a, uint8_t len)
 
 
 /* 80060ac - todo */
-void ili9341_set_font(Struct_2000002c_Inner8* a)
+void ili9341_set_font(sFONT* a)
 {
    TextAttributes.pFont = a;
 }

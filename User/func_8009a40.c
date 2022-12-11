@@ -72,7 +72,7 @@ void draw_channel_name(void* a)
       ili9341_draw_box(0, 63, 320, 24, 0xffff);
       ili9341_set_text_color(0, 0xffff);
       len = sub_800c88c(a, 16);
-      ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 63);
+      ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 63);
       ili9341_draw_string(a, len);
    }
    else
@@ -80,7 +80,7 @@ void draw_channel_name(void* a)
       len = sub_8001224(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
       ili9341_set_font(&Data_2000004c);
       ili9341_set_text_color(0, 0xffff);
-      ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 63);
+      ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 63);
       ili9341_draw_format_string(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
    }
 }
@@ -195,7 +195,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
 
 
 /* 8003038 - todo */
-void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
+void sub_8003038(uint16_t textId, sFONT* font)
 {
    uint16_t len;
 
@@ -203,7 +203,7 @@ void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font)
    ili9341_draw_box(0, 23, 320, 24, 0xffff);
    ili9341_set_text_color(0, 0xffff);
    len = sub_8001224(CurrentTextTable[textId]);
-   ili9341_set_cursor(160 - (len * font->width) / 2, 24);
+   ili9341_set_cursor(160 - (len * font->Width) / 2, 24);
    ili9341_draw_format_string(CurrentTextTable[textId]);
 }
 
@@ -556,21 +556,21 @@ void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
    {
       case 0:
          //loc_8004342
-         ili9341_set_cursor(160 - len * Data_2000004c.width / 2, 97);
+         ili9341_set_cursor(160 - len * Data_2000004c.Width / 2, 97);
          ili9341_draw_format_string("__");
          //->loc_80043dc
          break;
 
       case 1:
          //loc_800436a
-         ili9341_set_cursor(160 - len * Data_2000004c.width / 2 + 3 * Data_2000004c.width, 97);
+         ili9341_set_cursor(160 - len * Data_2000004c.Width / 2 + 3 * Data_2000004c.Width, 97);
          ili9341_draw_format_string("__");
          //->loc_80043dc
          break;
 
       case 2:
          //loc_80043a2
-         ili9341_set_cursor(160 - len * Data_2000004c.width / 2 + 6 * Data_2000004c.width, 97);
+         ili9341_set_cursor(160 - len * Data_2000004c.Width / 2 + 6 * Data_2000004c.Width, 97);
          ili9341_draw_format_string("___");
          //->loc_80043dc
          break;
@@ -582,7 +582,7 @@ void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
    //loc_80043dc
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(160 - len * Data_2000004c.width / 2, 96);
+   ili9341_set_cursor(160 - len * Data_2000004c.Width / 2, 96);
    ili9341_draw_string(str, len);
 }
 
@@ -667,7 +667,7 @@ void sub_800465c(RTC_DateTypeDef a)
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0xffff, 0);
 
-   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 72);
+   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 72);
    ili9341_draw_string(buf, len);
 }
 
@@ -683,7 +683,7 @@ void draw_alarm_time(Alarm_Time* a)
    ili9341_draw_box(0, 120, 320, 23, 0);
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0xffff, 0);
-   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 120);
+   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 120);
    ili9341_draw_string(buf, len);
 }
 
@@ -715,7 +715,7 @@ void draw_sleep_timer_value(uint8_t r7_7)
    ili9341_draw_box(0, 96, 320, 25, 0xffff);
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 96);
+   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 96);
    ili9341_draw_string(buf, len);
 }
 
@@ -811,7 +811,7 @@ void sub_8004e74(uint16_t r7_6, uint16_t r7_4, int r7_2, uint16_t r7)
    ili9341_set_text_color(r7_2, r7);
    ili9341_set_font(&Data_20000044);
    r7_e = sub_8001224(r7_8);
-   ili9341_set_cursor(r7_6 - (r7_e * Data_20000044.width) / 2/*??*/, r7_4 - Data_20000044.height / 2);
+   ili9341_set_cursor(r7_6 - (r7_e * Data_20000044.Width) / 2/*??*/, r7_4 - Data_20000044.Height / 2);
    ili9341_draw_string(r7_8, r7_e);
    ili9341_draw_box(r7_6 + 18, r7_4 - 18, 4, 36, 0xffff);
 }

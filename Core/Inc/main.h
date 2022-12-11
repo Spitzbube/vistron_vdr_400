@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "fonts.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -48,18 +48,9 @@ typedef struct
 
 typedef struct
 {
-   uint8_t* Data_0; //0
-   uint16_t width; //4
-   uint16_t height; //6
-
-} Struct_2000002c_Inner8;
-
-
-typedef struct
-{
    int fg_color; //0
    int bg_color; //4
-   Struct_2000002c_Inner8* pFont; //8;
+   sFONT* pFont; //8;
    uint8_t bData_12; //12
 
 } Text_Attributes;
@@ -172,9 +163,9 @@ extern const char* Data_8012cdc[]; //8012cdc
 extern Func_20000000 Funcs_20000000[]; //0x20000000
 extern Screen_Resolution ScreenResolution; //20000024 (801941C)
 extern Text_Attributes TextAttributes; //2000002c
-extern Struct_2000002c_Inner8 Data_2000003c; //2000003c
-extern Struct_2000002c_Inner8 Data_20000044; //20000044
-extern Struct_2000002c_Inner8 Data_2000004c; //2000004c
+extern sFONT Data_2000003c; //2000003c
+extern sFONT Data_20000044; //20000044
+extern sFONT Data_2000004c; //2000004c
 extern uint8_t bData_20000054; //20000054 (801944C)
 extern uint8_t bData_20000055; //20000055 (801944D)
 extern uint8_t bData_20000056; //20000056 (801944E)
@@ -328,7 +319,7 @@ void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus);
 void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 uint8_t sub_8002e98(uint16_t a, uint16_t b);
-void sub_8003038(uint16_t textId, Struct_2000002c_Inner8* font);
+void sub_8003038(uint16_t textId, sFONT* font);
 void draw_signal_information_screen(Tuner_Channel* a, uint8_t b, Tuner_Values* c);
 void draw_signal_level_line(Tuner_Values* a);
 void draw_signal_quality_line(Tuner_Values* a);
@@ -372,7 +363,7 @@ void ili9341_draw_circle(int16_t a, int16_t b, uint16_t c, uint16_t d);
 void sub_800581e(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t e);
 void sub_80058f0(int16_t a, int16_t b, int16_t c, uint8_t d, int16_t e, uint16_t color);
 void sub_8005af0(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, uint16_t g);
-void ili9341_set_font(Struct_2000002c_Inner8* a);
+void ili9341_set_font(sFONT* a);
 void ili9341_set_text_color(uint16_t fg, uint16_t bg);
 void ili9341_set_cursor(uint16_t x, uint16_t y);
 void ili9341_set_address(uint16_t a, uint16_t b, uint16_t c, uint16_t d);

@@ -119,7 +119,7 @@ void draw_foreground_clock(RTC_TimeTypeDef a)
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0, 0xffff);
 
-   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 93);
+   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 93);
    ili9341_draw_string(buf, len);
 }
 
@@ -135,7 +135,7 @@ void draw_background_clock(RTC_TimeTypeDef a)
    ili9341_set_font(&Data_2000004c);
    ili9341_set_text_color(0xffff, 0);
 
-   ili9341_set_cursor(160 - (len * Data_2000004c.width) / 2, 96);
+   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 96);
    ili9341_draw_string(buf, len);
 }
 
@@ -160,7 +160,7 @@ void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t
 
    ili9341_draw_box(r7_6, r7_4, 50, 36, color);
    sub_800581e(r7_6, r7_4, 50, 36, 0);
-   ili9341_set_cursor(r7_6 - r7_17 * Data_20000044.width / 2 + 25, r7_4 - Data_20000044.height / 2 + 20);
+   ili9341_set_cursor(r7_6 - r7_17 * Data_20000044.Width / 2 + 25, r7_4 - Data_20000044.Height / 2 + 20);
    ili9341_set_font(&Data_20000044);
    ili9341_set_text_color(0, color);
    ili9341_draw_string(r7_c, r7_17);
@@ -257,13 +257,13 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
    r7_18 = r7_4;
    r7_10 = r7_18;
 
-   if ((r7_3 * Data_20000044.width) > 320)
+   if ((r7_3 * Data_20000044.Width) > 320)
    {
       for (r7_1e = 0; r7_1e < 3; r7_1e++)
       {
          //loc_8001f56
          r7_1d = 0;
-         for (r7_1f = 0; r7_1f < (320 / Data_20000044.width); r7_1f++)
+         for (r7_1f = 0; r7_1f < (320 / Data_20000044.Width); r7_1f++)
          {
             //loc_8001f60
         	if ((r7_f + r7_1f) == r7_3)
@@ -290,10 +290,10 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
          else
          {
             //loc_8001fb8
-            r7_f += 320 / Data_20000044.width;
+            r7_f += 320 / Data_20000044.Width;
          }
          //loc_8001fce
-         ili9341_set_cursor(160 - r7_1d * Data_20000044.width / 2, r7_1e * 24 + 120);
+         ili9341_set_cursor(160 - r7_1d * Data_20000044.Width / 2, r7_1e * 24 + 120);
          ili9341_draw_string(r7_10, r7_1d);
          r7_10 = r7_18;
       }
@@ -302,7 +302,7 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
    else
    {
       //loc_800201c
-      ili9341_set_cursor(160 - r7_3 * Data_20000044.width / 2, 120);
+      ili9341_set_cursor(160 - r7_3 * Data_20000044.Width / 2, 120);
       ili9341_draw_string(r7_4, r7_3);
    }
 }
@@ -389,37 +389,37 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
       return 24;
    }
 
-   if ((a <= (Data_20000044.width * 24)) && (b > 71) && (b < 97))
+   if ((a <= (Data_20000044.Width * 24)) && (b > 71) && (b < 97))
    {
       return 7;
    }
 
-   if ((a <= (Data_20000044.width * 24)) && (b > 95) && (b < 121))
+   if ((a <= (Data_20000044.Width * 24)) && (b > 95) && (b < 121))
    {
       return 8;
    }
 
-   if ((a <= (Data_20000044.width * 24)) && (b > 119) && (b < 145))
+   if ((a <= (Data_20000044.Width * 24)) && (b > 119) && (b < 145))
    {
       return 9;
    }
 
-   if ((a <= (Data_20000044.width * 24)) && (b > 143) && (b < 169))
+   if ((a <= (Data_20000044.Width * 24)) && (b > 143) && (b < 169))
    {
       return 10;
    }
 
-   if ((a <= (Data_20000044.width * 24)) && (b > 167) && (b < 193))
+   if ((a <= (Data_20000044.Width * 24)) && (b > 167) && (b < 193))
    {
       return 11;
    }
 
-   if ((a > (Data_20000044.width * 24)) && (a < 321) && (b > 47) && (b < 73))
+   if ((a > (Data_20000044.Width * 24)) && (a < 321) && (b > 47) && (b < 73))
    {
       return 12;
    }
 
-   if ((a > (Data_20000044.width * 24)) && (a < 321) && (b > 167) && (b < 193))
+   if ((a > (Data_20000044.Width * 24)) && (a < 321) && (b > 167) && (b < 193))
    {
       return 13;
    }
@@ -458,7 +458,7 @@ void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
 
       r7_c = sub_800c88c(&r7_4[r7_e + r7_f].Data_8, 16);
 
-      ili9341_set_cursor(Data_20000044.width * 4, r7_f * 24 + 72);
+      ili9341_set_cursor(Data_20000044.Width * 4, r7_f * 24 + 72);
 
       if (( ((uint8_t*)&r7_4[r7_e + r7_f].Data_8)[0] == 0) ||
     		  ( ((uint32_t*)&r7_4[r7_e + r7_f].Data_8)[0] == 0xffffffff))
@@ -475,21 +475,21 @@ void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
       //loc_8002516
       if ((r7_4[r7_e + r7_f].frequency < 42) && (r7_4[r7_e + r7_f].service_id != 0))
       {
-         ili9341_set_cursor(Data_20000044.width * 21, r7_f * 24 + 72);
+         ili9341_set_cursor(Data_20000044.Width * 21, r7_f * 24 + 72);
          ili9341_draw_format_string(Data_8012cdc[0]);
          //->loc_80025bc
       }
       else
       {
          //loc_8002586
-         ili9341_set_cursor(Data_20000044.width * 21, r7_f * 24 + 72);
+         ili9341_set_cursor(Data_20000044.Width * 21, r7_f * 24 + 72);
          ili9341_draw_format_string(Data_8012cdc[1]);
       }
       //loc_80025bc
       r7_b = sub_800b4ec(&r7_4[r7_e + r7_f]);
       if (r7_b != 0xff)
       {
-         ili9341_set_cursor(Data_20000044.width * 25, r7_f * 24 + 72);
+         ili9341_set_cursor(Data_20000044.Width * 25, r7_f * 24 + 72);
          ili9341_draw_format_string("F%1u", r7_b + 1);
       }
       //loc_800261e
@@ -514,7 +514,7 @@ void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6)
 /* 80027b8 - todo */
 void draw_channel_freq_mux_label(Tuner_Channel* r7_4, uint8_t r7_3)
 {
-   ili9341_draw_box(0, 24, Data_20000044.width * 11, 23, 0xffff);
+   ili9341_draw_box(0, 24, Data_20000044.Width * 11, 23, 0xffff);
    ili9341_set_font(&Data_20000044);
    ili9341_set_text_color(0, 0xffff);
    ili9341_set_cursor(0, 24);
@@ -595,18 +595,18 @@ void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3)
 
       r7_d = sub_800c88c(&r7_4[r7_e + r7_f].Data_8, 16);
 
-      ili9341_set_cursor(Data_20000044.width * 4, r7_f * 24 + 72);
+      ili9341_set_cursor(Data_20000044.Width * 4, r7_f * 24 + 72);
       ili9341_draw_string(&r7_4[r7_e + r7_f].Data_8, r7_d);
 
       if ((r7_4[r7_e + r7_f].frequency < 41) && (r7_4[r7_e + r7_f].service_id != 0))
       {
-         ili9341_set_cursor(Data_20000044.width * 21, r7_f * 24 + 72);
+         ili9341_set_cursor(Data_20000044.Width * 21, r7_f * 24 + 72);
          ili9341_draw_format_string("DAB");
       }
       else
       {
          //loc_8002ba6
-         ili9341_set_cursor(Data_20000044.width * 21, r7_f * 24 + 72);
+         ili9341_set_cursor(Data_20000044.Width * 21, r7_f * 24 + 72);
          ili9341_draw_format_string("FM");
       }
       //loc_8002bdc
@@ -672,7 +672,7 @@ const char* Data_8012cdc[] = //8012cdc
 /* 8002c04 - todo */
 void draw_freq_mux_label(uint16_t r7_6)
 {
-   ili9341_draw_box(0, 24, Data_20000044.width * 10, 23, 0xffff);
+   ili9341_draw_box(0, 24, Data_20000044.Width * 10, 23, 0xffff);
    ili9341_set_font(&Data_20000044);
    ili9341_set_text_color(0, 0xffff);
    ili9341_set_cursor(0, 24);
