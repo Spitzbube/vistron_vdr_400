@@ -255,7 +255,7 @@ void TIM5_IRQHandler(void)
   //800ddbc
 
 #ifndef FREE_RTOS
-  Data_20000b90.Data_0++;
+  g_stTouchData.timerCount++;
 
   touch_poll();
   button_poll();

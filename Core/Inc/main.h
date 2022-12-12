@@ -70,25 +70,27 @@ typedef struct
 
 typedef struct
 {
-   int Data_0; //0
-   uint16_t wData_4; //4
-   uint16_t wData_6; //6
-   uint16_t wData_8; //8
-   uint16_t wData_10; //19
-   int Data_12; //12
-   int Data_16; //16
-   int Data_20; //20
-   int Data_24; //24
-   int Data_28; //28
-   int Data_32; //32
+   uint32_t timerCount; //0
+   uint16_t raw_x; //4
+   uint16_t raw_y; //6
+   uint16_t x; //8
+   uint16_t y; //19
+   float Data_12; //12
+   float Data_16; //16
+   float Data_20; //20
+   float Data_24; //24
+   float Data_28; //28
+   float Data_32; //32
+#if 0
    uint16_t wData_36; //36
    uint16_t wData_38; //38
    uint16_t wData_40; //40
    uint16_t wData_42; //42
    uint16_t wData_44; //44
    uint16_t wData_46; //46
+#endif
 
-} Struct_20000b90;
+} Touch_Data;
 
 
 typedef struct
@@ -159,8 +161,8 @@ extern uint8_t lcdLandscapeConfig; //200000e9
 extern uint8_t lcdPortraitMirrorConfig; //200000ea
 extern uint8_t lcdLandscapeMirrorConfig; //200000eb
 extern char Data_200000ec[]; //200000ec
-extern uint16_t wData_200001ec; //200001ec
-extern uint16_t wData_200001ee; //200001ee
+extern uint16_t g_wTouchX; //200001ec
+extern uint16_t g_wTouchY; //200001ee
 
 extern uint8_t si46xx_buffer[]; //200001f0
 extern uint8_t g_bGroup2AMaxAddress; //200009f0
@@ -188,7 +190,7 @@ extern Radio_Text radioText; //20000a78
 //extern int Data_20000af8; //20000af8
 extern Radio_Text radioTextOld; //20000afc
 extern uint8_t sleepTimerCount; //20000b7d
-extern Struct_20000b90 Data_20000b90; //20000b90
+extern Touch_Data g_stTouchData; //20000b90
 extern Struct_20000bc0 TouchEvent;
 extern char** CurrentTextTable; //20000bc8
 extern char strFMVersion[]; //20000bcc
@@ -373,13 +375,13 @@ void touch_configure_gpio(void);
 void sub_8006618(void);
 void sub_8006624(void);
 void touch_read_xy(uint8_t a);
-void sub_8006730(void);
-uint8_t sub_8006838(void);
-void sub_80068e4(uint8_t a);
-void sub_800691c(uint8_t a);
-void sub_8006950(uint8_t a);
-uint16_t sub_80069b4(int a);
-void sub_8006a70(int a);
+void touch_convert_values(void);
+uint8_t touch_detect_move(void);
+void touch_toggle_clk_line(uint8_t a);
+void touch_toggle_cs_line(uint8_t a);
+void touch_toggle_mosi_line(uint8_t a);
+uint16_t sub_touch_spi_transfer(int a);
+void touch_spi_delay(int a);
 int flash_write(uint32_t addr, uint16_t data[], uint16_t r7_6);
 int flash_erase(uint32_t addr);
 void menu_main(void);

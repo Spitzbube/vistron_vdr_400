@@ -54,8 +54,8 @@ uint8_t lcdLandscapeConfig; //200000e9
 uint8_t lcdPortraitMirrorConfig; //200000ea
 uint8_t lcdLandscapeMirrorConfig; //200000eb
 char Data_200000ec[256]; //200000ec, size?
-uint16_t wData_200001ec; //200001ec
-uint16_t wData_200001ee; //200001ee
+uint16_t g_wTouchX; //200001ec
+uint16_t g_wTouchY; //200001ee
 
 uint8_t si46xx_buffer[2048]; //200001f0
 uint8_t g_bGroup2AMaxAddress; //200009f0
@@ -83,7 +83,7 @@ Radio_Text radioText; //20000a78
 //int Data_20000af8; //20000af8
 Radio_Text radioTextOld; //20000afc
 uint8_t sleepTimerCount; //20000b7d
-Struct_20000b90 Data_20000b90; //20000b90
+Touch_Data g_stTouchData; //20000b90
 Struct_20000bc0 TouchEvent;
 char** CurrentTextTable; //20000bc8
 char strFMVersion[12]; //20000bcc
