@@ -134,12 +134,12 @@ typedef struct
    uint16_t minutes; //2
 } Alarm_Time;
 
-typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
+typedef void (*Draw_Icon)(uint16_t, uint16_t, int, uint16_t);
 
 
 extern const char* Data_8012cdc[]; //8012cdc
 
-extern Func_20000000 Funcs_20000000[]; //0x20000000
+extern Draw_Icon g_arIcons[]; //0x20000000
 extern lcdPropertiesTypeDef lcdProperties; //20000024 (801941C)
 extern lcdFontPropTypeDef lcdFont; //2000002c
 extern sFONT Data_2000003c; //2000003c
@@ -214,6 +214,13 @@ extern UART_HandleTypeDef huart2; //20002438
 
 #define TOUCH_CMD_RDX                       0xD0
 #define TOUCH_CMD_RDY                       0x90
+
+#define ICON_UP								0
+#define ICON_DOWN							1
+#define ICON_LEFT							2
+#define ICON_RIGHT							3
+#define ICON_MENU							4
+#define ICON_BACK							7
 
 #define MAIN_LOOP_EVENT_DAB_ACTIVE          (1 << 0)
 #define MAIN_LOOP_EVENT_FAV_ACTIVE          (1 << 2)
@@ -299,7 +306,7 @@ void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus);
 void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 uint8_t sub_8002e98(uint16_t a, uint16_t b);
-void sub_8003038(uint16_t textId, sFONT* font);
+void draw_screen_caption(uint16_t textId, sFONT* font);
 void draw_signal_information_screen(Tuner_Channel* a, uint8_t b, Tuner_Values* c);
 void draw_signal_level_line(Tuner_Values* a);
 void draw_signal_quality_line(Tuner_Values* a);
@@ -320,16 +327,16 @@ void draw_volume_change_screen(uint8_t a);
 void draw_volume_change_bar(uint8_t a);
 int volume_change_screen_check_touch_fields(uint16_t a, uint16_t b);
 void sub_8004b74(int a, int b, char* c);
-void sub_8004be8(uint16_t, uint16_t, uint16_t, uint16_t);
-void sub_8004c4c(uint16_t, uint16_t, int, uint16_t);
-void sub_8004cb0(uint16_t, uint16_t, int, uint16_t);
-void sub_8004d14(uint16_t, uint16_t, int, uint16_t);
-void sub_8004d78(uint16_t, uint16_t, uint16_t, uint16_t);
+void draw_arrow_up(uint16_t, uint16_t, uint16_t, uint16_t);
+void draw_arrow_down(uint16_t, uint16_t, int, uint16_t);
+void draw_arrow_left(uint16_t, uint16_t, int, uint16_t);
+void draw_arrow_right(uint16_t, uint16_t, int, uint16_t);
+void draw_icon_menu(uint16_t, uint16_t, uint16_t, uint16_t);
 void sub_8004e74(uint16_t, uint16_t, int, uint16_t);
 void sub_8004f24(uint16_t, uint16_t, int, uint16_t);
-void sub_8004fc4(uint16_t, uint16_t, int, uint16_t);
+void draw_icon_back(uint16_t, uint16_t, int, uint16_t);
 void sub_8005074(uint16_t, uint16_t, int, uint16_t);
-void sub_8005198(uint16_t a, uint16_t b, uint16_t c, uint8_t d);
+void draw_36x36(uint16_t a, uint16_t b, uint16_t c, uint8_t d);
 void menu_set_language(uint8_t a);
 void lcdInit(void);
 void lcdFillRGB(uint16_t color);
@@ -341,7 +348,6 @@ void ili9341_draw_string(char* a, uint8_t len);
 void lcdFillRect(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
 void lcdDrawRect(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t color);
 void lcdFillCircle(int16_t a, int16_t b, uint16_t c, uint16_t d);
-void sub_800581e(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t e);
 void lcdFillCircleHelper(int16_t a, int16_t b, int16_t c, uint8_t d, int16_t e, uint16_t color);
 void lcdFillTriangle(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, uint16_t g);
 void lcdDrawChar(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg);
@@ -392,6 +398,9 @@ int menu_volume_change(void);
 int sub_80088cc(void);
 
 int si46xx_set_volume(uint8_t a);
+int si46xx_mute(uint8_t a);
+int si46xx_start_dab(uint8_t a);
+int si46xx_start_fm(uint8_t a);
 int si46xx_send_command(uint16_t numTxBytes, uint16_t b, uint16_t c);
 int si46xx_read_stc_reply(uint16_t a, uint16_t b);
 uint8_t si46xx_read_reply(uint16_t a, uint16_t numRxBytes);
@@ -433,6 +442,7 @@ int sub_800b2ac(void* a, void* b);
 int sub_800b398(uint16_t a, void* b);
 int sub_800b43c(uint16_t a);
 int sub_800b4ec(Tuner_Channel* a);
+uint8_t channel_list_clear(void);
 void sub_800b610(uint8_t a);
 int sub_800b6f0(Tuner_Channel a);
 int sub_800b7f8(Tuner_Channel a);

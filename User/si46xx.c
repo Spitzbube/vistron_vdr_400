@@ -128,7 +128,7 @@ int sub_8008670(void)
 
 		 menu_set_language(UserSettings.b2);
 
-		 sub_8003038(28, &Data_2000004c);
+		 draw_screen_caption(28, &Data_2000004c);
 
 		 r7_5 = r7_6;
 
@@ -2551,7 +2551,7 @@ int sub_800b4ec(Tuner_Channel* r7_4)
 
 
 /* 800b5e0 - todo */
-uint8_t sub_800b5e0(void)
+uint8_t channel_list_clear(void)
 {
    uint8_t r7_7 = 0;
    memset(ChannelList, 0xff, 200 * sizeof(Tuner_Channel));

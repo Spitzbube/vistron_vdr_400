@@ -33,45 +33,45 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
       //blue
-      lcdFillRect(8, 196, 36, 36, 0xce59);
+      lcdFillRect(8, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(8, 196, 0x1f, 1);
+      draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
       return 3;
    }
    //loc_8001852
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
       //green
-      lcdFillRect(61, 196, 36, 36, 0xce59);
+      lcdFillRect(61, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(61, 196, 0x7e0, 0);
+      draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
       return 2;
    }
    //loc_8001894
    if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
    {
       //red
-      lcdFillRect(114, 196, 36, 36, 0xce59);
+      lcdFillRect(114, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(114, 196, 0xf800, 2);
+      draw_36x36(114, 196, COLOR_RED, ICON_LEFT);
       return 1;
    }
    //loc_80018d6
    if ((a > 166) && (a < 203) && (b > 195) && (b < 233))
    {
       //yellow
-      lcdFillRect(167, 196, 36, 36, 0xce59);
+      lcdFillRect(167, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(167, 196, 0xffe0, 3);
+      draw_36x36(167, 196, COLOR_YELLOW, ICON_RIGHT);
       return 4;
    }
    //loc_8001918
    if ((a > 78) && (a < 116) && (b > 5) && (b < 43))
    {
       //orange
-      lcdFillRect(79, 6, 36, 36, 0xce59);
+      lcdFillRect(79, 6, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(79, 6, 0xfd20, 4);
+      draw_36x36(79, 6, COLOR_ORANGE, ICON_MENU);
       return 21;
    }
    //loc_800195a
@@ -83,7 +83,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    if ((a > 274) && (a < 308) && (b > 197) && (b < 231))
    {
       //On-Off
-      lcdFillCircle(291, 214, 16, 0xce59);
+      lcdFillCircle(291, 214, 16, COLOR_GRAY_200);
       main_delay(200);
       draw_on_off_icon(291, 214);
       return 14;
@@ -117,7 +117,7 @@ void draw_foreground_clock(RTC_TimeTypeDef a)
    len = sprintf(buf, "%02d:%02d:%02d", a.Hours, a.Minutes, a.Seconds);
 
    lcdSetTextFont(&Data_2000004c);
-   lcdSetTextColor(0, 0xffff);
+   lcdSetTextColor(0, COLOR_WHITE);
 
    lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 93);
    ili9341_draw_string(buf, len);
@@ -133,7 +133,7 @@ void draw_background_clock(RTC_TimeTypeDef a)
    len = sprintf(buf, "%02d:%02d:%02d", a.Hours, a.Minutes, a.Seconds);
 
    lcdSetTextFont(&Data_2000004c);
-   lcdSetTextColor(0xffff, 0);
+   lcdSetTextColor(COLOR_WHITE, COLOR_BLACK);
 
    lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 96);
    ili9341_draw_string(buf, len);
@@ -149,17 +149,17 @@ void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t
 
    if (isFav != 0)
    {
-      color = 0xf81f;
+      color = COLOR_MAGENTA;
       r7_17 = siprintf(r7_c, "F%u", r7_3 + 1);
    }
    else
    {
-      color = 0x7ff;
+      color = COLOR_CYAN;
       r7_17 = siprintf(r7_c, "%u", r7_3 + 1);
    }
 
    lcdFillRect(r7_6, r7_4, 50, 36, color);
-   sub_800581e(r7_6, r7_4, 50, 36, 0);
+   lcdDrawRect(r7_6, r7_4, 50, 36, COLOR_BLACK);
    lcdSetCursor(r7_6 - r7_17 * Data_20000044.Width / 2 + 25, r7_4 - Data_20000044.Height / 2 + 20);
    lcdSetTextFont(&Data_20000044);
    lcdSetTextColor(0, color);
@@ -174,57 +174,57 @@ void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
 
    if (r7_f < 20)
    {
-      lcdFillRect(r7_6, r7_4 - 7, 10, 7, 0xffff);
-      sub_800581e(r7_6, r7_4 - 7, 10, 7, 0);
+      lcdFillRect(r7_6, r7_4 - 7, 10, 7, COLOR_WHITE);
+      lcdDrawRect(r7_6, r7_4 - 7, 10, 7, COLOR_BLACK);
    }
    else
    {
       //loc_8001d16
-      lcdFillRect(r7_6, r7_4 - 7, 10, 7, 0);
+      lcdFillRect(r7_6, r7_4 - 7, 10, 7, COLOR_BLACK);
    }
    //loc_8001d2e
    if (r7_f < 25)
    {
-      lcdFillRect(r7_6 + 15, r7_4 - 14, 10, 14, 0xffff);
-      sub_800581e(r7_6 + 15, r7_4 - 14, 10, 14, 0);
+      lcdFillRect(r7_6 + 15, r7_4 - 14, 10, 14, COLOR_WHITE);
+      lcdDrawRect(r7_6 + 15, r7_4 - 14, 10, 14, COLOR_BLACK);
    }
    else
    {
       //loc_8001d72
-      lcdFillRect(r7_6 + 15, r7_4 - 14, 10, 14, 0);
+      lcdFillRect(r7_6 + 15, r7_4 - 14, 10, 14, COLOR_BLACK);
    }
    //loc_8001d8e
    if (r7_f < 35)
    {
-      lcdFillRect(r7_6 + 30, r7_4 - 21, 10, 21, 0xffff);
-      sub_800581e(r7_6 + 30, r7_4 - 21, 10, 21, 0);
+      lcdFillRect(r7_6 + 30, r7_4 - 21, 10, 21, COLOR_WHITE);
+      lcdDrawRect(r7_6 + 30, r7_4 - 21, 10, 21, COLOR_BLACK);
    }
    else
    {
       //loc_8001dd2
-      lcdFillRect(r7_6 + 30, r7_4 - 21, 10, 21, 0);
+      lcdFillRect(r7_6 + 30, r7_4 - 21, 10, 21, COLOR_BLACK);
    }
    //loc_8001dee
    if (r7_f < 45)
    {
-      lcdFillRect(r7_6 + 45, r7_4 - 28, 10, 28, 0xffff);
-      sub_800581e(r7_6 + 45, r7_4 - 28, 10, 28, 0);
+      lcdFillRect(r7_6 + 45, r7_4 - 28, 10, 28, COLOR_WHITE);
+      lcdDrawRect(r7_6 + 45, r7_4 - 28, 10, 28, COLOR_BLACK);
    }
    else
    {
       //loc_8001e32
-      lcdFillRect(r7_6 + 45, r7_4 - 28, 10, 28, 0);
+      lcdFillRect(r7_6 + 45, r7_4 - 28, 10, 28, COLOR_BLACK);
    }
    //loc_8001e4e
    if (r7_f < 50)
    {
-      lcdFillRect(r7_6 + 60, r7_4 - 35, 10, 35, 0xffff);
-      sub_800581e(r7_6 + 60, r7_4 - 35, 10, 35, 0);
+      lcdFillRect(r7_6 + 60, r7_4 - 35, 10, 35, COLOR_WHITE);
+      lcdDrawRect(r7_6 + 60, r7_4 - 35, 10, 35, COLOR_BLACK);
    }
    else
    {
       //loc_8001e92
-      lcdFillRect(r7_6 + 60, r7_4 - 35, 10, 35, 0);
+      lcdFillRect(r7_6 + 60, r7_4 - 35, 10, 35, COLOR_BLACK);
    }
    //loc_8001eae
 }
@@ -233,9 +233,9 @@ void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7)
 /* 8001eb6 - todo */
 void draw_volume_bar(uint8_t r7_7)
 {
-   lcdFillRect(r7_7 + 242, 6, 63, 36, 0xffff);
-   sub_800581e(242, 6, 63, 36, 0);
-   lcdFillRect(242, 6, r7_7, 35, 0);
+   lcdFillRect(r7_7 + 242, 6, 63, 36, COLOR_WHITE);
+   lcdDrawRect(242, 6, 63, 36, COLOR_BLACK);
+   lcdFillRect(242, 6, r7_7, 35, COLOR_BLACK);
 }
 
 
@@ -251,8 +251,8 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
    uint8_t r7_f = 0;
 
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, 0xffff);
-   lcdFillRect(0, 120, 320, 71, 0xffff);
+   lcdSetTextColor(0, COLOR_WHITE);
+   lcdFillRect(0, 120, 320, 71, COLOR_WHITE);
 
    r7_18 = r7_4;
    r7_10 = r7_18;
@@ -311,22 +311,22 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
 /* 8002054 - todo */
 void sub_8002054(Tuner_Channel* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18)
 {
-   lcdFillRGB(0xffff);
-   lcdDrawHLine(0, 320, 48, 0);
-   lcdDrawHLine(0, 320, 192, 0);
+   lcdFillRGB(COLOR_WHITE);
+   lcdDrawHLine(0, 320, 48, COLOR_BLACK);
+   lcdDrawHLine(0, 320, 192, COLOR_BLACK);
 
    sub_80023d0(r7_c, r7_b, r7_a);
 
-   sub_8005198(8, 196, 0x1f, 1);
-   sub_8005198(61, 196, 0x7e0, 0);
+   draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+   draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
 
    if ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) == 0)
    {
-	   sub_8005198(114, 196, 0xf800, 5);
+	   draw_36x36(114, 196, COLOR_RED, 5);
    }
    //loc_80020ca
-   sub_8005198(167, 196, 0xffe0, 6);
-   sub_8005198(273, 196, 0xffff, 7);
+   draw_36x36(167, 196, COLOR_YELLOW, 6);
+   draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
 
    draw_scroll_bar(r7_b, r7_a);
 
@@ -345,42 +345,42 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
 {
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
-      lcdFillRect(8, 196, 36, 36, 0xce59);
+      lcdFillRect(8, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(8, 196, 0x1f, 1);
+      draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
       return 3;
    }
 
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
-      lcdFillRect(61, 196, 36, 36, 0xce59);
+      lcdFillRect(61, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(61, 196, 0x7e0, 0);
+      draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
       return 2;
    }
 
    if ((a > 113) && (a < 151) && (b > 195) && (b < 233) &&
 		   ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) == 0)) //TODO
    {
-      lcdFillRect(114, 196, 36, 36, 0xce59);
+      lcdFillRect(114, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(114, 196, 0xf800, 5);
+      draw_36x36(114, 196, COLOR_RED, 5);
       return 1;
    }
 
    if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
    {
-      lcdFillRect(167, 196, 36, 36, 0xce59);
+      lcdFillRect(167, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(167, 196, 0xffe0, 6);
+      draw_36x36(167, 196, COLOR_YELLOW, 6);
       return 4;
    }
 
    if ((a > 272) && (a < 311) && (b > 197) && (b < 233))
    {
-      lcdFillRect(273, 196, 36, 36, 0xce59);
+      lcdFillRect(273, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(273, 196, 0xffff, 7);
+      draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
       return 5;
    }
 
@@ -437,7 +437,7 @@ void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
    uint8_t r7_c;
    uint8_t r7_b;
 
-   lcdFillRect(0, 72, 295, 119, 0xffff);
+   lcdFillRect(0, 72, 295, 119, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
 
    for (r7_f = 0; (r7_f < r7_d) && ((r7_e + r7_f ) < r7_2); r7_f++)
@@ -445,12 +445,12 @@ void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
       //loc_800241c
       if ((r7_e + r7_f) == r7_3)
       {
-         lcdSetTextColor(0xffff, 0);
+         lcdSetTextColor(COLOR_WHITE, COLOR_BLACK);
       }
       else
       {
          //loc_8002434
-         lcdSetTextColor(0, 0xffff);
+         lcdSetTextColor(0, COLOR_WHITE);
       }
       //loc_800243e
       lcdSetCursor(0, r7_f * 24 + 72);
@@ -500,23 +500,23 @@ void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
 /* 8002658 - todo */
 void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6)
 {
-   lcdFillRect(296, 49, 24, 142, 0xffff);
-   lcdDrawVLine(320, 48, 192, 0);
-   lcdDrawVLine(296, 48, 192, 0);
-   lcdDrawHLine(296, 320, 72, 0);
-   lcdDrawHLine(296, 320, 168, 0);
-   lcdFillTriangle(308, 52, 300, 68, 316, 68, 0);
-   lcdFillTriangle(308, 188, 300, 172, 316, 172, 0);
-   lcdFillRect(296, r7_7 * 92 / r7_6 + 72, 24, 8, 0);
+   lcdFillRect(296, 49, 24, 142, COLOR_WHITE);
+   lcdDrawVLine(320, 48, 192, COLOR_BLACK);
+   lcdDrawVLine(296, 48, 192, COLOR_BLACK);
+   lcdDrawHLine(296, 320, 72, COLOR_BLACK);
+   lcdDrawHLine(296, 320, 168, COLOR_BLACK);
+   lcdFillTriangle(308, 52, 300, 68, 316, 68, COLOR_BLACK);
+   lcdFillTriangle(308, 188, 300, 172, 316, 172, COLOR_BLACK);
+   lcdFillRect(296, r7_7 * 92 / r7_6 + 72, 24, 8, COLOR_BLACK);
 }
 
 
 /* 80027b8 - todo */
 void draw_channel_freq_mux_label(Tuner_Channel* r7_4, uint8_t r7_3)
 {
-   lcdFillRect(0, 24, Data_20000044.Width * 11, 23, 0xffff);
+   lcdFillRect(0, 24, Data_20000044.Width * 11, 23, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, 0xffff);
+   lcdSetTextColor(0, COLOR_WHITE);
    lcdSetCursor(0, 24);
 
    if ((r7_4[r7_3].frequency < 42) && (r7_4[r7_3].service_id != 0))
@@ -542,9 +542,9 @@ void sub_80028b8(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
 /* 80028f2 - todo */
 void draw_automatic_search_screen(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
 {
-   lcdFillRGB(0xffff);
-   lcdDrawHLine(0, 320, 48, 0);
-   lcdDrawHLine(0, 320, 192, 0);
+   lcdFillRGB(COLOR_WHITE);
+   lcdDrawHLine(0, 320, 48, COLOR_BLACK);
+   lcdDrawHLine(0, 320, 192, COLOR_BLACK);
    draw_freq_mux_label(r7_18);
    draw_progress_bar(242, 42, r7, r7_10);
 
@@ -554,7 +554,7 @@ void draw_automatic_search_screen(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_
       draw_signal_strength_bars(142, 42, r7_14);
    }
    //loc_800295e
-   sub_8005198(273, 196, 0xffff, 7); //Back button
+   draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
 }
 
 
@@ -570,8 +570,8 @@ void draw_progress_bar(uint16_t x, uint16_t y, uint16_t currentValue, uint16_t m
 {
    uint32_t width = currentValue * 64 / maxValue;
 
-   lcdFillRect(width + x, y - 36, 64, 36, 0xffff);
-   sub_800581e(x, y - 36, 64, 36, 0x00);
+   lcdFillRect(width + x, y - 36, 64, 36, COLOR_WHITE);
+   lcdDrawRect(x, y - 36, 64, 36, 0x00);
    lcdFillRect(x, y - 36, width, 35, 0x00);
 }
 
@@ -583,9 +583,9 @@ void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3)
    uint8_t r7_e = (r7_3 < 6)? 0: r7_3 - 5;
    uint8_t r7_d;
 
-   lcdFillRect(0, 72, 295, 119, 0xffff);
+   lcdFillRect(0, 72, 295, 119, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, 0xffff);
+   lcdSetTextColor(0, COLOR_WHITE);
 
    for (r7_f = 0; (r7_e + r7_f) < r7_3; r7_f++)
    {
@@ -672,9 +672,9 @@ const char* Data_8012cdc[] = //8012cdc
 /* 8002c04 - todo */
 void draw_freq_mux_label(uint16_t r7_6)
 {
-   lcdFillRect(0, 24, Data_20000044.Width * 10, 23, 0xffff);
+   lcdFillRect(0, 24, Data_20000044.Width * 10, 23, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, 0xffff);
+   lcdSetTextColor(0, COLOR_WHITE);
    lcdSetCursor(0, 24);
 
    if (r7_6 > 41)
@@ -691,37 +691,37 @@ void draw_freq_mux_label(uint16_t r7_6)
 /* 8002e0c - todo */
 void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
 {
-   lcdFillRGB(0xffff);
-   lcdDrawHLine(0, 320, 48, 0);
-   lcdDrawHLine(0, 320, 192, 0);
-   sub_8003038(r7_6, &Data_2000004c);
+   lcdFillRGB(COLOR_WHITE);
+   lcdDrawHLine(0, 320, 48, COLOR_BLACK);
+   lcdDrawHLine(0, 320, 192, COLOR_BLACK);
+   draw_screen_caption(r7_6, &Data_2000004c);
    sub_8002cac(r7_4, r7_3, r7_2);
-   sub_8005198(8, 196, 0x1f, 1);
-   sub_8005198(61, 196, 0x7e0, 0);
-   sub_8005198(167, 196, 0xffe0, 6);
+   draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+   draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
+   draw_36x36(167, 196, COLOR_YELLOW, 6);
 }
 
 
 /* 80049bc - todo */
 void draw_volume_change_screen(uint8_t a)
 {
-   lcdFillRGB(0xffff);
-   lcdDrawHLine(0, 320, 48, 0);
-   lcdDrawHLine(0, 320, 192, 0);
-   sub_8003038(36, &Data_2000004c);
+   lcdFillRGB(COLOR_WHITE);
+   lcdDrawHLine(0, 320, 48, COLOR_BLACK);
+   lcdDrawHLine(0, 320, 192, COLOR_BLACK);
+   draw_screen_caption(36, &Data_2000004c);
    draw_volume_change_bar(a);
-   sub_8005198(114, 196, 0xf800, 2);
-   sub_8005198(167, 196, 0xffe0, 3);
-   sub_8005198(273, 196, 0xffff, 7);
+   draw_36x36(114, 196, COLOR_RED, ICON_LEFT);
+   draw_36x36(167, 196, COLOR_YELLOW, ICON_RIGHT);
+   draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
 }
 
 
 /* 8004a34 - todo */
 void draw_volume_change_bar(uint8_t a)
 {
-   lcdFillRect((a + 8)*4, 72, 252, 24, 0xffff);
-   sub_800581e(32, 72, 252, 24, 0);
-   lcdFillRect(32, 72, a * 4, 23, 0);
+   lcdFillRect((a + 8)*4, 72, 252, 24, COLOR_WHITE);
+   lcdDrawRect(32, 72, 252, 24, COLOR_BLACK);
+   lcdFillRect(32, 72, a * 4, 23, COLOR_BLACK);
 }
 
 
@@ -730,39 +730,29 @@ int volume_change_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 {
    if ((r7_6 > 113) && (r7_6 < 151) && (r7_4 > 195) && (r7_4 < 233))
    {
-      lcdFillRect(114, 196, 36, 36, 0xce59);
+      lcdFillRect(114, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(114, 196, 0xf800, 2);
+      draw_36x36(114, 196, COLOR_RED, ICON_LEFT);
       return 1;
    }
 
    if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
    {
-      lcdFillRect(167, 196, 36, 36, 0xce59);
+      lcdFillRect(167, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(167, 196, 0xffe0, 3);
+      draw_36x36(167, 196, COLOR_YELLOW, ICON_RIGHT);
       return 4;
    }
 
    if ((r7_6 > 272) && (r7_6 < 311) && (r7_4 > 195) && (r7_4 < 233))
    {
-      lcdFillRect(273, 196, 36, 36, 0xce59);
+      lcdFillRect(273, 196, 36, 36, COLOR_GRAY_200);
       main_delay(100);
-      sub_8005198(273, 196, 0xffff, 7);
+      draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
       return 5;
    }
 
    return 0;
-}
-
-
-/* 800581e - todo */
-void sub_800581e(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, uint16_t e)
-{
-   lcdDrawHLine(r7_6, r7_6 + r7_2, r7_4, e);
-   lcdDrawHLine(r7_6, r7_6 + r7_2, r7_4 + r7, e);
-   lcdDrawVLine(r7_6, r7_4, r7_4 + r7, e);
-   lcdDrawVLine(r7_6 + r7_2, r7_4, r7_4 + r7, e);
 }
 
 
@@ -828,19 +818,19 @@ void draw_snr_indicator(uint16_t r7_e, uint16_t r7_c, Tuner_Values* r7_8, uint8_
 
    if (r7_8->snr < 1)
    {
-      r7_14 = 0xf800;
+      r7_14 = COLOR_RED;
    }
    else if (r7_8->snr < 4)
    {
-      r7_14 = 0xffe0;
+      r7_14 = COLOR_YELLOW;
    }
    else
    {
-      r7_14 = 0x7e0;
+      r7_14 = COLOR_GREEN;
    }
 
    lcdFillRect(r7_e, r7_c, r7_16, r7_17, r7_14);
-   sub_800581e(r7_e, r7_c, r7_16, r7_17, 0);
+   lcdDrawRect(r7_e, r7_c, r7_16, r7_17, COLOR_BLACK);
 }
 
 

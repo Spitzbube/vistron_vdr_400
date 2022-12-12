@@ -145,10 +145,10 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   //800c8f4
-  Tuner_Channel* pChannels/*r7_c*/ = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
+  Tuner_Channel* pChannels = (wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE)?
 		  FavouriteList: ChannelList;
   uint16_t standbyCounter = 10800;
-  uint8_t r7_9;
+  uint8_t bRdsData;
   struct_8008d84_Inner8 r7; //???
 
   /* USER CODE END 1 */
@@ -335,14 +335,14 @@ int main(void)
             else
             {
                //loc_800cc84
-               r7_9 = si46xx_fm_get_rds_data(&r7,
+               bRdsData = si46xx_fm_get_rds_data(&r7,
             		   radioText.str,
 					   &rtcTime,
 					   &rtcDate,
 					   &wMainloopEvents,
 					   &radioText.bLength);
 
-               if ((r7_9 & 4) != 0)
+               if ((bRdsData & 4) != 0)
                {
                   if ((radioText.bLength != radioTextOld.bLength) ||
                 		  (0 != memcmp(radioText.str, &radioTextOld, radioText.bLength)))
@@ -355,7 +355,7 @@ int main(void)
                   //loc_800cd5e
                }
                //loc_800ccec
-               else if ((r7_9 & 2) != 0)
+               else if ((bRdsData & 2) != 0)
                {
                   if (0 != memcmp(&Data_200023e0->Data_8, &r7, 8))
                   {
@@ -624,27 +624,6 @@ int main(void)
          //loc_800d2ee
          //->loc_800c9c4
       }
-
-	  //Tryouts....
-#if 0
-	  HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_RESET);
-	  HAL_Delay(500);
-	  HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_SET);
-	  HAL_Delay(500);
-#endif
-
-#if 0
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-#endif
-
 
     /* USER CODE END WHILE */
 

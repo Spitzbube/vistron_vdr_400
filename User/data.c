@@ -4,20 +4,6 @@
 
 //_sdata: 20000000 - 200000c8 -> 080193f8 - 80194C0
 
-#if 0
-Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
-{
-   sub_8004be8, //arrow up
-   sub_8004c4c, //arrow down
-   sub_8004cb0, //arrow left
-   sub_8004d14, //arrow right
-   sub_8004d78, //three horizontal lines
-   sub_8004e74,
-   sub_8004f24,
-   sub_8004fc4,
-   sub_8005074
-};
-#endif
 lcdPropertiesTypeDef lcdProperties = //20000024 (801941C)
 {
    320, 240
