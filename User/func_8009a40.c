@@ -29,9 +29,9 @@ extern int sub_800bc04(Tuner_Channel* a, Tuner_Channel* b, void* c, void* d);
 /* 800173c - todo */
 void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t channel_nr, Tuner_Values* g, uint16_t h)
 {
-   ili9341_fill_screen(0xffff);
-   ili9341_draw_hor_line(0, 320, 48, 0);
-   ili9341_draw_hor_line(0, 320, 192, 0);
+   lcdFillRGB(0xffff);
+   lcdDrawHLine(0, 320, 48, 0);
+   lcdDrawHLine(0, 320, 192, 0);
 
    draw_channel_name(r7_8);
    draw_radio_text(r7, r7_18);
@@ -68,20 +68,20 @@ void draw_channel_name(void* a)
 
    if (bChannelCount != 0)
    {
-      ili9341_set_font(&Data_2000004c);
-      ili9341_draw_box(0, 63, 320, 24, 0xffff);
-      ili9341_set_text_color(0, 0xffff);
+      lcdSetTextFont(&Data_2000004c);
+      lcdFillRect(0, 63, 320, 24, 0xffff);
+      lcdSetTextColor(0, 0xffff);
       len = sub_800c88c(a, 16);
-      ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 63);
+      lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 63);
       ili9341_draw_string(a, len);
    }
    else
    {
       len = sub_8001224(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
-      ili9341_set_font(&Data_2000004c);
-      ili9341_set_text_color(0, 0xffff);
-      ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 63);
-      ili9341_draw_format_string(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
+      lcdSetTextFont(&Data_2000004c);
+      lcdSetTextColor(0, 0xffff);
+      lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 63);
+      lcdPrintf(CurrentTextTable[TEXT_ID_NO_CHANNEL]);
    }
 }
 
@@ -93,23 +93,23 @@ void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus)
    uint8_t r7_e = (focus > 5)? focus - 2: 0;
    uint8_t r7_d = (lines < 5)? lines + 1: 5;
 
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
 
    for (i = 0; (i < r7_d) && ((r7_e + i) < lines); )
    {
       //loc_8002cf4
       if ((r7_e + i) == focus)
       {
-         ili9341_set_text_color(0xffff, 0);
+         lcdSetTextColor(0xffff, 0);
       }
       else
       {
-         ili9341_set_text_color(0, 0xffff);
+         lcdSetTextColor(0, 0xffff);
       }
 
-      ili9341_set_cursor(0, 72 + 24 * i);
-      ili9341_draw_format_string(CurrentTextTable[firstTextId + i]);
+      lcdSetCursor(0, 72 + 24 * i);
+      lcdPrintf(CurrentTextTable[firstTextId + i]);
       i++;
    }
 }
@@ -118,9 +118,9 @@ void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus)
 /* 8002d70 - todo */
 void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
 {
-   ili9341_fill_screen(0xffff);
-   ili9341_draw_hor_line(0, 320, 48, 0);
-   ili9341_draw_hor_line(0, 320, 192, 0);
+   lcdFillRGB(0xffff);
+   lcdDrawHLine(0, 320, 48, 0);
+   lcdDrawHLine(0, 320, 192, 0);
    sub_8003038(textId, &Data_2000004c);
    sub_8002cac(r7_4, r7_3, r7_2);
    sub_8005198(8, 196, 0x1f, 1); //blue box / down arrow
@@ -135,7 +135,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
 {
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
-      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      lcdFillRect(8, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
@@ -143,7 +143,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
 
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
-      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      lcdFillRect(61, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
@@ -151,7 +151,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
 
    if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
    {
-      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      lcdFillRect(167, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
@@ -159,7 +159,7 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
 
    if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
    {
-      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      lcdFillRect(273, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
@@ -199,12 +199,12 @@ void sub_8003038(uint16_t textId, sFONT* font)
 {
    uint16_t len;
 
-   ili9341_set_font(font);
-   ili9341_draw_box(0, 23, 320, 24, 0xffff);
-   ili9341_set_text_color(0, 0xffff);
+   lcdSetTextFont(font);
+   lcdFillRect(0, 23, 320, 24, 0xffff);
+   lcdSetTextColor(0, 0xffff);
    len = sub_8001224(CurrentTextTable[textId]);
-   ili9341_set_cursor(160 - (len * font->Width) / 2, 24);
-   ili9341_draw_format_string(CurrentTextTable[textId]);
+   lcdSetCursor(160 - (len * font->Width) / 2, 24);
+   lcdPrintf(CurrentTextTable[textId]);
 }
 
 
@@ -215,15 +215,15 @@ void draw_signal_information_screen(Tuner_Channel* r7_c, uint8_t r7_b, Tuner_Val
 
    uint8_t r7_17;
 
-   ili9341_fill_screen(0xffff);
-   ili9341_draw_hor_line(0, 320, 48, 0);
-   ili9341_draw_hor_line(0, 320, 192, 0);
+   lcdFillRGB(0xffff);
+   lcdDrawHLine(0, 320, 48, 0);
+   lcdDrawHLine(0, 320, 192, 0);
    sub_8003038(TEXT_ID_SIGNAL_INFORMATION, &Data_2000004c);
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(0, 72);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_CHANNEL]);
-   ili9341_set_cursor(140, 72);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(0, 72);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_CHANNEL]);
+   lcdSetCursor(140, 72);
    if (bChannelCount == 0)
    {
       ili9341_draw_string(CurrentTextTable[TEXT_ID_NO_CHANNEL], sub_8001224(CurrentTextTable[TEXT_ID_NO_CHANNEL]));
@@ -240,12 +240,12 @@ void draw_signal_information_screen(Tuner_Channel* r7_c, uint8_t r7_b, Tuner_Val
 
    if (r7_4->frequency > 15000)
    {
-      ili9341_set_font(&Data_20000044);
-      ili9341_set_text_color(0, 0xffff);
-      ili9341_set_cursor(0, 96);
-      ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_MULTIPLEX]);
-      ili9341_set_cursor(140, 96);
-      ili9341_draw_format_string("%s/%u.%03u MHz", Data_8012cdc[10 + r7_4->freq_index],
+      lcdSetTextFont(&Data_20000044);
+      lcdSetTextColor(0, 0xffff);
+      lcdSetCursor(0, 96);
+      lcdPrintf("%s", CurrentTextTable[TEXT_ID_MULTIPLEX]);
+      lcdSetCursor(140, 96);
+      lcdPrintf("%s/%u.%03u MHz", Data_8012cdc[10 + r7_4->freq_index],
     		  r7_4->frequency / 1000, r7_4->frequency % 1000);
 
       draw_signal_error_rate_line(r7_4);
@@ -253,11 +253,11 @@ void draw_signal_information_screen(Tuner_Channel* r7_c, uint8_t r7_b, Tuner_Val
    else
    {
       //loc_8003b08
-      ili9341_set_font(&Data_20000044);
-      ili9341_set_cursor(0, 96);
-      ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_FREQUENCY]);
-      ili9341_set_cursor(140, 96);
-      ili9341_draw_format_string("%u.%02uMHz",
+      lcdSetTextFont(&Data_20000044);
+      lcdSetCursor(0, 96);
+      lcdPrintf("%s", CurrentTextTable[TEXT_ID_FREQUENCY]);
+      lcdSetCursor(140, 96);
+      lcdPrintf("%u.%02uMHz",
     		  r7_4->frequency / 100, r7_4->frequency % 100);
 
       draw_signal_multipath_line(r7_4);
@@ -308,14 +308,14 @@ void draw_signal_level_line(Tuner_Values* r7_4)
       }
    }
    //loc_8003c3e
-   ili9341_draw_box(140, 120, 115, 23, 0xffff);
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(0, 120);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_LEVEL]);
-   ili9341_set_cursor(140, 120);
-   ili9341_draw_format_string("%d dBuV", r7_4->rssi);
-   ili9341_draw_box(280, 122, 20, 20, color);
+   lcdFillRect(140, 120, 115, 23, 0xffff);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(0, 120);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_LEVEL]);
+   lcdSetCursor(140, 120);
+   lcdPrintf("%d dBuV", r7_4->rssi);
+   lcdFillRect(280, 122, 20, 20, color);
    sub_800581e(280, 122, 20, 20, 0);
 }
 
@@ -357,14 +357,14 @@ void draw_signal_quality_line(Tuner_Values* r7_4)
 	  }
    }
    //loc_8003d36
-   ili9341_draw_box(140, 144, 115, 23, 0xffff);
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(0, 144);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_SNR]);
-   ili9341_set_cursor(140, 144);
-   ili9341_draw_format_string("%d dB", r7_4->snr);
-   ili9341_draw_box(280, 145, 20, 20, color);
+   lcdFillRect(140, 144, 115, 23, 0xffff);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(0, 144);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_SNR]);
+   lcdSetCursor(140, 144);
+   lcdPrintf("%d dB", r7_4->snr);
+   lcdFillRect(280, 145, 20, 20, color);
    sub_800581e(280, 145, 20, 20, 0);
 }
 
@@ -387,14 +387,14 @@ void draw_signal_error_rate_line(Tuner_Values* r7_4)
       color = 0xf800;
    }
 
-   ili9341_draw_box(140, 168, 115, 23, 0xffff);
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(0, 168);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_ERROR_RATE]);
-   ili9341_set_cursor(140, 168);
-   ili9341_draw_format_string("%u", r7_4->fib_error_count);
-   ili9341_draw_box(280, 168, 20, 20, color);
+   lcdFillRect(140, 168, 115, 23, 0xffff);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(0, 168);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_ERROR_RATE]);
+   lcdSetCursor(140, 168);
+   lcdPrintf("%u", r7_4->fib_error_count);
+   lcdFillRect(280, 168, 20, 20, color);
    sub_800581e(280, 168, 20, 20, 0);
 }
 
@@ -417,14 +417,14 @@ void draw_signal_multipath_line(Tuner_Values* r7_4)
 	  color = 0xf800;
    }
 
-   ili9341_draw_box(140, 168, 115, 23, 0xffff);
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(0, 168);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_MULTIPATH]);
-   ili9341_set_cursor(140, 168);
-   ili9341_draw_format_string("%u", r7_4->multipath);
-   ili9341_draw_box(280, 168, 20, 20, color);
+   lcdFillRect(140, 168, 115, 23, 0xffff);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(0, 168);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_MULTIPATH]);
+   lcdSetCursor(140, 168);
+   lcdPrintf("%u", r7_4->multipath);
+   lcdFillRect(280, 168, 20, 20, color);
    sub_800581e(280, 168, 20, 20, 0);
 }
 
@@ -434,7 +434,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
 {
    if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
    {
-	  ili9341_draw_box(8, 196, 36, 36, 0xce59);
+	  lcdFillRect(8, 196, 36, 36, 0xce59);
 	  main_delay(100);
 	  sub_8005198(8, 196, 0x1f, 1);
 	  return 3;
@@ -442,7 +442,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
 
    if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
    {
-	  ili9341_draw_box(61, 196, 36, 36, 0xce59);
+	  lcdFillRect(61, 196, 36, 36, 0xce59);
 	  main_delay(100);
 	  sub_8005198(61, 196, 0x7e0, 0);
 	  return 2;
@@ -450,7 +450,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
 
    if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
    {
-	  ili9341_draw_box(114, 196, 36, 36, 0xce59);
+	  lcdFillRect(114, 196, 36, 36, 0xce59);
 	  main_delay(100);
 	  sub_8005198(114, 196, 0xf800, 2);
 	  return 1;
@@ -458,7 +458,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
 
    if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
    {
-	  ili9341_draw_box(167, 196, 36, 36, 0xce59);
+	  lcdFillRect(167, 196, 36, 36, 0xce59);
 	  main_delay(100);
 	  sub_8005198(167, 196, 0xffe0, 3);
 	  return 4;
@@ -466,7 +466,7 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
 
    if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
    {
-	  ili9341_draw_box(273, 196, 36, 36, 0xce59);
+	  lcdFillRect(273, 196, 36, 36, 0xce59);
 	  main_delay(100);
 	  sub_8005198(273, 196, 0xffff, 7);
 	  return 5;
@@ -479,32 +479,32 @@ int signal_information_screen_check_touch_fields(uint16_t a, uint16_t b)
 /* 80040a4 - todo */
 void draw_sw_information_screen(char* dab, char* fm)
 {
-   ili9341_fill_screen(0xffff);
-   ili9341_draw_hor_line(0, 320, 48, 0);
-   ili9341_draw_hor_line(0, 320, 192, 0);
+   lcdFillRGB(0xffff);
+   lcdDrawHLine(0, 320, 48, 0);
+   lcdDrawHLine(0, 320, 192, 0);
    sub_8003038(TEXT_ID_INFORMATION, &Data_2000004c);
-   ili9341_set_font(&Data_20000044);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(0, 72);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_PRODUCT]);
-   ili9341_set_cursor(140, 72);
-   ili9341_draw_format_string("DAB-Radio");
-   ili9341_set_cursor(0, 96);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_HARDWARE]);
-   ili9341_set_cursor(140, 96);
-   ili9341_draw_format_string("L3-02 Rev.1.2");
-   ili9341_set_cursor(0, 120);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_SOFTWARE]);
-   ili9341_set_cursor(140, 120);
-   ili9341_draw_format_string("4.0");
-   ili9341_set_cursor(0, 144);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_DAB_FIRMWARE]);
-   ili9341_set_cursor(140, 144);
-   ili9341_draw_format_string("%s", dab);
-   ili9341_set_cursor(0, 168);
-   ili9341_draw_format_string("%s", CurrentTextTable[TEXT_ID_FM_FIRMWARE]);
-   ili9341_set_cursor(140, 168);
-   ili9341_draw_format_string("%s", fm);
+   lcdSetTextFont(&Data_20000044);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(0, 72);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_PRODUCT]);
+   lcdSetCursor(140, 72);
+   lcdPrintf("DAB-Radio");
+   lcdSetCursor(0, 96);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_HARDWARE]);
+   lcdSetCursor(140, 96);
+   lcdPrintf("L3-02 Rev.1.2");
+   lcdSetCursor(0, 120);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_SOFTWARE]);
+   lcdSetCursor(140, 120);
+   lcdPrintf("4.0");
+   lcdSetCursor(0, 144);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_DAB_FIRMWARE]);
+   lcdSetCursor(140, 144);
+   lcdPrintf("%s", dab);
+   lcdSetCursor(0, 168);
+   lcdPrintf("%s", CurrentTextTable[TEXT_ID_FM_FIRMWARE]);
+   lcdSetCursor(140, 168);
+   lcdPrintf("%s", fm);
 
    sub_8005198(273, 196, 0xffff, 7);
 }
@@ -515,7 +515,7 @@ int sub_80041e0(uint16_t r7_6, uint16_t r7_4)
 {
    if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      lcdFillRect(273, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
@@ -528,9 +528,9 @@ int sub_80041e0(uint16_t r7_6, uint16_t r7_4)
 /* 8004244 - todo */
 void draw_alarm_screen(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
 {
-   ili9341_fill_screen(0xffff);
-   ili9341_draw_hor_line(0, 320, 48, 0);
-   ili9341_draw_hor_line(0, 320, 192, 0);
+   lcdFillRGB(0xffff);
+   lcdDrawHLine(0, 320, 48, 0);
+   lcdDrawHLine(0, 320, 192, 0);
    sub_8003038(TEXT_ID_ALARM, &Data_2000004c);
    draw_alarm_time_edit(r7_4, offOn, editFocus);
    sub_8005198(8, 196, 0x1f, 1);
@@ -548,30 +548,30 @@ void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
 
    len = sprintf(str, "%2d:%02d %s", r7_4->hours, r7_4->minutes, CurrentTextTable[TEXT_ID_OFF + offOn]);
 
-   ili9341_draw_box(0, 96, 320, 25, 0xffff);
-   ili9341_set_font(&Data_2000004c);
-   ili9341_set_text_color(0, 0xffff);
+   lcdFillRect(0, 96, 320, 25, 0xffff);
+   lcdSetTextFont(&Data_2000004c);
+   lcdSetTextColor(0, 0xffff);
 
    switch (editFocus)
    {
       case 0:
          //loc_8004342
-         ili9341_set_cursor(160 - len * Data_2000004c.Width / 2, 97);
-         ili9341_draw_format_string("__");
+         lcdSetCursor(160 - len * Data_2000004c.Width / 2, 97);
+         lcdPrintf("__");
          //->loc_80043dc
          break;
 
       case 1:
          //loc_800436a
-         ili9341_set_cursor(160 - len * Data_2000004c.Width / 2 + 3 * Data_2000004c.Width, 97);
-         ili9341_draw_format_string("__");
+         lcdSetCursor(160 - len * Data_2000004c.Width / 2 + 3 * Data_2000004c.Width, 97);
+         lcdPrintf("__");
          //->loc_80043dc
          break;
 
       case 2:
          //loc_80043a2
-         ili9341_set_cursor(160 - len * Data_2000004c.Width / 2 + 6 * Data_2000004c.Width, 97);
-         ili9341_draw_format_string("___");
+         lcdSetCursor(160 - len * Data_2000004c.Width / 2 + 6 * Data_2000004c.Width, 97);
+         lcdPrintf("___");
          //->loc_80043dc
          break;
 #if 0
@@ -580,9 +580,9 @@ void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t offOn, uint8_t editFocus)
 #endif
    }
    //loc_80043dc
-   ili9341_set_font(&Data_2000004c);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(160 - len * Data_2000004c.Width / 2, 96);
+   lcdSetTextFont(&Data_2000004c);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(160 - len * Data_2000004c.Width / 2, 96);
    ili9341_draw_string(str, len);
 }
 
@@ -592,7 +592,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 {
    if ((r7_6 > 7) && (r7_6 < 45) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      lcdFillRect(8, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
@@ -600,7 +600,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 
    if ((r7_6 > 60) && (r7_6 < 98) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      lcdFillRect(61, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
@@ -608,7 +608,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 
    if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      lcdFillRect(167, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
@@ -616,7 +616,7 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 
    if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      lcdFillRect(273, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
@@ -629,11 +629,11 @@ int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4)
 /* 8004560 - todo */
 void draw_on_off_icon(uint16_t a, uint16_t b)
 {
-   ili9341_draw_box(a - 16, b - 11, 32, 40, 0xffff);
-   ili9341_draw_circle(a, b, 13, 0xf800);
-   ili9341_draw_circle(a, b, 9, 0xffff);
-   ili9341_draw_box(a - 4, b - 20, 9, 16, 0xffff);
-   ili9341_draw_box(a - 1, b - 15, 3, 12, 0xf800);
+   lcdFillRect(a - 16, b - 11, 32, 40, 0xffff);
+   lcdFillCircle(a, b, 13, 0xf800);
+   lcdFillCircle(a, b, 9, 0xffff);
+   lcdFillRect(a - 4, b - 20, 9, 16, 0xffff);
+   lcdFillRect(a - 1, b - 15, 3, 12, 0xf800);
 }
 
 
@@ -643,9 +643,9 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time*
    // Display Backlight Off
    HAL_GPIO_WritePin(Display_Backlight_GPIO_Port, Display_Backlight_Pin, GPIO_PIN_SET);
 
-   ili9341_fill_screen(0);
-   ili9341_draw_hor_line(0, 320, 48, 0xffff);
-   ili9341_draw_hor_line(0, 320, 192, 0xffff);
+   lcdFillRGB(0);
+   lcdDrawHLine(0, 320, 48, 0xffff);
+   lcdDrawHLine(0, 320, 192, 0xffff);
    draw_background_clock(r7_c);
    sub_800465c(r7_8);
 
@@ -664,10 +664,10 @@ void sub_800465c(RTC_DateTypeDef a)
 
    len = sprintf(buf, "%d.%d.%d", a.Date, a.Month, a.Year + 2000);
 
-   ili9341_set_font(&Data_2000004c);
-   ili9341_set_text_color(0xffff, 0);
+   lcdSetTextFont(&Data_2000004c);
+   lcdSetTextColor(0xffff, 0);
 
-   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 72);
+   lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 72);
    ili9341_draw_string(buf, len);
 }
 
@@ -680,10 +680,10 @@ void draw_alarm_time(Alarm_Time* a)
 
    len = sprintf(buf, "%s %d:%02d", CurrentTextTable[TEXT_ID_ALARM], a->hours, a->minutes);
 
-   ili9341_draw_box(0, 120, 320, 23, 0);
-   ili9341_set_font(&Data_2000004c);
-   ili9341_set_text_color(0xffff, 0);
-   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 120);
+   lcdFillRect(0, 120, 320, 23, 0);
+   lcdSetTextFont(&Data_2000004c);
+   lcdSetTextColor(0xffff, 0);
+   lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 120);
    ili9341_draw_string(buf, len);
 }
 
@@ -691,9 +691,9 @@ void draw_alarm_time(Alarm_Time* a)
 /* 800476c - todo */
 void draw_sleep_timer_screen(uint8_t r7_7)
 {
-   ili9341_fill_screen(0xffff);
-   ili9341_draw_hor_line(0, 320, 48, 0);
-   ili9341_draw_hor_line(0, 320, 192, 0);
+   lcdFillRGB(0xffff);
+   lcdDrawHLine(0, 320, 48, 0);
+   lcdDrawHLine(0, 320, 192, 0);
    sub_8003038(TEXT_ID_SLEEP_TIMER, &Data_2000004c);
    draw_sleep_timer_value(r7_7);
    sub_8005198(8, 196, 0x1f, 1);
@@ -712,10 +712,10 @@ void draw_sleep_timer_value(uint8_t r7_7)
 
    len = sprintf(buf, "%2d min %s", r7_7, CurrentTextTable[TEXT_ID_OFF + r7_17]);
 
-   ili9341_draw_box(0, 96, 320, 25, 0xffff);
-   ili9341_set_font(&Data_2000004c);
-   ili9341_set_text_color(0, 0xffff);
-   ili9341_set_cursor(160 - (len * Data_2000004c.Width) / 2, 96);
+   lcdFillRect(0, 96, 320, 25, 0xffff);
+   lcdSetTextFont(&Data_2000004c);
+   lcdSetTextColor(0, 0xffff);
+   lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 96);
    ili9341_draw_string(buf, len);
 }
 
@@ -725,7 +725,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
 {
    if ((r7_6 > 7) && (r7_6 < 45) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(8, 196, 36, 36, 0xce59);
+      lcdFillRect(8, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(8, 196, 0x1f, 1);
       return 3;
@@ -733,7 +733,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
 
    if ((r7_6 > 60) && (r7_6 < 98) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(61, 196, 36, 36, 0xce59);
+      lcdFillRect(61, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(61, 196, 0x7e0, 0);
       return 2;
@@ -741,7 +741,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
 
    if ((r7_6 > 166) && (r7_6 < 204) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(167, 196, 36, 36, 0xce59);
+      lcdFillRect(167, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(167, 196, 0xffe0, 6);
       return 4;
@@ -749,7 +749,7 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
 
    if ((r7_6 > 272) && (r7_6 < 310) && (r7_4 > 195) && (r7_4 < 233))
    {
-      ili9341_draw_box(273, 196, 36, 36, 0xce59);
+      lcdFillRect(273, 196, 36, 36, 0xce59);
       main_delay(100);
       sub_8005198(273, 196, 0xffff, 7);
       return 5;
@@ -762,43 +762,43 @@ int sub_8004894(uint16_t r7_6, uint16_t r7_4)
 /* 8004be8 - todo */
 void sub_8004be8(uint16_t a, uint16_t b, uint16_t c, uint16_t d)
 {
-   sub_8005af0(a - 9, b + 9, a + 9, b + 9, a, b - 9, c);
+   lcdFillTriangle(a - 9, b + 9, a + 9, b + 9, a, b - 9, c);
 }
 
 
 /* 8004c4c - todo */
 void sub_8004c4c(uint16_t a, uint16_t b, int c, uint16_t d)
 {
-   sub_8005af0(a - 9, b - 9, a + 9, b - 9, a, b + 9, c);
+   lcdFillTriangle(a - 9, b - 9, a + 9, b - 9, a, b + 9, c);
 }
 
 
 /* 8004cb0 - todo */
 void sub_8004cb0(uint16_t a, uint16_t b, int c, uint16_t d)
 {
-   sub_8005af0(a - 9, b, a + 9, b - 9, a + 9, b + 9, c);
+   lcdFillTriangle(a - 9, b, a + 9, b - 9, a + 9, b + 9, c);
 }
 
 
 /* 8004d14 - todo */
 void sub_8004d14(uint16_t a, uint16_t b, int c, uint16_t d)
 {
-   sub_8005af0(a - 9, b - 9, a - 9, b + 9, a + 9, b, c);
+   lcdFillTriangle(a - 9, b - 9, a - 9, b + 9, a + 9, b, c);
 }
 
 
 /* 8004d78 - todo */
 void sub_8004d78(uint16_t r7_6, uint16_t r7_4, uint16_t color, uint16_t d)
 {
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 9, color); //      *--------+
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 10, color); //    *---------+
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 8, color); //       *-------+
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4, color); //                   *
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 1, color); //              *+
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 1, color); //               +*
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 9, color); //               +--------*
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 8, color); //               +-------*
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 10, color); //              +---------*
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 - 9, color); //      *--------+
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 - 10, color); //    *---------+
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 - 8, color); //       *-------+
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4, color); //                   *
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 - 1, color); //              *+
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 + 1, color); //               +*
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 + 9, color); //               +--------*
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 + 8, color); //               +-------*
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 + 10, color); //              +---------*
 }
 
 
@@ -808,12 +808,12 @@ void sub_8004e74(uint16_t r7_6, uint16_t r7_4, int r7_2, uint16_t r7)
    uint16_t r7_e;
    char r7_8[] = "FAV"; //0x564146;
 
-   ili9341_set_text_color(r7_2, r7);
-   ili9341_set_font(&Data_20000044);
+   lcdSetTextColor(r7_2, r7);
+   lcdSetTextFont(&Data_20000044);
    r7_e = sub_8001224(r7_8);
-   ili9341_set_cursor(r7_6 - (r7_e * Data_20000044.Width) / 2/*??*/, r7_4 - Data_20000044.Height / 2);
+   lcdSetCursor(r7_6 - (r7_e * Data_20000044.Width) / 2/*??*/, r7_4 - Data_20000044.Height / 2);
    ili9341_draw_string(r7_8, r7_e);
-   ili9341_draw_box(r7_6 + 18, r7_4 - 18, 4, 36, 0xffff);
+   lcdFillRect(r7_6 + 18, r7_4 - 18, 4, 36, 0xffff);
 }
 
 
@@ -826,10 +826,10 @@ void sub_8004f24(uint16_t a, uint16_t b, int c, uint16_t d)
 /* 8004fc4 - todo */
 void sub_8004fc4(uint16_t r7_6, uint16_t r7_4, int r7_2, uint16_t r7)
 {
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 + 9, r7_2);
-   ili9341_draw_vert_line(r7_6 + 9, r7_4 - 9, r7_4 + 9, r7_2);
-   ili9341_draw_hor_line(r7_6 - 9, r7_6 + 9, r7_4 - 9, r7_2);
-   sub_8005af0(r7_6 - 9, r7_4 - 9, r7_6 - 5, r7_4 - 11, r7_6 - 5, r7_4 - 7, r7_2);
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 + 9, r7_2);
+   lcdDrawVLine(r7_6 + 9, r7_4 - 9, r7_4 + 9, r7_2);
+   lcdDrawHLine(r7_6 - 9, r7_6 + 9, r7_4 - 9, r7_2);
+   lcdFillTriangle(r7_6 - 9, r7_4 - 9, r7_6 - 5, r7_4 - 11, r7_6 - 5, r7_4 - 7, r7_2);
 }
 
 
@@ -842,11 +842,11 @@ void sub_8005074(uint16_t a, uint16_t b, int c, uint16_t d)
 /* 8005198 - todo */
 void sub_8005198(uint16_t x, uint16_t y, uint16_t color, uint8_t r7_1)
 {
-   ili9341_draw_box(x, y, 36, 36, color);
+   lcdFillRect(x, y, 36, 36, color);
 
    (Funcs_20000000)[r7_1](x + 18, y + 18, 0, color);
 
-   ili9341_draw_rect(x, y, 36, 36, 0);
+   lcdDrawRect(x, y, 36, 36, 0);
 }
 
 

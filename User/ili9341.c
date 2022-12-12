@@ -10,171 +10,183 @@
 #define ILI9341_MEMORY_WRITE                 0x2c
 
 
+enum {
+  MemoryAccessControlNormalOrder,
+  MemoryAccessControlReverseOrder
+} MemoryAccessControlRefreshOrder;
+
+enum {
+	MemoryAccessControlColorOrderRGB,
+	MemoryAccessControlColorOrderBGR
+} MemoryAccessControlColorOrder;
+
+
+
 /* 8005238 - todo */
-void ili9341_init(void)
+void lcdInit(void)
 {
-   g_bDisplayMemoryAccessCtrl1 = ili9341_get_madctl(0, 1, 0, 0, 1, 0);
-   g_bDisplayMemoryAccessCtrl2 = ili9341_get_madctl(0, 0, 1, 0, 1, 0);
-   g_bDisplayMemoryAccessCtrl3 = ili9341_get_madctl(1, 0, 0, 0, 1, 0);
-   g_bDisplayMemoryAccessCtrl4 = ili9341_get_madctl(1, 1, 1, 0, 1, 0);
+   lcdPortraitConfig = lcdBuildMemoryAccessControlConfig(0, 1, 0, 0, 1, 0);
+   lcdLandscapeConfig = lcdBuildMemoryAccessControlConfig(0, 0, 1, 0, 1, 0);
+   lcdPortraitMirrorConfig = lcdBuildMemoryAccessControlConfig(1, 0, 0, 0, 1, 0);
+   lcdLandscapeMirrorConfig = lcdBuildMemoryAccessControlConfig(1, 1, 1, 0, 1, 0);
 
    ili9341_setup_interface();
-   ili9341_write_command(0x28);
+   lcdWriteCommand(0x28);
    // display off
 
-   ili9341_write_command(0xcf);
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x83);
-   ili9341_write_data(0x30);
-   ili9341_write_command(0xed);
-   ili9341_write_data(0x64);
-   ili9341_write_data(0x03);
-   ili9341_write_data(0x12);
-   ili9341_write_data(0x81);
-   ili9341_write_command(0xe8);
-   ili9341_write_data(0x85);
-   ili9341_write_data(0x01);
-   ili9341_write_data(0x79);
-   ili9341_write_command(0xcb);
-   ili9341_write_data(0x39);
-   ili9341_write_data(0x2c);
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x34);
-   ili9341_write_data(0x02);
-   ili9341_write_command(0xf7);
-   ili9341_write_data(0x20);
-   ili9341_write_command(0xea);
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x00);
+   lcdWriteCommand(0xcf);
+   lcdWriteData(0x00);
+   lcdWriteData(0x83);
+   lcdWriteData(0x30);
+   lcdWriteCommand(0xed);
+   lcdWriteData(0x64);
+   lcdWriteData(0x03);
+   lcdWriteData(0x12);
+   lcdWriteData(0x81);
+   lcdWriteCommand(0xe8);
+   lcdWriteData(0x85);
+   lcdWriteData(0x01);
+   lcdWriteData(0x79);
+   lcdWriteCommand(0xcb);
+   lcdWriteData(0x39);
+   lcdWriteData(0x2c);
+   lcdWriteData(0x00);
+   lcdWriteData(0x34);
+   lcdWriteData(0x02);
+   lcdWriteCommand(0xf7);
+   lcdWriteData(0x20);
+   lcdWriteCommand(0xea);
+   lcdWriteData(0x00);
+   lcdWriteData(0x00);
    //------------power control------------------------------
-   ili9341_write_command(0xc0);
-   ili9341_write_data(0x26);
-   ili9341_write_command(0xc1);
-   ili9341_write_data(0x11);
+   lcdWriteCommand(0xc0);
+   lcdWriteData(0x26);
+   lcdWriteCommand(0xc1);
+   lcdWriteData(0x11);
    //--------------VCOM
-   ili9341_write_command(0xc5);
-   ili9341_write_data(0x35);
-   ili9341_write_data(0x3e);
-   ili9341_write_command(0xc7);
-   ili9341_write_data(0xbe);
+   lcdWriteCommand(0xc5);
+   lcdWriteData(0x35);
+   lcdWriteData(0x3e);
+   lcdWriteCommand(0xc7);
+   lcdWriteData(0xbe);
    //------------memory access control------------------------
-   ili9341_write_command(0x36);
-   ili9341_write_data(g_bDisplayMemoryAccessCtrl4); //my,mx,mv,ml,BGR,mh,0.0
+   lcdWriteCommand(0x36);
+   lcdWriteData(lcdLandscapeMirrorConfig); //my,mx,mv,ml,BGR,mh,0.0
 
-   ili9341_write_command(0x3a); // pixel format set
-   ili9341_write_data(0x55); //16bit /pixel
+   lcdWriteCommand(0x3a); // pixel format set
+   lcdWriteData(0x55); //16bit /pixel
    //----------------- frame rate------------------------------
-   ili9341_write_command(0xb1);
+   lcdWriteCommand(0xb1);
    // frame rate
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x1b);
+   lcdWriteData(0x00);
+   lcdWriteData(0x1b);
    //----------------Gamma---------------------------------
-   ili9341_write_command(0xf2);  // 3Gamma Function Disable
-   ili9341_write_data(0x08);
-   ili9341_write_command(0x26);
-   ili9341_write_data(0x01); // gamma set 4 gamma curve 01/02/04/08
+   lcdWriteCommand(0xf2);  // 3Gamma Function Disable
+   lcdWriteData(0x08);
+   lcdWriteCommand(0x26);
+   lcdWriteData(0x01); // gamma set 4 gamma curve 01/02/04/08
 
-   ili9341_write_command(0xe0); //positive gamma correction
-   ili9341_write_data(0x1f);
-   ili9341_write_data(0x1a);
-   ili9341_write_data(0x18);
-   ili9341_write_data(0x0a);
-   ili9341_write_data(0x0f);
-   ili9341_write_data(0x06);
-   ili9341_write_data(0x45);
-   ili9341_write_data(0x87);
-   ili9341_write_data(0x32);
-   ili9341_write_data(0x0a);
-   ili9341_write_data(0x07);
-   ili9341_write_data(0x02);
-   ili9341_write_data(0x07);
-   ili9341_write_data(0x05);
-   ili9341_write_data(0x00);
-   ili9341_write_command(0xe1); //negamma correction
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x25);
-   ili9341_write_data(0x27);
-   ili9341_write_data(0x05);
-   ili9341_write_data(0x10);
-   ili9341_write_data(0x09);
-   ili9341_write_data(0x3a);
-   ili9341_write_data(0x78);
-   ili9341_write_data(0x4d);
-   ili9341_write_data(0x05);
-   ili9341_write_data(0x18);
-   ili9341_write_data(0x0d);
-   ili9341_write_data(0x38);
-   ili9341_write_data(0x3a);
-   ili9341_write_data(0x1f);
+   lcdWriteCommand(0xe0); //positive gamma correction
+   lcdWriteData(0x1f);
+   lcdWriteData(0x1a);
+   lcdWriteData(0x18);
+   lcdWriteData(0x0a);
+   lcdWriteData(0x0f);
+   lcdWriteData(0x06);
+   lcdWriteData(0x45);
+   lcdWriteData(0x87);
+   lcdWriteData(0x32);
+   lcdWriteData(0x0a);
+   lcdWriteData(0x07);
+   lcdWriteData(0x02);
+   lcdWriteData(0x07);
+   lcdWriteData(0x05);
+   lcdWriteData(0x00);
+   lcdWriteCommand(0xe1); //negamma correction
+   lcdWriteData(0x00);
+   lcdWriteData(0x25);
+   lcdWriteData(0x27);
+   lcdWriteData(0x05);
+   lcdWriteData(0x10);
+   lcdWriteData(0x09);
+   lcdWriteData(0x3a);
+   lcdWriteData(0x78);
+   lcdWriteData(0x4d);
+   lcdWriteData(0x05);
+   lcdWriteData(0x18);
+   lcdWriteData(0x0d);
+   lcdWriteData(0x38);
+   lcdWriteData(0x3a);
+   lcdWriteData(0x1f);
    //--------------ddram ---------------------
-   ili9341_write_command(ILI9341_COLUMN_ADDRESS_SET);
+   lcdWriteCommand(ILI9341_COLUMN_ADDRESS_SET);
    // column set
    // size = 239
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x00);
-   ili9341_write_data(0xef); //240-1
-   ili9341_write_command(ILI9341_PAGE_ADDRESS_SET);
+   lcdWriteData(0x00);
+   lcdWriteData(0x00);
+   lcdWriteData(0x00);
+   lcdWriteData(0xef); //240-1
+   lcdWriteCommand(ILI9341_PAGE_ADDRESS_SET);
    // page address set
    // size = 319
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x00);
-   ili9341_write_data(0x01);
-   ili9341_write_data(0x3f); //320-1
-	// ili9341_write_command(0x34);
-	//ili9341_write_command(0x35);
+   lcdWriteData(0x00);
+   lcdWriteData(0x00);
+   lcdWriteData(0x01);
+   lcdWriteData(0x3f); //320-1
+	// lcdWriteCommand(0x34);
+	//lcdWriteCommand(0x35);
 	// tearing effect off
 	// tearing effect on
-	// ili9341_write_command(0xb4); // display inversion
-	// ili9341_write_data(0x00);
-   ili9341_write_command(0xb7); //entry mode set
-   ili9341_write_data(0x07);
+	// lcdWriteCommand(0xb4); // display inversion
+	// lcdWriteData(0x00);
+   lcdWriteCommand(0xb7); //entry mode set
+   lcdWriteData(0x07);
    //-----------------display---------------------
-   ili9341_write_command(0xb6);
-   ili9341_write_data(0x0a);
-   ili9341_write_data(0x82);
-   ili9341_write_data(0x27);
-   ili9341_write_data(0x00);
-   ili9341_write_command(0x11); //sleep out
+   lcdWriteCommand(0xb6);
+   lcdWriteData(0x0a);
+   lcdWriteData(0x82);
+   lcdWriteData(0x27);
+   lcdWriteData(0x00);
+   lcdWriteCommand(0x11); //sleep out
    HAL_Delay(100);
-   ili9341_write_command(0x29); // display on
+   lcdWriteCommand(0x29); // display on
    HAL_Delay(100);
 
-   ili9341_write_command(ILI9341_MEMORY_WRITE);
+   lcdWriteCommand(ILI9341_MEMORY_WRITE);
 }
 
 
 /* 8005520 - todo */
-void ili9341_fill_screen(uint16_t a)
+void lcdFillRGB(uint16_t color)
 {
    uint32_t count;
 
-   ili9341_set_address(0, 0, ScreenResolution.width - 1, ScreenResolution.height - 1);
+   lcdSetWindow(0, 0, lcdProperties.width - 1, lcdProperties.height - 1);
 
-   count = ScreenResolution.width * ScreenResolution.height;
+   count = lcdProperties.width * lcdProperties.height;
    while (count--)
    {
-      ili9341_write_data(a);
+      lcdWriteData(color);
    }
 }
 
 
 /* 8005574 - todo */
-void ili9341_draw_pixel(uint16_t a, uint16_t b, uint16_t c)
+void lcdDrawPixel(uint16_t a, uint16_t b, uint16_t color)
 {
-   if ((a >= ScreenResolution.width) ||
-		   (b >= ScreenResolution.height))
+   if ((a >= lcdProperties.width) ||
+		   (b >= lcdProperties.height))
    {
 	   return;
    }
 
-   ili9341_set_address(a, b, a, b);
-   ili9341_write_data(c);
+   lcdSetWindow(a, b, a, b);
+   lcdWriteData(color);
 }
 
 
 /* 80055bc - todo */
-void ili9341_draw_hor_line(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color)
+void lcdDrawHLine(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color)
 {
    int i;
 
@@ -185,27 +197,27 @@ void ili9341_draw_hor_line(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color)
       x2 = r7_a;
    }
 
-   if (x2 >= ScreenResolution.width)
+   if (x2 >= lcdProperties.width)
    {
-      x2 = ScreenResolution.width - 1;
+      x2 = lcdProperties.width - 1;
    }
 
-   if (x1 >= ScreenResolution.width)
+   if (x1 >= lcdProperties.width)
    {
-      x1 = ScreenResolution.width - 1;
+      x1 = lcdProperties.width - 1;
    }
 
-   ili9341_set_address(x1, y, x2, y);
+   lcdSetWindow(x1, y, x2, y);
 
    for (i = x1; i <= x2; i++)
    {
-	   ili9341_write_data(color);
+	   lcdWriteData(color);
    }
 }
 
 
 /* 8005648 - todo */
-void ili9341_draw_vert_line(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color)
+void lcdDrawVLine(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color)
 {
    int i;
 
@@ -216,50 +228,50 @@ void ili9341_draw_vert_line(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color
       y2 = r7_a;
    }
 
-   if (x >= ScreenResolution.width)
+   if (x >= lcdProperties.width)
    {
-      x = ScreenResolution.width - 1;
+      x = lcdProperties.width - 1;
    }
 
-   if (y1 >= ScreenResolution.height)
+   if (y1 >= lcdProperties.height)
    {
-      y1 = ScreenResolution.height - 1;
+      y1 = lcdProperties.height - 1;
    }
 
-   if (y2 >= ScreenResolution.height)
+   if (y2 >= lcdProperties.height)
    {
-      y2 = ScreenResolution.height - 1;
+      y2 = lcdProperties.height - 1;
    }
 
-   ili9341_set_address(x, y1, x, y2);
+   lcdSetWindow(x, y1, x, y2);
 
    for (i = y1; i <= y2; i++)
    {
-      ili9341_write_data(color);
+      lcdWriteData(color);
    }
 }
 
 
 /* 800581e - todo */
-void ili9341_draw_rect(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color)
+void lcdDrawRect(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color)
 {
-   ili9341_draw_hor_line(x, x + width, y, color);
-   ili9341_draw_hor_line(x, x + width, y + height, color);
-   ili9341_draw_vert_line(x, y, y + height, color);
-   ili9341_draw_vert_line(x + width, y, y + height, color);
+   lcdDrawHLine(x, x + width, y, color);
+   lcdDrawHLine(x, x + width, y + height, color);
+   lcdDrawVLine(x, y, y + height, color);
+   lcdDrawVLine(x + width, y, y + height, color);
 }
 
 
 /* 8005898 - todo */
-void ili9341_draw_circle(int16_t a, int16_t b, uint16_t c, uint16_t color)
+void lcdFillCircle(int16_t a, int16_t b, uint16_t c, uint16_t color)
 {
-   ili9341_draw_vert_line(a, b - c, b + c, color);
-   sub_80058f0(a, b, c, 1|2, 0, color);
+   lcdDrawVLine(a, b - c, b + c, color);
+   lcdFillCircleHelper(a, b, c, 1|2, 0, color);
 }
 
 
 /* 80058f0 - todo */
-void sub_80058f0(int16_t r7_6, int16_t r7_4, int16_t r7_2, uint8_t r7_1, int16_t r7_28, uint16_t color)
+void lcdFillCircleHelper(int16_t r7_6, int16_t r7_4, int16_t r7_2, uint8_t r7_1, int16_t r7_28, uint16_t color)
 {
    int16_t r7_16 = 1 - r7_2;
    uint16_t r7_14 = 1;
@@ -283,49 +295,49 @@ void sub_80058f0(int16_t r7_6, int16_t r7_4, int16_t r7_2, uint8_t r7_1, int16_t
 
       if (r7_1 & 1) //right side
       {
-         ili9341_draw_vert_line(r7_6 + r7_10, r7_4 - r7_e, r7_4 + r7_e + r7_28, color);
-         ili9341_draw_vert_line(r7_6 + r7_e, r7_4 - r7_10, r7_4 + r7_10 + r7_28, color);
+         lcdDrawVLine(r7_6 + r7_10, r7_4 - r7_e, r7_4 + r7_e + r7_28, color);
+         lcdDrawVLine(r7_6 + r7_e, r7_4 - r7_10, r7_4 + r7_10 + r7_28, color);
       }
       //loc_80059ce
       if (r7_1 & 2) //left side
       {
-         ili9341_draw_vert_line(r7_6 - r7_10, r7_4 - r7_e, r7_4 + r7_e + r7_28, color);
-         ili9341_draw_vert_line(r7_6 - r7_e, r7_4 - r7_10, r7_4 + r7_10 + r7_28, color);
+         lcdDrawVLine(r7_6 - r7_10, r7_4 - r7_e, r7_4 + r7_e + r7_28, color);
+         lcdDrawVLine(r7_6 - r7_e, r7_4 - r7_10, r7_4 + r7_10 + r7_28, color);
       }
    }
 }
 
 
 /* 8005a34 - todo */
-void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color)
+void lcdFillRect(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color)
 {
    int16_t line;
 
-   if ((x >= ScreenResolution.width) ||
-		   (y >= ScreenResolution.height))
+   if ((x >= lcdProperties.width) ||
+		   (y >= lcdProperties.height))
    {
       return;
    }
 
-   if ((x - 1 + width) >= ScreenResolution.width)
+   if ((x - 1 + width) >= lcdProperties.width)
    {
-      width = ScreenResolution.width - x;
+      width = lcdProperties.width - x;
    }
 
-   if ((y - 1 + height) >= ScreenResolution.height)
+   if ((y - 1 + height) >= lcdProperties.height)
    {
-      height = ScreenResolution.height - y;
+      height = lcdProperties.height - y;
    }
 
    for (line = y; line <= (y + height); line++)
    {
-      ili9341_draw_hor_line(x, x + width, line, color);
+      lcdDrawHLine(x, x + width, line, color);
    }
 }
 
 
 /* 8005af0 - todo */
-void sub_8005af0(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, int16_t r7_48, int16_t r7_4c, uint16_t g/*r7_50*/)
+void lcdFillTriangle(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, int16_t r7_48, int16_t r7_4c, uint16_t g/*r7_50*/)
 {
    int16_t r7_36;
    int16_t r7_34;
@@ -402,7 +414,7 @@ void sub_8005af0(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, int16_t r
          r7_34 = r7_48;
       }
       //loc_8005bde
-      ili9341_draw_hor_line(r7_36, r7_34 + 1, r7_4, g);
+      lcdDrawHLine(r7_36, r7_34 + 1, r7_4, g);
       //->loc_8005d84
    }
    else
@@ -441,7 +453,7 @@ void sub_8005af0(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, int16_t r
             r7_34 = r7_c;
          }
          //loc_8005cb2
-         ili9341_draw_hor_line(r7_36, r7_34 + 1, r7_32, g);
+         lcdDrawHLine(r7_36, r7_34 + 1, r7_32, g);
       }
       //08005cdc
       r7_2c = (r7_32 - r7) * r7_12;
@@ -462,14 +474,14 @@ void sub_8005af0(int16_t r7_6, int16_t r7_4, int16_t r7_2, int16_t r7, int16_t r
             r7_34 = r7_e;
          }
          //loc_8005d5a
-         ili9341_draw_hor_line(r7_36, r7_34 + 1, r7_32, g);
+         lcdDrawHLine(r7_36, r7_34 + 1, r7_32, g);
       }
    }
 }
 
 
 /* 8005d8c - todo */
-void ili9341_draw_char(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
+void lcdDrawChar(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
 {
    uint8_t col;
    uint8_t row;
@@ -478,32 +490,32 @@ void ili9341_draw_char(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
    uint8_t bit;
    uint8_t num_bytes;
 
-   if ((x >= ScreenResolution.width) ||
-		   (y >= ScreenResolution.height) ||
-		   ((x + TextAttributes.pFont->Width) < 0) ||
-		   ((y + TextAttributes.pFont->Height) < 0))
+   if ((x >= lcdProperties.width) ||
+		   (y >= lcdProperties.height) ||
+		   ((x + lcdFont.pFont->Width) < 0) ||
+		   ((y + lcdFont.pFont->Height) < 0))
    {
 	   return;
    }
 
-   num_bytes = TextAttributes.pFont->Height / 8;
+   num_bytes = lcdFont.pFont->Height / 8;
    col = 0;
 
-   for (row = 0; row < TextAttributes.pFont->Height; row++)
+   for (row = 0; row < lcdFont.pFont->Height; row++)
    {
       for (bytes = 0; bytes < num_bytes; bytes++)
       {
-         pixels = TextAttributes.pFont->table[((c - ' ') * TextAttributes.pFont->Height + row) * num_bytes + bytes];
+         pixels = lcdFont.pFont->table[((c - ' ') * lcdFont.pFont->Height + row) * num_bytes + bytes];
 
          for (bit = 0; bit < 8; bit++)
          {
             if (pixels & (1 << 7))
             {
-               ili9341_draw_pixel(bit + x + col, row + y, fg);
+               lcdDrawPixel(bit + x + col, row + y, fg);
             }
             else if (bg != fg)
             {
-               ili9341_draw_pixel(bit + x + col, row + y, bg);
+               lcdDrawPixel(bit + x + col, row + y, bg);
             }
 
             pixels <<= 1;
@@ -518,7 +530,7 @@ void ili9341_draw_char(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg)
 
 
 /* 8005edc - todo */
-void ili9341_draw_format_string(const char * format, ...)
+void lcdPrintf(const char * format, ...)
 {
    va_list args;
    va_start(args, format);
@@ -528,31 +540,31 @@ void ili9341_draw_format_string(const char * format, ...)
    {
       if (*pch == 10)
       {
-         TextCursor.y += TextAttributes.pFont->Height;
-         TextCursor.x = 0;
+         cursorXY.y += lcdFont.pFont->Height;
+         cursorXY.x = 0;
       }
       else if (*pch != 13)
       {
          if (*pch == 9)
          {
-            TextCursor.x += TextAttributes.pFont->Width * 4;
+            cursorXY.x += lcdFont.pFont->Width * 4;
          }
          else
          {
-            ili9341_draw_char(TextCursor.x,
-            		TextCursor.y,
+            lcdDrawChar(cursorXY.x,
+            		cursorXY.y,
 					*pch,
-					TextAttributes.fg_color,
-					TextAttributes.bg_color);
+					lcdFont.TextColor,
+					lcdFont.BackColor);
 
-            TextCursor.x += TextAttributes.pFont->Width;
+            cursorXY.x += lcdFont.pFont->Width;
 
-            if (TextAttributes.bData_12 != 0)
+            if (lcdFont.TextWrap != 0)
             {
-            	if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->Width))
+            	if (cursorXY.x > (lcdProperties.width - lcdFont.pFont->Width))
             	{
-                   TextCursor.y += TextAttributes.pFont->Height;
-                   TextCursor.x = 0;
+                   cursorXY.y += lcdFont.pFont->Height;
+                   cursorXY.x = 0;
             	}
             }
          }
@@ -560,9 +572,9 @@ void ili9341_draw_format_string(const char * format, ...)
 
       pch++;
 
-      if (TextCursor.y >= ScreenResolution.height)
+      if (cursorXY.y >= lcdProperties.height)
       {
-         TextCursor.y = 0;
+         cursorXY.y = 0;
       }
    }
 }
@@ -577,79 +589,79 @@ void ili9341_draw_string(char* a, uint8_t len)
 
    while (i++ < len)
    {
-      ili9341_draw_char(
-    		  TextCursor.x,
-			  TextCursor.y,
+      lcdDrawChar(
+    		  cursorXY.x,
+			  cursorXY.y,
 			  r7_c[0],
-			  TextAttributes.fg_color,
-			  TextAttributes.bg_color);
+			  lcdFont.TextColor,
+			  lcdFont.BackColor);
 
-      TextCursor.x += TextAttributes.pFont->Width;
+      cursorXY.x += lcdFont.pFont->Width;
 
-      if (TextAttributes.bData_12 != 0)
+      if (lcdFont.TextWrap != 0)
       {
-         if (TextCursor.x > (ScreenResolution.width - TextAttributes.pFont->Width))
+         if (cursorXY.x > (lcdProperties.width - lcdFont.pFont->Width))
          {
-            TextCursor.y += TextAttributes.pFont->Height;
-            TextCursor.x = 0;
+            cursorXY.y += lcdFont.pFont->Height;
+            cursorXY.x = 0;
          }
       }
 
       r7_c++;
 
-      if (TextCursor.y >= ScreenResolution.height)
+      if (cursorXY.y >= lcdProperties.height)
       {
-         TextCursor.y = 0;
+         cursorXY.y = 0;
       }
    }
 }
 
 
 /* 80060ac - todo */
-void ili9341_set_font(sFONT* a)
+void lcdSetTextFont(sFONT* a)
 {
-   TextAttributes.pFont = a;
+   lcdFont.pFont = a;
 }
 
 
 /* 80060c8 - todo */
-void ili9341_set_text_color(uint16_t fg, uint16_t bg)
+void lcdSetTextColor(uint16_t fg, uint16_t bg)
 {
-   TextAttributes.fg_color = fg;
-   TextAttributes.bg_color = bg;
+   lcdFont.TextColor = fg;
+   lcdFont.BackColor = bg;
 }
 
 
 /* 80060f4 - todo */
-void ili9341_set_cursor(uint16_t x, uint16_t y)
+void lcdSetCursor(uint16_t x, uint16_t y)
 {
-   TextCursor.x = x;
-   TextCursor.y = y;
+   cursorXY.x = x;
+   cursorXY.y = y;
 
-   ili9341_set_address(x, y, x, y);
+   lcdSetWindow(x, y, x, y);
 }
 
 
 /* 8006128 - todo */
-void ili9341_set_address(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+void lcdSetWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-   ili9341_write_command(ILI9341_COLUMN_ADDRESS_SET);
+   lcdWriteCommand(ILI9341_COLUMN_ADDRESS_SET);
 
-   ili9341_write_data(x1 >> 8);
-   ili9341_write_data(x1 & 0xff);
+   lcdWriteData(x1 >> 8);
+   lcdWriteData(x1 & 0xff);
 
-   ili9341_write_data(x2 >> 8);
-   ili9341_write_data(x2 & 0xff);
+   lcdWriteData(x2 >> 8);
+   lcdWriteData(x2 & 0xff);
 
-   ili9341_write_command(ILI9341_PAGE_ADDRESS_SET);
+   lcdWriteCommand(ILI9341_PAGE_ADDRESS_SET);
 
-   ili9341_write_data(y1 >> 8);
-   ili9341_write_data(y1 & 0xff);
+   lcdWriteData(y1 >> 8);
+   lcdWriteData(y1 & 0xff);
 
-   ili9341_write_data(y2 >> 8);
-   ili9341_write_data(y2 & 0xff);
+   lcdWriteData(y2 >> 8);
+   lcdWriteData(y2 & 0xff);
 
-   ili9341_write_command(ILI9341_MEMORY_WRITE);
+   lcdWriteCommand(ILI9341_MEMORY_WRITE);
 }
 
 
@@ -666,28 +678,28 @@ void ili9341_setup_interface(void)
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
    main_delay(100);
 
-   ili9341_write_command(1);
+   lcdWriteCommand(1);
 
    HAL_Delay(50);
 }
 
 
 /* 8006214 - todo */
-void ili9341_write_command(uint8_t a)
+void lcdWriteCommand(uint8_t command)
 {
-   *((uint16_t*)(FSMC_BANK1)) = a;
+   LCD_CmdWrite(command);
 }
 
 
 /* 8006234 - todo */
-void ili9341_write_data(uint16_t a)
+void lcdWriteData(uint16_t data)
 {
-   *((uint16_t*)(FSMC_BANK1 + 0x20000)) = a;
+   LCD_DataWrite(data);
 }
 
 
 /* 8006254 - todo */
-uint8_t ili9341_get_madctl(uint8_t my, uint8_t mx, uint8_t mv, uint8_t ml, uint8_t bgr, uint8_t mh)
+uint8_t lcdBuildMemoryAccessControlConfig(uint8_t my, uint8_t mx, uint8_t mv, uint8_t ml, uint8_t bgr, uint8_t mh)
 {
    uint8_t madctl = 0;
 

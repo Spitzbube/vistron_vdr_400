@@ -1,6 +1,7 @@
 
 #include "main.h"
 
+
 //_sdata: 20000000 - 200000c8 -> 080193f8 - 80194C0
 
 #if 0
@@ -17,17 +18,17 @@ Func_20000000 Funcs_20000000[] = //20000000 (80193f8)
    sub_8005074
 };
 #endif
-Screen_Resolution ScreenResolution = //20000024 (801941C)
+lcdPropertiesTypeDef lcdProperties = //20000024 (801941C)
 {
    320, 240
 };
 //20000028 (8019420)
-Text_Attributes TextAttributes = //2000002c (8019424)
+lcdFontPropTypeDef lcdFont = //2000002c (8019424)
 {
-   0xffe0,
-   0,
+   COLOR_YELLOW,
+   COLOR_BLACK,
    &Data_2000003c, //0x2000003c,
-   1
+   1 //TextWrap
 };
 sFONT Data_2000003c = //2000003c (8019434)
 {
@@ -60,11 +61,12 @@ uint8_t bCurrentVolume = 31; //20000057 (801944F)
 //HAL_TickFreqTypeDef uwTickFreq; //20000060 (8019458)
 //_impure_ptr; //?? //20000064 (801945C)
 //impure_data; //?? //20000068 (8019460 -> 80194C0?)
-Struct_200000e4 TextCursor; //200000e4
-uint8_t g_bDisplayMemoryAccessCtrl1; //200000e8
-uint8_t g_bDisplayMemoryAccessCtrl2; //200000e9
-uint8_t g_bDisplayMemoryAccessCtrl3; //200000ea
-uint8_t g_bDisplayMemoryAccessCtrl4; //200000eb
+
+lcdCursorPosTypeDef cursorXY; //200000e4
+uint8_t lcdPortraitConfig; //200000e8
+uint8_t lcdLandscapeConfig; //200000e9
+uint8_t lcdPortraitMirrorConfig; //200000ea
+uint8_t lcdLandscapeMirrorConfig; //200000eb
 char Data_200000ec[256]; //200000ec, size?
 uint16_t wData_200001ec; //200001ec
 uint16_t wData_200001ee; //200001ee

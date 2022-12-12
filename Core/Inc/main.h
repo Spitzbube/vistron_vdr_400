@@ -32,35 +32,14 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "colors.h"
 #include "fonts.h"
+#include "ili9341.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
-
-typedef struct
-{
-   uint16_t width; //0
-   uint16_t height; //2
-
-} Screen_Resolution;
-
-typedef struct
-{
-   int fg_color; //0
-   int bg_color; //4
-   sFONT* pFont; //8;
-   uint8_t bData_12; //12
-
-} Text_Attributes;
-
-typedef struct
-{
-   uint16_t x; //0
-   uint16_t y; //2
-
-} Struct_200000e4;
 
 typedef struct
 {
@@ -161,8 +140,8 @@ typedef void (*Func_20000000)(uint16_t, uint16_t, int, uint16_t);
 extern const char* Data_8012cdc[]; //8012cdc
 
 extern Func_20000000 Funcs_20000000[]; //0x20000000
-extern Screen_Resolution ScreenResolution; //20000024 (801941C)
-extern Text_Attributes TextAttributes; //2000002c
+extern lcdPropertiesTypeDef lcdProperties; //20000024 (801941C)
+extern lcdFontPropTypeDef lcdFont; //2000002c
 extern sFONT Data_2000003c; //2000003c
 extern sFONT Data_20000044; //20000044
 extern sFONT Data_2000004c; //2000004c
@@ -173,11 +152,12 @@ extern uint8_t bCurrentVolume; //20000057 (801944F)
 extern uint32_t SystemCoreClock; //20000058
 extern uint32_t uwTickPrio; //2000005C
 extern HAL_TickFreqTypeDef uwTickFreq; //20000060
-extern Struct_200000e4 TextCursor; //200000e4
-extern uint8_t g_bDisplayMemoryAccessCtrl1; //200000e8
-extern uint8_t g_bDisplayMemoryAccessCtrl2; //200000e9
-extern uint8_t g_bDisplayMemoryAccessCtrl3; //200000ea
-extern uint8_t g_bDisplayMemoryAccessCtrl4; //200000eb
+
+extern lcdCursorPosTypeDef cursorXY; //200000e4
+extern uint8_t lcdPortraitConfig; //200000e8
+extern uint8_t lcdLandscapeConfig; //200000e9
+extern uint8_t lcdPortraitMirrorConfig; //200000ea
+extern uint8_t lcdLandscapeMirrorConfig; //200000eb
 extern char Data_200000ec[]; //200000ec
 extern uint16_t wData_200001ec; //200001ec
 extern uint16_t wData_200001ee; //200001ee
@@ -351,26 +331,28 @@ void sub_8004fc4(uint16_t, uint16_t, int, uint16_t);
 void sub_8005074(uint16_t, uint16_t, int, uint16_t);
 void sub_8005198(uint16_t a, uint16_t b, uint16_t c, uint8_t d);
 void menu_set_language(uint8_t a);
-void ili9341_init(void);
-void ili9341_fill_screen(uint16_t a);
-void ili9341_draw_vert_line(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
-void ili9341_draw_hor_line(uint16_t a, uint16_t b, uint16_t c, uint16_t e);
-void ili9341_draw_format_string(const char * format, ...);
+void lcdInit(void);
+void lcdFillRGB(uint16_t color);
+void lcdDrawPixel(uint16_t a, uint16_t b, uint16_t color);
+void lcdDrawHLine(uint16_t a, uint16_t b, uint16_t c, uint16_t color);
+void lcdDrawVLine(uint16_t x, uint16_t y1, uint16_t y2, uint16_t color);
+void lcdPrintf(const char * format, ...);
 void ili9341_draw_string(char* a, uint8_t len);
-void ili9341_draw_box(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
-void ili9341_draw_rect(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t color);
-void ili9341_draw_circle(int16_t a, int16_t b, uint16_t c, uint16_t d);
+void lcdFillRect(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
+void lcdDrawRect(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t color);
+void lcdFillCircle(int16_t a, int16_t b, uint16_t c, uint16_t d);
 void sub_800581e(int16_t a, int16_t b, int16_t c, int16_t d, uint16_t e);
-void sub_80058f0(int16_t a, int16_t b, int16_t c, uint8_t d, int16_t e, uint16_t color);
-void sub_8005af0(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, uint16_t g);
-void ili9341_set_font(sFONT* a);
-void ili9341_set_text_color(uint16_t fg, uint16_t bg);
-void ili9341_set_cursor(uint16_t x, uint16_t y);
-void ili9341_set_address(uint16_t a, uint16_t b, uint16_t c, uint16_t d);
+void lcdFillCircleHelper(int16_t a, int16_t b, int16_t c, uint8_t d, int16_t e, uint16_t color);
+void lcdFillTriangle(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, uint16_t g);
+void lcdDrawChar(int16_t x, int16_t y, char c, uint16_t fg, uint16_t bg);
+void lcdSetTextFont(sFONT* a);
+void lcdSetTextColor(uint16_t fg, uint16_t bg);
+void lcdSetCursor(uint16_t x, uint16_t y);
+void lcdSetWindow(uint16_t a, uint16_t b, uint16_t c, uint16_t d);
 void ili9341_setup_interface(void);
-void ili9341_write_command(uint8_t a);
-void ili9341_write_data(uint16_t a);
-uint8_t ili9341_get_madctl(uint8_t my, uint8_t mx, uint8_t mv, uint8_t ml, uint8_t bgr, uint8_t mh);
+void lcdWriteCommand(uint8_t a);
+void lcdWriteData(uint16_t a);
+uint8_t lcdBuildMemoryAccessControlConfig(uint8_t my, uint8_t mx, uint8_t mv, uint8_t ml, uint8_t bgr, uint8_t mh);
 void touch_poll(void);
 void touch_toggle_clk_line(uint8_t a);
 void touch_toggle_cs_line(uint8_t a);

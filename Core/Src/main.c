@@ -180,7 +180,7 @@ int main(void)
   MX_FSMC_Init();
   /* USER CODE BEGIN 2 */
   
-  ili9341_init();
+  lcdInit();
 
   touch_init();
   
