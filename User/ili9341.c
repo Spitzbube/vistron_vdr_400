@@ -671,11 +671,11 @@ void ili9341_setup_interface(void)
    ili9341_configure_gpio();
    ili9341_configure_fsmc();
 
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(ILI9341_Reset_GPIO_Port, ILI9341_Reset_Pin, GPIO_PIN_SET);
    main_delay(100);
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+   HAL_GPIO_WritePin(ILI9341_Reset_GPIO_Port, ILI9341_Reset_Pin, GPIO_PIN_RESET);
    main_delay(300);
-   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(ILI9341_Reset_GPIO_Port, ILI9341_Reset_Pin, GPIO_PIN_SET);
    main_delay(100);
 
    lcdWriteCommand(1);
@@ -764,7 +764,7 @@ void ili9341_configure_gpio(void)
    GPIO_InitStruct.Pull = GPIO_PULLUP;
    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-   GPIO_InitStruct.Pin = GPIO_PIN_1;
+   GPIO_InitStruct.Pin = ILI9341_Reset_Pin;
    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
    GPIO_InitStruct.Pull = GPIO_PULLUP;

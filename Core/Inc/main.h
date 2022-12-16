@@ -400,7 +400,7 @@ int menu_volume_change(void);
 int sub_80088cc(void);
 
 int si46xx_set_volume(uint8_t a);
-int si46xx_mute(uint8_t a);
+int si46xx_mute(uint8_t bMute);
 int si46xx_start_dab(uint8_t a);
 int si46xx_start_fm(uint8_t a);
 int si46xx_send_command(uint16_t numTxBytes, uint16_t b, uint16_t c);
@@ -466,8 +466,14 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 /* Private defines -----------------------------------------------------------*/
 #define SI46xx_Interrupt_Pin GPIO_PIN_0
 #define SI46xx_Interrupt_GPIO_Port GPIOC
+#define ILI9341_Reset_Pin GPIO_PIN_1
+#define ILI9341_Reset_GPIO_Port GPIOC
 #define SI46xx_Reset_Pin GPIO_PIN_2
 #define SI46xx_Reset_GPIO_Port GPIOC
+#define Amp_Mute_Pin GPIO_PIN_3
+#define Amp_Mute_GPIO_Port GPIOC
+#define Amp_Shutdown_Pin GPIO_PIN_1
+#define Amp_Shutdown_GPIO_Port GPIOA
 #define Button_Blue_Pin GPIO_PIN_4
 #define Button_Blue_GPIO_Port GPIOA
 #define Display_Backlight_Pin GPIO_PIN_5

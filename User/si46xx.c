@@ -159,22 +159,22 @@ int si46xx_set_volume(uint8_t a)
 
 
 /* 8008ac4 - todo */
-int si46xx_mute(uint8_t a)
+int si46xx_mute(uint8_t bMute)
 {
    if (0 != si46xx_set_property(SI46XX_AUDIO_MUTE,
-               (a == 0)? 0/*Do not mute audio outputs*/:
+               (bMute == 0)? 0/*Do not mute audio outputs*/:
                          3/*Mute both Left and Right Audio Out*/))
    {
       return 1;
    }
 
-   if (a != 0)
+   if (bMute != 0)
    {
-      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(Amp_Mute_GPIO_Port, Amp_Mute_Pin, GPIO_PIN_SET);
    }
    else
    {
-      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(Amp_Mute_GPIO_Port, Amp_Mute_Pin, GPIO_PIN_RESET);
    }
 
    return 0;
@@ -430,7 +430,7 @@ int si46xx_start_dab(uint8_t a)
 {
    si46xx_mute(1);
 
-   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+   HAL_GPIO_WritePin(Amp_Shutdown_GPIO_Port, Amp_Shutdown_Pin, GPIO_PIN_RESET);
 
    if (0 != si46xx_load_and_boot(1))
    {
@@ -454,7 +454,7 @@ int si46xx_start_dab(uint8_t a)
 
    wMainloopEvents |= MAIN_LOOP_EVENT_DAB_ACTIVE;
 
-   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(Amp_Shutdown_GPIO_Port, Amp_Shutdown_Pin, GPIO_PIN_SET);
 
    si46xx_mute(0);
 
@@ -1160,7 +1160,7 @@ int si46xx_start_fm(uint8_t a)
 {
    si46xx_mute(1);
 
-   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+   HAL_GPIO_WritePin(Amp_Shutdown_GPIO_Port, Amp_Shutdown_Pin, GPIO_PIN_RESET);
 
    if (0 != si46xx_load_and_boot(0))
    {
@@ -1182,7 +1182,7 @@ int si46xx_start_fm(uint8_t a)
       return 1;
    }
 
-   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(Amp_Shutdown_GPIO_Port, Amp_Shutdown_Pin, GPIO_PIN_SET);
 
    si46xx_mute(0);
 
@@ -2294,7 +2294,8 @@ void channel_stop_playing(void)
 
    si46xx_mute(1);
 
-   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+   HAL_GPIO_WritePin(Amp_Shutdown_GPIO_Port, Amp_Shutdown_Pin, GPIO_PIN_RESET);
+
    HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_RESET);
    main_delay(10);
    HAL_GPIO_WritePin(SI46xx_Reset_GPIO_Port, SI46xx_Reset_Pin, GPIO_PIN_SET);

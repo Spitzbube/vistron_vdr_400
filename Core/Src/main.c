@@ -952,10 +952,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1|SI46xx_Reset_Pin|GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, ILI9341_Reset_Pin|SI46xx_Reset_Pin|Amp_Mute_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(Amp_Shutdown_GPIO_Port, Amp_Shutdown_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, Display_Backlight_Pin|Touch_SPI_MOSI_Pin, GPIO_PIN_RESET);
@@ -978,19 +978,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(SI46xx_Interrupt_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PC1 SI46xx_Reset_Pin PC3 PC4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|SI46xx_Reset_Pin|GPIO_PIN_3|GPIO_PIN_4;
+  /*Configure GPIO pins : ILI9341_Reset_Pin SI46xx_Reset_Pin Amp_Mute_Pin PC4 */
+  GPIO_InitStruct.Pin = ILI9341_Reset_Pin|SI46xx_Reset_Pin|Amp_Mute_Pin|GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  /*Configure GPIO pin : Amp_Shutdown_Pin */
+  GPIO_InitStruct.Pin = Amp_Shutdown_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(Amp_Shutdown_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Button_Blue_Pin */
   GPIO_InitStruct.Pin = Button_Blue_Pin;
