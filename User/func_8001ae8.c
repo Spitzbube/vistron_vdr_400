@@ -85,7 +85,7 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
    return 0;
 }
 
-
+#if 0
 uint8_t main_screen_convert_ir_code(uint8_t cmd)
 {
 	switch (cmd)
@@ -98,6 +98,25 @@ uint8_t main_screen_convert_ir_code(uint8_t cmd)
 	return 0;
 }
 
+#else
+
+uint8_t main_screen_convert_rc5_code(uint8_t cmd)
+{
+	switch (cmd)
+	{
+	case 12: return 14; //On-Off
+	case 16: return 4; //right
+	case 17: return 1; //left
+	case 32: return 2; //up
+	case 33: return 3; //down
+	case 82: return 21; //MENU
+	default: break;
+	}
+
+	return 0;
+}
+
+#endif
 
 /* 8001ae8 - todo */
 void draw_foreground_clock(RTC_TimeTypeDef a)

@@ -43,6 +43,16 @@ extern "C" {
 
 typedef struct
 {
+   uint8_t rc_code; //0
+   uint8_t bData_1; //1
+   uint8_t bData_2; //2
+   uint8_t bData_3; //3
+
+} RC5_Data;
+
+
+typedef struct
+{
    int a;
    int b;
 
@@ -138,8 +148,9 @@ typedef struct
 
 typedef void (*Draw_Icon)(uint16_t, uint16_t, int, uint16_t);
 
-
 extern const char* Data_8012cdc[]; //8012cdc
+
+extern RC5_Data rc5Data;
 
 extern Draw_Icon g_arIcons[]; //0x20000000
 extern lcdPropertiesTypeDef lcdProperties; //20000024 (801941C)
@@ -210,6 +221,7 @@ extern Tuner_Channel* Data_200023e0; //200023e0
 extern RTC_HandleTypeDef hrtc; //200023e4
 extern TIM_HandleTypeDef htim6; //200023f8
 extern UART_HandleTypeDef huart2; //20002438
+extern TIM_HandleTypeDef htim2;
 
 /* USER CODE END ET */
 
@@ -282,6 +294,8 @@ extern UART_HandleTypeDef huart2; //20002438
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+
+void ir_rc5_init(RC5_Data*);
 
 int sub_8001224(char* a);
 void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t f, Tuner_Values* g, uint16_t h);

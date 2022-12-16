@@ -49,6 +49,7 @@ RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim6;
 
@@ -70,6 +71,7 @@ static void MX_TIM5_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_FSMC_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -178,13 +180,18 @@ int main(void)
   MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_FSMC_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   
   lcdInit();
 
   touch_init();
 
+#if 0
   ir_init();
+#else
+  ir_rc5_init(&rc5Data);
+#endif
 
   HAL_TIM_Base_Start_IT(&htim5);
   
@@ -393,11 +400,20 @@ int main(void)
          }
 
          bMainIrCode = 0;
+#if 0
          if (IrEvent.bData_0 == 0)
          {
             bMainIrCode = main_screen_convert_ir_code(IrEvent.bData_1);
             IrEvent.bData_0 = 1;
          }
+#else
+         ir_rc5_get_data(&rc5Data);
+         if (rc5Data.rc_code != 0xff)
+         {
+             bMainIrCode = main_screen_convert_rc5_code(rc5Data.rc_code);
+         }
+#endif
+
          //loc_800cda0
          if ((bMainTouchCode | bMainKeyCode | bMainIrCode))
          {
@@ -550,8 +566,11 @@ int main(void)
 	  else
 	  {
          //loc_800d154
+         ir_rc5_get_data(&rc5Data);
+
          if ((TouchEvent.bData_0 == 0) ||
-        		 (KeyEvent.bData_0 == 0))
+        		 (KeyEvent.bData_0 == 0) ||
+				 (rc5Data.rc_code == 12))
          {
             //loc_800d164
             standbyCounter = 10800;
@@ -823,6 +842,51 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 65535;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
   * @brief TIM5 Initialization Function
   * @param None
   * @retval None
@@ -1055,7 +1119,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : IR_RX_Pin */
   GPIO_InitStruct.Pin = IR_RX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(IR_RX_GPIO_Port, &GPIO_InitStruct);
 
@@ -1066,7 +1130,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(Touch_SPI_IRQ_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
 }
