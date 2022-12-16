@@ -172,6 +172,7 @@ extern uint8_t g_bGroup0AFlags; //200009fc
 extern uint8_t g_bGroup0ABuffer[]; //20000a00
 extern uint8_t g_bGroup2ABuffer[]; //20000a08
 
+extern Struct_20000a48 IrEvent;
 extern Struct_20000a48 KeyEvent; //20000a48
 extern Alarm_Time currentAlarmTime; //20000a4c
 extern User_Settings UserSettings; //20000a50
@@ -182,6 +183,7 @@ extern uint8_t bCurrentChannelNumber; //20000a58
 extern uint8_t bData_20000a59; //20000a59
 extern int8_t Data_20000a5a; //20000a5a
 extern Tuner_Values Data_20000a5c; //20000a5c
+extern uint8_t bMainIrCode;
 extern uint8_t bMainTouchCode; //20000a6c
 extern uint8_t bMainKeyCode; //20000a6d
 extern RTC_TimeTypeDef rtcTime; //20000a70
@@ -486,6 +488,9 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 #define SPI2_CS_SI46xx_GPIO_Port GPIOB
 #define Touch_SPI_CLK_Pin GPIO_PIN_12
 #define Touch_SPI_CLK_GPIO_Port GPIOD
+#define IR_RX_Pin GPIO_PIN_3
+#define IR_RX_GPIO_Port GPIOD
+#define IR_RX_EXTI_IRQn EXTI3_IRQn
 #define Touch_SPI_IRQ_Pin GPIO_PIN_6
 #define Touch_SPI_IRQ_GPIO_Port GPIOB
 #define Touch_SPI_CS_Pin GPIO_PIN_7

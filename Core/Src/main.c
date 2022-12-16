@@ -183,7 +183,9 @@ int main(void)
   lcdInit();
 
   touch_init();
-  
+
+  ir_init();
+
   HAL_TIM_Base_Start_IT(&htim5);
   
   sub_800b270();
@@ -389,13 +391,20 @@ int main(void)
          {
             bMainTouchCode = main_screen_check_touch_fields(TouchEvent.wData_2, TouchEvent.wData_4);
          }
+
+         bMainIrCode = 0;
+         if (IrEvent.bData_0 == 0)
+         {
+            bMainIrCode = main_screen_convert_ir_code(IrEvent.bData_1);
+            IrEvent.bData_0 = 1;
+         }
          //loc_800cda0
-         if ((bMainTouchCode | bMainKeyCode))
+         if ((bMainTouchCode | bMainKeyCode | bMainIrCode))
          {
             //800cdb2
             standbyCounter = 10800;
 
-            switch (bMainTouchCode | bMainKeyCode)
+            switch (bMainTouchCode | bMainKeyCode | bMainIrCode)
             {
             case 2:
                //800ce78 - green
@@ -1044,11 +1053,21 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(Touch_SPI_CLK_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : IR_RX_Pin */
+  GPIO_InitStruct.Pin = IR_RX_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(IR_RX_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : Touch_SPI_IRQ_Pin */
   GPIO_InitStruct.Pin = Touch_SPI_IRQ_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Touch_SPI_IRQ_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
 }
 

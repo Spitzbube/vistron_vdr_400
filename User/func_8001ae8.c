@@ -86,6 +86,19 @@ uint8_t main_screen_check_touch_fields(uint16_t a, uint16_t b)
 }
 
 
+uint8_t main_screen_convert_ir_code(uint8_t cmd)
+{
+	switch (cmd)
+	{
+	case 0xa8: return 3;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+
 /* 8001ae8 - todo */
 void draw_foreground_clock(RTC_TimeTypeDef a)
 {

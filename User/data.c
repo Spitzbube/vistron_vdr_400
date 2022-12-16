@@ -65,6 +65,7 @@ uint8_t g_bGroup0AFlags; //200009fc
 uint8_t g_bGroup0ABuffer[8]; //20000a00
 uint8_t g_bGroup2ABuffer[64]; //20000a08
 
+Struct_20000a48 IrEvent;
 Struct_20000a48 KeyEvent; //20000a48
 Alarm_Time currentAlarmTime; //20000a4c
 User_Settings UserSettings; //20000a50
@@ -75,6 +76,7 @@ uint8_t bCurrentChannelNumber; //20000a58
 uint8_t bData_20000a59; //20000a59
 int8_t Data_20000a5a; //20000a5a
 Tuner_Values Data_20000a5c; //20000a5c
+uint8_t bMainIrCode;
 uint8_t bMainTouchCode; //20000a6c
 uint8_t bMainKeyCode; //20000a6d
 RTC_TimeTypeDef rtcTime; //20000a70
