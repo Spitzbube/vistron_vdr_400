@@ -17,8 +17,9 @@ int menu_channel_list(void)
    uint8_t itemSelected = 0;
    uint8_t itemIndex = 0;
    uint8_t oldItem = 0;
-   uint8_t r7_12;
-   uint8_t r7_11;
+   uint8_t keyCode;
+   uint8_t touchCode;
+   uint8_t irCode;
 
    sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
 
@@ -28,22 +29,29 @@ int menu_channel_list(void)
    while (r7_16 != 0)
    {
       //loc_8006d7e
-      r7_12 = 0;
+      keyCode = 0;
       if (KeyEvent.bData_0 == 0)
       {
-         r7_12 = KeyEvent.bData_1;
+         keyCode = KeyEvent.bData_1;
          KeyEvent.bData_0 = 1;
       }
       //loc_8006d96
-      r7_11 = 0;
+      touchCode = 0;
       if (TouchEvent.bData_0 == 0)
       {
-         r7_11 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
+         touchCode = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
       }
-      //loc_8006db6
-      if ((r7_11 | r7_12) != 0)
+
+      irCode = 0;
+      ir_rc5_get_data(&rc5Data);
+      if (rc5Data.Command != 0xff)
       {
-         switch (r7_11 | r7_12)
+          irCode = menu_list_convert_rc5_code(rc5Data.Command);
+      }
+
+      if ((touchCode | keyCode | irCode) != 0)
+      {
+         switch (touchCode | keyCode | irCode)
          {
             case 3:
                //0x08006e41

@@ -43,10 +43,10 @@ extern "C" {
 
 typedef struct
 {
-   uint8_t rc_code; //0
+   uint8_t Command; //0
    uint8_t bData_1; //1
    uint8_t bData_2; //2
-   uint8_t bData_3; //3
+   uint8_t ToggleBit; //3
 
 } RC5_Data;
 
@@ -296,6 +296,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 
 void ir_rc5_init(RC5_Data*);
+void ir_rc5_get_data(RC5_Data*);
 
 int sub_8001224(char* a);
 void draw_main_screen(RTC_TimeTypeDef r7_c, void* r7_8, uint8_t r7_7, void* r7, uint8_t r7_18, uint8_t f, Tuner_Values* g, uint16_t h);
@@ -324,6 +325,8 @@ void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus);
 void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 uint8_t sub_8002e98(uint16_t a, uint16_t b);
+uint8_t menu_list_convert_rc5_code(uint8_t);
+
 void draw_screen_caption(uint16_t textId, sFONT* font);
 void draw_signal_information_screen(Tuner_Channel* a, uint8_t b, Tuner_Values* c);
 void draw_signal_level_line(Tuner_Values* a);

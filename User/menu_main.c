@@ -18,8 +18,9 @@ void menu_main(void)
    uint8_t itemSelected = 0;
    uint8_t itemIndex = 0;
    uint8_t oldItem = 0;
-   uint8_t r7_1b;
-   uint8_t r7_1a;
+   uint8_t keyCode;
+   uint8_t touchCode;
+   uint8_t irCode;
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -29,22 +30,29 @@ void menu_main(void)
    while (r7_1f != 0)
    {
       //loc_8006b7a
-      r7_1b = 0;
+      keyCode = 0;
       if (KeyEvent.bData_0 == 0)
       {
-         r7_1b = KeyEvent.bData_1;
+         keyCode = KeyEvent.bData_1;
          KeyEvent.bData_0 = 1;
       }
       //loc_8006b92
-      r7_1a = 0;
+      touchCode = 0;
       if (TouchEvent.bData_0 == 0)
       {
-         r7_1a = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
+         touchCode = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
       }
-      //loc_8006bb2
-      if ((r7_1a | r7_1b) != 0)
+
+      irCode = 0;
+      ir_rc5_get_data(&rc5Data);
+      if (rc5Data.Command != 0xff)
       {
-         switch (r7_1a | r7_1b)
+          irCode = menu_list_convert_rc5_code(rc5Data.Command);
+      }
+
+      if ((touchCode | keyCode | irCode) != 0)
+      {
+         switch (touchCode | keyCode | irCode)
          {
             case 3:
                //0x08006c45: blue

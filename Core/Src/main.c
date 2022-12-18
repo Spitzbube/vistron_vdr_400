@@ -136,6 +136,14 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2)
 }
 
 
+int _write(int file, char *ptr, int len)
+{
+   HAL_UART_Transmit(&huart2, (uint8_t*) ptr, len, HAL_MAX_DELAY);
+
+   return len;
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -408,9 +416,9 @@ int main(void)
          }
 #else
          ir_rc5_get_data(&rc5Data);
-         if (rc5Data.rc_code != 0xff)
+         if (rc5Data.Command != 0xff)
          {
-             bMainIrCode = main_screen_convert_rc5_code(rc5Data.rc_code);
+             bMainIrCode = main_screen_convert_rc5_code(rc5Data.Command);
          }
 #endif
 
@@ -570,7 +578,7 @@ int main(void)
 
          if ((TouchEvent.bData_0 == 0) ||
         		 (KeyEvent.bData_0 == 0) ||
-				 (rc5Data.rc_code == 12))
+				 (rc5Data.Command == 12))
          {
             //loc_800d164
             standbyCounter = 10800;

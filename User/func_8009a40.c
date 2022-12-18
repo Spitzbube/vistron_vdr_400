@@ -192,6 +192,21 @@ uint8_t sub_8002e98(uint16_t a, uint16_t b)
 }
 
 
+uint8_t menu_list_convert_rc5_code(uint8_t rc5Code)
+{
+	switch (rc5Code)
+	{
+		case 45: return 5; //EXIT
+		case 87: return 4; //OK
+		case 32: return 2; //up
+		case 33: return 3; //down
+		default: break;
+	}
+
+	return 0;
+}
+
+
 /* 8003038 - todo */
 void draw_screen_caption(uint16_t textId, sFONT* font)
 {
