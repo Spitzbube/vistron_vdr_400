@@ -94,3 +94,6 @@ Tuner_Channel ChannelList[200]; //20000cc8 +5600
 uint8_t bChannelCount; //200022a8
 Tuner_Channel* Data_200023e0; //200023e0
 
+#ifdef USB_DEVICE
+uint8_t g_bUsbRunning;
+#endif

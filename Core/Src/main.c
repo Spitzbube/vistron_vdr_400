@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -178,6 +179,7 @@ int main(void)
   MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_FSMC_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   
   lcdInit();
@@ -217,6 +219,25 @@ int main(void)
       //loc_800c9c4
 	  if ((wMainloopEvents & MAIN_LOOP_EVENT_FOREGROUND) != 0)
 	  {
+#ifdef USB_DEVICE
+         if ((0 == g_bUsbRunning) && (0 == HAL_GPIO_ReadPin(USB_Detect_GPIO_Port, USB_Detect_Pin)))
+         {
+            GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+            HAL_GPIO_DeInit(USB_Detect_GPIO_Port, USB_Detect_Pin);
+
+            GPIO_InitStruct.Pin = USB_Detect_Pin;
+            GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+            GPIO_InitStruct.Pull = GPIO_NOPULL;
+            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+            HAL_GPIO_Init(USB_Detect_GPIO_Port, &GPIO_InitStruct);
+
+            g_bUsbRunning = 1;
+
+            HAL_GPIO_WritePin(USB_Detect_GPIO_Port, USB_Detect_Pin, GPIO_PIN_SET);
+         }
+#endif
+
          if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
          {
             wMainloopEvents &= ~MAIN_LOOP_EVENT_RTC;
@@ -670,8 +691,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USB;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV128;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -1005,11 +1027,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Display_Backlight_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Touch_SPI_MISO_Pin */
-  GPIO_InitStruct.Pin = Touch_SPI_MISO_Pin;
+  /*Configure GPIO pins : Touch_SPI_MISO_Pin USB_Detect_Pin */
+  GPIO_InitStruct.Pin = Touch_SPI_MISO_Pin|USB_Detect_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Touch_SPI_MISO_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Touch_SPI_MOSI_Pin */
   GPIO_InitStruct.Pin = Touch_SPI_MOSI_Pin;

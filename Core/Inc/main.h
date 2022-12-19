@@ -209,6 +209,11 @@ extern RTC_HandleTypeDef hrtc; //200023e4
 extern TIM_HandleTypeDef htim6; //200023f8
 extern UART_HandleTypeDef huart2; //20002438
 
+#ifdef USB_DEVICE
+extern uint8_t g_bUsbRunning;
+#endif
+
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -492,6 +497,8 @@ uint16_t sub_800c88c(uint8_t r7_4[], uint16_t r7_2);
 #define SPI2_CS_SI46xx_GPIO_Port GPIOB
 #define Touch_SPI_CLK_Pin GPIO_PIN_12
 #define Touch_SPI_CLK_GPIO_Port GPIOD
+#define USB_Detect_Pin GPIO_PIN_10
+#define USB_Detect_GPIO_Port GPIOA
 #define Touch_SPI_IRQ_Pin GPIO_PIN_6
 #define Touch_SPI_IRQ_GPIO_Port GPIOB
 #define Touch_SPI_CS_Pin GPIO_PIN_7
