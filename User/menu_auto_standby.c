@@ -13,7 +13,7 @@ int menu_auto_standby(void)
    uint8_t r7_2;
    uint8_t r7_1;
 
-   sub_8002d70(TEXT_ID_AUTO_STANDBY, 37, 2, r7_4);
+   draw_menu_page(TEXT_ID_AUTO_STANDBY, 37, 2, r7_4);
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -103,7 +103,7 @@ int menu_auto_standby(void)
       if (r7_4 != r7_3)
       {
          r7_3 = r7_4;
-         sub_8002d70(TEXT_ID_AUTO_STANDBY, 37, 2, r7_4);
+         draw_menu_page(TEXT_ID_AUTO_STANDBY, 37, 2, r7_4);
       }
       //loc_8008528
       if (r7_5 != 0)

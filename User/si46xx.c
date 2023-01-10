@@ -48,99 +48,6 @@ extern const uint8_t si46xx_image_data[]; //8018af4
 #define SI46XX_DIGITAL_SERVICE_INT_SOURCE    0x8100
 
 
-/* 8008670 - todo */
-int sub_8008670(void)
-{
-   uint8_t r7_7 = 1;
-   uint8_t r7_6 = UserSettings.b2;
-   uint8_t r7_5 = UserSettings.b2;
-   uint8_t r7_4;
-   uint8_t r7_3;
-   uint8_t r7_2 = UserSettings.b2;
-
-   TouchEvent.bData_0 = 1;
-   KeyEvent.bData_0 = 1;
-
-   sub_8002e0c(28, 34, 2, r7_6);
-
-   while (r7_7 != 0)
-   {
-	  //loc_80086b8
-	  r7_4 = 0;
-	  if (KeyEvent.bData_0 == 0)
-	  {
-		 r7_4 = KeyEvent.bData_1;
-		 KeyEvent.bData_0 = 1;
-	  }
-	  //loc_80086d0
-	  r7_3 = 0;
-	  if (TouchEvent.bData_0 == 0)
-	  {
-		 r7_3 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
-	  }
-	  //loc_80086f0
-	  if ((r7_3 | r7_4) != 0)
-	  {
-		 switch (r7_3 | r7_4)
-		 {
-			case 2:
-			   //0x08008775
-			   r7_6++;
-			   if (r7_6 == 2) r7_6 = 0;
-			   break;
-
-			case 3:
-			   //0x08008787
-			   r7_6--;
-			   if (r7_6 == 0xff) r7_6 = 1;
-			   break;
-
-			case 4:
-			   //0x08008799
-			   r7_3 = r7_6 + 25;
-//        	   break;
-
-			case 25:
-			case 26:
-			   //0x0800879f
-			   if (r7_2 != (r7_3 - 25))
-			   {
-				  UserSettings.b2 = r7_3 - 25;
-
-				  menu_set_language(UserSettings.b2);
-			   }
-			   //80087CE
-			   r7_7 = 0;
-			   break;
-
-			default:
-			   //loc_80087d4
-			   break;
-		 }
-		 //loc_80087de
-		 TouchEvent.bData_0 = 1;
-		 KeyEvent.bData_0 = 1;
-	  }
-	  //loc_80087ea
-	  if (r7_6 != r7_5)
-	  {
-		 UserSettings.b2 = r7_6;
-
-		 menu_set_language(UserSettings.b2);
-
-		 draw_screen_caption(28, &Data_2000004c);
-
-		 r7_5 = r7_6;
-
-		 sub_8002cac(34, 2, r7_6);
-	  }
-	  //loc_800882c
-   }
-
-   return 0;
-}
-
-
 /* 8008a88 - todo */
 int si46xx_set_volume(uint8_t a)
 {
@@ -892,11 +799,11 @@ int si46xx_fm_get_rds_data(void* pStationName, uint8_t* pRadioText, RTC_TimeType
                if (pStationName != NULL)
                {
                   addr = (si46xx_buffer[14] << 1) & 0x06;
-                  if ((addr == 0) || ((*pwMainloopEvents & 0x40) != 0))
+                  if ((addr == 0) || ((*pwMainloopEvents & MAIN_LOOP_EVENT_RDS_RESET) != 0))
                   {
                      //loc_800946a
                      g_bGroup0AFlags = 0;
-                     *pwMainloopEvents &= ~0x40;
+                     *pwMainloopEvents &= ~MAIN_LOOP_EVENT_RDS_RESET;
                   }
                   //loc_800947e
                   if (((si46xx_buffer[11]) & 0x03) < 3)
@@ -1059,7 +966,7 @@ int si46xx_fm_get_rds_data(void* pStationName, uint8_t* pRadioText, RTC_TimeType
                HAL_RTC_SetTime(&hrtc, pTime, RTC_FORMAT_BIN);
                HAL_RTC_SetDate(&hrtc, pDate, RTC_FORMAT_BIN);
 
-               *pwMainloopEvents |= 0x80;
+               *pwMainloopEvents |= MAIN_LOOP_EVENT_BACKGROUND_TIME;
                resultMask |= 0x08;
                break;
 
@@ -2106,12 +2013,12 @@ int sub_800a9a8(void)
 
    if (0 == bChannelCount)
    {
-      sub_8008670();
+      menu_initial_language();
       menu_automatic_search();
 
       if (0 != bChannelCount)
       {
-         wMainloopEvents |= 2;
+         wMainloopEvents |= MAIN_LOOP_EVENT_NEW_CHANNEL;
       }
       else
       {
@@ -2128,7 +2035,7 @@ int sub_800a9a8(void)
 
    menu_set_language(UserSettings.b2);
 
-   bData_20000a59 = 0;
+   bOldChannelNumber = 0;
    bCurrentChannelNumber = 0;
 
    return res;
@@ -2143,11 +2050,11 @@ void volume_up(void)
       bCurrentVolume++;
    }
 
-   if ((wMainloopEvents & 0x20) != 0)
+   if ((wMainloopEvents & MAIN_LOOP_EVENT_MUTE) != 0)
    {
       si46xx_mute(0);
 
-      wMainloopEvents &= ~0x20;
+      wMainloopEvents &= ~MAIN_LOOP_EVENT_MUTE;
    }
 
    si46xx_set_volume(bCurrentVolume);
@@ -2161,20 +2068,20 @@ void volume_down(void)
    {
 	  bCurrentVolume--;
 
-      if ((wMainloopEvents & 0x20) != 0)
+      if ((wMainloopEvents & MAIN_LOOP_EVENT_MUTE) != 0)
       {
          si46xx_mute(0);
 
-         wMainloopEvents &= ~0x20;
+         wMainloopEvents &= ~MAIN_LOOP_EVENT_MUTE;
       }
    }
    else
    {
-      if ((wMainloopEvents & 0x20) == 0)
+      if ((wMainloopEvents & MAIN_LOOP_EVENT_MUTE) == 0)
       {
          si46xx_mute(1);
 
-         wMainloopEvents |= 0x20;
+         wMainloopEvents |= MAIN_LOOP_EVENT_MUTE;
       }
    }
 
@@ -2201,7 +2108,7 @@ void channel_set(Tuner_Channel* a)
 
       if (0 == si46xx_dab_start_digital_service(a))
       {
-         wMainloopEvents &= ~2;
+         wMainloopEvents &= ~MAIN_LOOP_EVENT_NEW_CHANNEL;
       }
    }
    else
@@ -2213,11 +2120,11 @@ void channel_set(Tuner_Channel* a)
 
       if (0 == si46xx_fm_tune_freq(a->frequency))
       {
-         wMainloopEvents &= ~2;
+         wMainloopEvents &= ~MAIN_LOOP_EVENT_NEW_CHANNEL;
       }
    }
 
-   wMainloopEvents |= 0x40;
+   wMainloopEvents |= MAIN_LOOP_EVENT_RDS_RESET;
 }
 
 
@@ -2228,7 +2135,7 @@ void channel_next(void)
 
    if (r7_7 != 0)
    {
-      bData_20000a59 = bCurrentChannelNumber;
+      bOldChannelNumber = bCurrentChannelNumber;
       if (bCurrentChannelNumber < (r7_7 - 1))
       {
    	     bCurrentChannelNumber++;
@@ -2238,7 +2145,7 @@ void channel_next(void)
          bCurrentChannelNumber = 0;
       }
 
-      wMainloopEvents |= 0x02;
+      wMainloopEvents |= MAIN_LOOP_EVENT_NEW_CHANNEL;
    }
 }
 
@@ -2250,7 +2157,7 @@ void channel_previous(void)
 
    if (r7_7 != 0)
    {
-      bData_20000a59 = bCurrentChannelNumber;
+      bOldChannelNumber = bCurrentChannelNumber;
       if (bCurrentChannelNumber != 0)
       {
    	     bCurrentChannelNumber--;
@@ -2260,7 +2167,7 @@ void channel_previous(void)
          bCurrentChannelNumber = r7_7 - 1;
       }
 
-      wMainloopEvents |= 0x02;
+      wMainloopEvents |= MAIN_LOOP_EVENT_NEW_CHANNEL;
    }
 }
 

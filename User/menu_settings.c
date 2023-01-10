@@ -20,7 +20,7 @@ int menu_settings(void)
    uint8_t r7_12;
    uint8_t r7_11;
 
-   sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
+   draw_menu_page(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -108,7 +108,7 @@ int menu_settings(void)
          else
          {
             //loc_80070c0
-            sub_8002d70(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
+            draw_menu_page(TEXT_ID_SETTINGS, TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
 
             TouchEvent.bData_0 = 1;
             KeyEvent.bData_0 = 1;
@@ -119,7 +119,7 @@ int menu_settings(void)
 	  {
          oldItem = itemIndex;
 
-         sub_8002cac(TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
+         draw_menu_list(TEXT_ID_SETTINGS_FIRST, TEXT_ID_SETTINGS_ITEMS, itemIndex);
 	  }
 	  //loc_80070f0
    }

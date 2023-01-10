@@ -127,7 +127,7 @@ void draw_foreground_clock(RTC_TimeTypeDef a)
    len = sprintf(buf, "%02d:%02d:%02d", a.Hours, a.Minutes, a.Seconds);
 
    lcdSetTextFont(&Data_2000004c);
-   lcdSetTextColor(0, COLOR_WHITE);
+   lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
 
    lcdSetCursor(160 - (len * Data_2000004c.Width) / 2, 93);
    ili9341_draw_string(buf, len);
@@ -172,7 +172,7 @@ void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t
    lcdDrawRect(r7_6, r7_4, 50, 36, COLOR_BLACK);
    lcdSetCursor(r7_6 - r7_17 * Data_20000044.Width / 2 + 25, r7_4 - Data_20000044.Height / 2 + 20);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, color);
+   lcdSetTextColor(COLOR_BLACK, color);
    ili9341_draw_string(r7_c, r7_17);
 }
 
@@ -261,7 +261,7 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
    uint8_t r7_f = 0;
 
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, COLOR_WHITE);
+   lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
    lcdFillRect(0, 120, 320, 71, COLOR_WHITE);
 
    r7_18 = r7_4;
@@ -319,13 +319,13 @@ void draw_radio_text(void* r7_4, uint8_t r7_3)
 
 
 /* 8002054 - todo */
-void sub_8002054(Tuner_Channel* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18)
+void draw_channel_select_page(Tuner_Channel arChannel[], uint8_t bCurrent, uint8_t bTotal, void* r7_4, uint8_t bVolume)
 {
    lcdFillRGB(COLOR_WHITE);
    lcdDrawHLine(0, 320, 48, COLOR_BLACK);
    lcdDrawHLine(0, 320, 192, COLOR_BLACK);
 
-   sub_80023d0(r7_c, r7_b, r7_a);
+   draw_channel_select_list(arChannel, bCurrent, bTotal);
 
    draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
    draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
@@ -338,15 +338,15 @@ void sub_8002054(Tuner_Channel* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, ui
    draw_36x36(167, 196, COLOR_YELLOW, 6);
    draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
 
-   draw_scroll_bar(r7_b, r7_a);
+   draw_scroll_bar(bCurrent, bTotal);
 
    draw_signal_strength_bars(142, 42, r7_4);
 
    draw_snr_indicator(222, 7, r7_4, 1);
 
-   draw_volume_bar(r7_18);
+   draw_volume_bar(bVolume);
 
-   draw_channel_freq_mux_label(r7_c, r7_b);
+   draw_channel_freq_mux_label(arChannel, bCurrent);
 }
 
 
@@ -439,39 +439,39 @@ int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b)
 
 
 /* 80023d0 - todo */
-void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
+void draw_channel_select_list(Tuner_Channel arChannel[], uint8_t bCurrent, uint8_t bTotal)
 {
-   uint8_t r7_f;
-   uint8_t r7_e = (r7_3 < 2)? 0: r7_3 - 2;
-   uint8_t r7_d = (r7_2 > 4)? 5: r7_2 + 1;
+   uint8_t i;
+   uint8_t bFirst = (bCurrent < 2)? 0: bCurrent - 2;
+   uint8_t bLast = (bTotal > 4)? 5: bTotal + 1;
    uint8_t r7_c;
    uint8_t r7_b;
 
    lcdFillRect(0, 72, 295, 119, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
 
-   for (r7_f = 0; (r7_f < r7_d) && ((r7_e + r7_f ) < r7_2); r7_f++)
+   for (i = 0; (i < bLast) && ((bFirst + i ) < bTotal); i++)
    {
       //loc_800241c
-      if ((r7_e + r7_f) == r7_3)
+      if ((bFirst + i) == bCurrent)
       {
          lcdSetTextColor(COLOR_WHITE, COLOR_BLACK);
       }
       else
       {
          //loc_8002434
-         lcdSetTextColor(0, COLOR_WHITE);
+         lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
       }
       //loc_800243e
-      lcdSetCursor(0, r7_f * 24 + 72);
-      lcdPrintf("%u", r7_e + r7_f + 1);
+      lcdSetCursor(0, i * 24 + 72);
+      lcdPrintf("%u", bFirst + i + 1);
 
-      r7_c = sub_800c88c(&r7_4[r7_e + r7_f].Data_8, 16);
+      r7_c = sub_800c88c(&arChannel[bFirst + i].Data_8, 16);
 
-      lcdSetCursor(Data_20000044.Width * 4, r7_f * 24 + 72);
+      lcdSetCursor(Data_20000044.Width * 4, i * 24 + 72);
 
-      if (( ((uint8_t*)&r7_4[r7_e + r7_f].Data_8)[0] == 0) ||
-    		  ( ((uint32_t*)&r7_4[r7_e + r7_f].Data_8)[0] == 0xffffffff))
+      if (( ((uint8_t*)&arChannel[bFirst + i].Data_8)[0] == 0) ||
+    		  ( ((uint32_t*)&arChannel[bFirst + i].Data_8)[0] == 0xffffffff))
       {
          //loc_80024ea
          ili9341_draw_string("DAB Sender", 10);
@@ -480,26 +480,26 @@ void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
       else
       {
          //loc_80024f4
-         ili9341_draw_string(&r7_4[r7_e + r7_f].Data_8, r7_c);
+         ili9341_draw_string(&arChannel[bFirst + i].Data_8, r7_c);
       }
-      //loc_8002516
-      if ((r7_4[r7_e + r7_f].frequency < 42) && (r7_4[r7_e + r7_f].service_id != 0))
+      //loc_8002516: Draw DAB or FM
+      if ((arChannel[bFirst + i].frequency < 42) && (arChannel[bFirst + i].service_id != 0))
       {
-         lcdSetCursor(Data_20000044.Width * 21, r7_f * 24 + 72);
+         lcdSetCursor(Data_20000044.Width * 21, i * 24 + 72);
          lcdPrintf(Data_8012cdc[0]);
          //->loc_80025bc
       }
       else
       {
          //loc_8002586
-         lcdSetCursor(Data_20000044.Width * 21, r7_f * 24 + 72);
+         lcdSetCursor(Data_20000044.Width * 21, i * 24 + 72);
          lcdPrintf(Data_8012cdc[1]);
       }
-      //loc_80025bc
-      r7_b = sub_800b4ec(&r7_4[r7_e + r7_f]);
+      //loc_80025bc: Draw favourite number
+      r7_b = sub_800b4ec(&arChannel[bFirst + i]);
       if (r7_b != 0xff)
       {
-         lcdSetCursor(Data_20000044.Width * 25, r7_f * 24 + 72);
+         lcdSetCursor(Data_20000044.Width * 25, i * 24 + 72);
          lcdPrintf("F%1u", r7_b + 1);
       }
       //loc_800261e
@@ -522,35 +522,35 @@ void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6)
 
 
 /* 80027b8 - todo */
-void draw_channel_freq_mux_label(Tuner_Channel* r7_4, uint8_t r7_3)
+void draw_channel_freq_mux_label(Tuner_Channel* arChannel, uint8_t r7_3)
 {
    lcdFillRect(0, 24, Data_20000044.Width * 11, 23, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, COLOR_WHITE);
+   lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
    lcdSetCursor(0, 24);
 
-   if ((r7_4[r7_3].frequency < 42) && (r7_4[r7_3].service_id != 0))
+   if ((arChannel[r7_3].frequency < 42) && (arChannel[r7_3].service_id != 0))
    {
-      lcdPrintf(" MUX:%s", Data_8012cdc[r7_4[r7_3].frequency + 10]);
+      lcdPrintf(" MUX:%s", Data_8012cdc[arChannel[r7_3].frequency + 10]);
    }
    else
    {
-      lcdPrintf(" %3u.%02uMHz", r7_4[r7_3].frequency / 100, r7_4[r7_3].frequency % 100);
+      lcdPrintf(" %3u.%02uMHz", arChannel[r7_3].frequency / 100, arChannel[r7_3].frequency % 100);
    }
 }
 
 
 /* 80028b8 - todo */
-void sub_80028b8(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2)
+void draw_updated_channel_select_list(Tuner_Channel* arChannel, uint8_t bCurrent, uint8_t bTotal)
 {
-   sub_80023d0(r7_4, r7_3, r7_2);
-   draw_scroll_bar(r7_3, r7_2);
-   draw_channel_freq_mux_label(r7_4, r7_3);
+   draw_channel_select_list(arChannel, bCurrent, bTotal);
+   draw_scroll_bar(bCurrent, bTotal);
+   draw_channel_freq_mux_label(arChannel, bCurrent);
 }
 
 
 /* 80028f2 - todo */
-void draw_automatic_search_screen(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
+void draw_automatic_search_screen(Tuner_Channel* arChannel, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18)
 {
    lcdFillRGB(COLOR_WHITE);
    lcdDrawHLine(0, 320, 48, COLOR_BLACK);
@@ -560,7 +560,7 @@ void draw_automatic_search_screen(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_
 
    if (r7_2 != 0)
    {
-      draw_channel_list(r7_4, r7_2);
+      draw_channel_list(arChannel, r7_2);
       draw_signal_strength_bars(142, 42, r7_14);
    }
    //loc_800295e
@@ -587,7 +587,7 @@ void draw_progress_bar(uint16_t x, uint16_t y, uint16_t currentValue, uint16_t m
 
 
 /* 8002a60 - todo */
-void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3)
+void draw_channel_list(Tuner_Channel arChannel[], uint8_t r7_3)
 {
    uint8_t r7_f;
    uint8_t r7_e = (r7_3 < 6)? 0: r7_3 - 5;
@@ -595,7 +595,7 @@ void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3)
 
    lcdFillRect(0, 72, 295, 119, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, COLOR_WHITE);
+   lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
 
    for (r7_f = 0; (r7_e + r7_f) < r7_3; r7_f++)
    {
@@ -603,12 +603,12 @@ void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3)
       lcdSetCursor(0, r7_f * 24 + 72);
       lcdPrintf("%u", r7_e + r7_f + 1);
 
-      r7_d = sub_800c88c(&r7_4[r7_e + r7_f].Data_8, 16);
+      r7_d = sub_800c88c(&arChannel[r7_e + r7_f].Data_8, 16);
 
       lcdSetCursor(Data_20000044.Width * 4, r7_f * 24 + 72);
-      ili9341_draw_string(&r7_4[r7_e + r7_f].Data_8, r7_d);
+      ili9341_draw_string(&arChannel[r7_e + r7_f].Data_8, r7_d);
 
-      if ((r7_4[r7_e + r7_f].frequency < 41) && (r7_4[r7_e + r7_f].service_id != 0))
+      if ((arChannel[r7_e + r7_f].frequency < 41) && (arChannel[r7_e + r7_f].service_id != 0))
       {
          lcdSetCursor(Data_20000044.Width * 21, r7_f * 24 + 72);
          lcdPrintf("DAB");
@@ -684,7 +684,7 @@ void draw_freq_mux_label(uint16_t r7_6)
 {
    lcdFillRect(0, 24, Data_20000044.Width * 10, 23, COLOR_WHITE);
    lcdSetTextFont(&Data_20000044);
-   lcdSetTextColor(0, COLOR_WHITE);
+   lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
    lcdSetCursor(0, 24);
 
    if (r7_6 > 41)
@@ -699,13 +699,13 @@ void draw_freq_mux_label(uint16_t r7_6)
 
 
 /* 8002e0c - todo */
-void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
+void draw_initial_menu_page(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
 {
    lcdFillRGB(COLOR_WHITE);
    lcdDrawHLine(0, 320, 48, COLOR_BLACK);
    lcdDrawHLine(0, 320, 192, COLOR_BLACK);
-   draw_screen_caption(r7_6, &Data_2000004c);
-   sub_8002cac(r7_4, r7_3, r7_2);
+   draw_screen_caption(textId, &Data_2000004c);
+   draw_menu_list(r7_4, r7_3, r7_2);
    draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
    draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
    draw_36x36(167, 196, COLOR_YELLOW, 6);

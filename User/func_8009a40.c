@@ -85,7 +85,7 @@ void draw_channel_name(void* a)
 
 
 /* 8002cac - todo */
-void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus)
+void draw_menu_list(uint16_t firstTextId, uint8_t lines, uint8_t focus)
 {
    uint8_t i;
    uint8_t r7_e = (focus > 5)? focus - 2: 0;
@@ -114,13 +114,13 @@ void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus)
 
 
 /* 8002d70 - todo */
-void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
+void draw_menu_page(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2)
 {
    lcdFillRGB(COLOR_WHITE);
    lcdDrawHLine(0, 320, 48, COLOR_BLACK);
    lcdDrawHLine(0, 320, 192, COLOR_BLACK);
    draw_screen_caption(textId, &Data_2000004c);
-   sub_8002cac(r7_4, r7_3, r7_2);
+   draw_menu_list(r7_4, r7_3, r7_2);
    draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
    draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
    draw_36x36(167, 196, COLOR_YELLOW, 6);
@@ -221,6 +221,180 @@ void draw_screen_caption(uint16_t textId, sFONT* font)
 }
 
 
+/* 80030bc - todo */
+void sub_80030bc(Tuner_Channel r7_4[], uint8_t r7_3, uint8_t r7_2, uint8_t r7_1, Tuner_Values* r7_10)
+{
+	lcdFillRGB(COLOR_WHITE);
+	lcdDrawHLine(0, 320, 48, COLOR_BLACK);
+	lcdDrawHLine(0, 320, 192, COLOR_BLACK);
+	sub_80034fc(r7_10);
+	sub_8003158(r7_2);
+	draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+	draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
+	draw_36x36(167, 196, COLOR_YELLOW, 6);
+	draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
+
+	if (r7_1 != 0)
+	{
+		draw_channel_list(r7_4, r7_3);
+	}
+	//loc_8003150
+}
+
+
+/* 8003158 - todo */
+void sub_8003158(uint8_t r7_7)
+{
+	lcdFillRect(0, 24, Data_20000044.Width * 8, 23, COLOR_WHITE);
+    lcdSetTextFont(&Data_20000044);
+	lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
+	lcdSetCursor(0, 24);
+	lcdPrintf("TODO: %d", Data_8012cdc[10 + r7_7]); //TODO!
+
+}
+
+
+/* 80031bc - todo */
+uint8_t sub_80031bc(uint16_t a, uint16_t b)
+{
+   if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(8, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+	  return 3;
+   }
+
+   if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(61, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
+	  return 2;
+   }
+
+   if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(167, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(167, 196, COLOR_YELLOW, 6);
+	  return 4;
+   }
+
+   if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(273, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
+	  return 5;
+   }
+
+   return 0;
+}
+
+
+/* 80032e4 - todo */
+void sub_80032e4(Tuner_Channel r7_4[], uint8_t r7_3, uint16_t r7, uint8_t r7_2, uint8_t r7_10, Tuner_Values* r7_14)
+{
+	lcdFillRGB(COLOR_WHITE);
+	lcdDrawHLine(0, 320, 48, COLOR_BLACK);
+	lcdDrawHLine(0, 320, 192, COLOR_BLACK);
+	sub_80034fc(r7_14);
+	sub_8003524(r7, r7_2, r7_10);
+	draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+	draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
+	draw_36x36(114, 196, COLOR_RED, ICON_LEFT);
+	draw_36x36(167, 196, COLOR_YELLOW, 6);
+	draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
+
+	if (r7_10 == 2)
+	{
+		draw_channel_list(r7_4, r7_3);
+	}
+	//loc_800338a
+
+}
+
+
+/* 8003392 - todo */
+uint8_t sub_8003392(uint16_t a, uint16_t b)
+{
+   if ((a > 7) && (a < 45) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(8, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+	  return 3;
+   }
+
+   if ((a > 60) && (a < 98) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(61, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
+	  return 2;
+   }
+
+   if ((a > 113) && (a < 151) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(114, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(114, 196, COLOR_RED, ICON_LEFT);
+	  return 1;
+   }
+
+   if ((a > 166) && (a < 204) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(167, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(167, 196, COLOR_YELLOW, 6);
+	  return 4;
+   }
+
+   if ((a > 272) && (a < 311) && (b > 195) && (b < 233))
+   {
+	  lcdFillRect(273, 196, 36, 36, COLOR_GRAY_200);
+	  main_delay(100);
+	  draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
+	  return 5;
+   }
+
+   return 0;
+}
+
+
+/* 80034fc - todo */
+void sub_80034fc(Tuner_Values* a)
+{
+	draw_signal_strength_bars(142, 42, a);
+	draw_snr_indicator(222, 7, a, 1);
+}
+
+
+/* 8003524 - todo */
+void sub_8003524(uint16_t r7_6, uint8_t r7_5, uint8_t r7_4)
+{
+	lcdFillRect(0, 24, Data_20000044.Width * 11, 23, COLOR_WHITE);
+    lcdSetTextFont(&Data_20000044);
+	lcdSetTextColor(COLOR_BLACK, COLOR_WHITE);
+
+	if (r7_4 < 2)
+	{
+		if (r7_5 < 3)
+		{
+			r7_5--;
+		}
+		//loc_800357a
+		lcdSetCursor((6 - r7_5) * Data_20000044.Width, 26);
+		lcdPrintf("TODO: 801250c"); //TODO!
+	}
+	//loc_800359a
+	lcdSetCursor(0, 24);
+	lcdPrintf("TODO: %d %d", r7_6 / 100, r7_6 % 100); //TODO!
+
+}
+
+
 /* 80039b0 - todo */
 void draw_signal_information_screen(Tuner_Channel* r7_c, uint8_t r7_b, Tuner_Values* r7_4)
 {
@@ -276,10 +450,10 @@ void draw_signal_information_screen(Tuner_Channel* r7_c, uint8_t r7_b, Tuner_Val
       draw_signal_multipath_line(r7_4);
    }
    //loc_8003b5e
-   draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN); //blue touch area, 1 = black arrow down
-   draw_36x36(61, 196, COLOR_GREEN, ICON_UP); //x+53 green touch area, 0 = black arrow up
-   draw_36x36(114, 196, COLOR_RED, ICON_LEFT); //red touch area, 2 = black arrow left
-   draw_36x36(167, 196, COLOR_YELLOW, ICON_RIGHT); //yellow touch area, 3 = black arrow right
+   draw_36x36(8, 196, COLOR_BLUE, ICON_DOWN);
+   draw_36x36(61, 196, COLOR_GREEN, ICON_UP);
+   draw_36x36(114, 196, COLOR_RED, ICON_LEFT);
+   draw_36x36(167, 196, COLOR_YELLOW, ICON_RIGHT);
    draw_36x36(273, 196, COLOR_WHITE, ICON_BACK);
 }
 
@@ -660,7 +834,7 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time*
    lcdDrawHLine(0, 320, 48, COLOR_WHITE);
    lcdDrawHLine(0, 320, 192, COLOR_WHITE);
    draw_background_clock(r7_c);
-   sub_800465c(r7_8);
+   draw_background_date(r7_8);
 
    if (r7_3 != 0)
    {
@@ -670,7 +844,7 @@ void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time*
 
 
 /* 800465c - todo */
-void sub_800465c(RTC_DateTypeDef a)
+void draw_background_date(RTC_DateTypeDef a)
 {
    char buf[10];
    uint8_t len = 0;
@@ -864,13 +1038,13 @@ void draw_36x36(uint16_t x, uint16_t y, uint16_t color, uint8_t r7_1)
 
 
 /* 8007414 - todo */
-int sub_8007414(void)
+int menu_manual_search(void)
 {
    typedef int (*funcs)(void);
    funcs r7[] = //8012c80
    {
-	  sub_80078c4, //
-	  sub_8007b48, //
+	  menu_manual_search_dab,
+	  menu_manual_search_fm,
    };
 
    uint8_t r7_9;
@@ -885,7 +1059,7 @@ int sub_8007414(void)
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
 
-   sub_8002d70(24, 26, 2, r7_c);
+   draw_menu_page(TEXT_ID_MANUAL_SEARCH, TEXT_ID_MANUAL_SEARCH_FIRST, TEXT_ID_MANUAL_SEARCH_ITEMS, r7_c);
 
    //->loc_80075c6
    while (r7_e != 0)
@@ -908,9 +1082,11 @@ int sub_8007414(void)
 	   {
 		   switch (r7_9 | r7_a)
 		   {
-		   default:
-			   //loc_8007554
-			   break;
+			   //TODO
+
+			   default:
+				   //loc_8007554
+				   break;
 		   }
 		   //loc_800755e
 		   TouchEvent.bData_0 = 1;
@@ -931,7 +1107,7 @@ int sub_8007414(void)
 	       else
 	       {
 	    	   //loc_80075a2
-	    	   sub_8002d70(24, 26, 2, r7_c);
+	    	   draw_menu_page(TEXT_ID_MANUAL_SEARCH, TEXT_ID_MANUAL_SEARCH_FIRST, TEXT_ID_MANUAL_SEARCH_ITEMS, r7_c);
 	       }
 	   }
 	   //loc_80075ae
@@ -939,7 +1115,7 @@ int sub_8007414(void)
 	   {
 		   r7_b = r7_c;
 
-		   sub_8002cac(26, 2, r7_c);
+		   draw_menu_list(TEXT_ID_MANUAL_SEARCH_FIRST, TEXT_ID_MANUAL_SEARCH_ITEMS, r7_c);
 	   }
 	   //loc_80075c6
    }
@@ -949,23 +1125,400 @@ int sub_8007414(void)
 
 
 /* 80075e9 - todo */
-int sub_80075e9(void)
+int menu_channel_delete(void)
 {
 
 }
 
 
 /* 80078c4 - todo */
-int sub_80078c4(void)
+int menu_manual_search_dab(void)
 {
+	uint8_t r7_17 = 1;
+	uint8_t r7_16 = 0;
+	uint8_t r7_15 = 0;
+	Tuner_Values r7 = {0};
+	uint8_t r7_14 = 0;
+	uint8_t r7_13 = 0;
+	uint8_t r7_12;
+	uint8_t r7_11;
 
+	TouchEvent.bData_0 = 1;
+	KeyEvent.bData_0 = 1;
+
+	if ((wMainloopEvents & MAIN_LOOP_EVENT_DAB_ACTIVE) == 0)
+	{
+		si46xx_start_dab(bCurrentVolume);
+	}
+	//loc_800790c
+	if (0 == si46xx_dab_tune_freq(r7_14))
+	{
+		if (0 == si46xx_get_dab_values(&r7))
+		{
+			sub_80034fc(&r7);
+		}
+		//loc_8007930
+	}
+	//loc_8007930
+	sub_80030bc(ChannelList, bChannelCount, r7_14, r7_15, &r7);
+	//loc_8007ae6
+	while (r7_17 != 0)
+	{
+		//loc_8007946
+		r7_12 = 0;
+		if (KeyEvent.bData_0 == 0)
+		{
+			r7_12 = KeyEvent.bData_1;
+			KeyEvent.bData_0 = 0;
+		}
+		//loc_800795e
+		r7_11 = 0;
+		if (TouchEvent.bData_0 == 0)
+		{
+			r7_11 = sub_80031bc(TouchEvent.wData_2, TouchEvent.wData_4);
+		}
+		//loc_800797e
+		if (r7_11 | r7_12)
+		{
+			switch (r7_11 | r7_12)
+			{
+				//TODO
+
+				default:
+					break;
+			}
+			//loc_8007a82
+			TouchEvent.bData_0 = 1;
+			KeyEvent.bData_0 = 1;
+		}
+		//loc_8007a90
+		if (wMainloopEvents & MAIN_LOOP_EVENT_RTC)
+		{
+			wMainloopEvents &= ~MAIN_LOOP_EVENT_RTC;
+
+			if (0 == si46xx_get_dab_values(&r7))
+			{
+				sub_80034fc(&r7);
+			}
+		}
+		//loc_8007ac0
+		if (r7_14 != r7_13)
+		{
+			r7_13 = r7_14;
+
+			sub_8003158(r7_14);
+
+			if (r7_15 != 0)
+			{
+				draw_channel_list(ChannelList, bChannelCount);
+			}
+		}
+		//loc_8007ae6
+	} //while (r7_17 != 0)
+	//08007aee
+	if (r7_16 != 0)
+	{
+		persist_write(ChannelList, FavouriteList, &currentAlarmTime, &UserSettings);
+		//-loc_8007b0a
+	}
+	else
+	{
+		//loc_8007b02
+		sub_800b2ac(&currentAlarmTime, &UserSettings);
+	}
+	//loc_8007b0a
+	wMainloopEvents |= 0x02;
+
+	return r7_16;
 }
 
 
 /* 8007b48 - todo */
-int sub_8007b48(void)
+int menu_manual_search_fm(void)
 {
+	uint8_t r7_2f = 1;
+	uint8_t r7_2e = 0;
+	uint8_t r7_2d = 0;
+	uint8_t r7_2c;
+	uint8_t r7_2b;
+	uint8_t r7_2a;
+	uint8_t r7_29;
+	uint16_t r7_26 = 8750;
+	Tuner_Values r7_14 = {0};
 
+	r7_29 = 0;
+	r7_2c = 0;
+	uint8_t r7_7 = 4;
+	uint16_t r7_4 = 1000;
+
+	TouchEvent.bData_0 = 1;
+	KeyEvent.bData_0 = 1;
+
+	sub_8007f3c(&r7_7, &r7_26, &r7_4);
+
+	if (wMainloopEvents & MAIN_LOOP_EVENT_DAB_ACTIVE)
+	{
+		si46xx_start_fm(bCurrentVolume);
+	}
+	//loc_8007bba
+	if (0 == si46xx_fm_tune_freq(r7_26))
+	{
+		if (0 == si46xx_get_fm_values(&r7_14))
+		{
+			sub_80034fc(&r7_14);
+		}
+	}
+	//loc_8007be2
+	sub_80032e4(ChannelList, bChannelCount, r7_26, r7_7, r7_2d, &r7_14);
+	//-loc_8007eda
+	while (r7_2f != 0)
+	{
+		//loc_8007c00
+		r7_2b = 0;
+		if (KeyEvent.bData_0 == 0)
+		{
+			r7_2b = KeyEvent.bData_1;
+			KeyEvent.bData_0 = 0;
+		}
+		//loc_8007c1c
+		r7_2a = 0;
+		if (TouchEvent.bData_0 == 0)
+		{
+			r7_2a = sub_8003392(TouchEvent.wData_2, TouchEvent.wData_4);
+		}
+		//loc_8007c40
+		if (r7_2a | r7_2b)
+		{
+			switch (r7_2a | r7_2b)
+			{
+
+				//TODO
+
+				default:
+					break;
+			}
+			//loc_8007e5c
+			TouchEvent.bData_0 = 1;
+			KeyEvent.bData_0 = 1;
+			r7_2c = 0xff;
+		}
+		//loc_8007e70
+		if ((wMainloopEvents & MAIN_LOOP_EVENT_RTC) != 0)
+		{
+			wMainloopEvents &= ~MAIN_LOOP_EVENT_RTC;
+
+			if (0 == si46xx_get_fm_values(&r7_14))
+			{
+				sub_80034fc(&r7_14);
+			}
+			//loc_8007ea4
+		}
+		//loc_8007ea4
+		if (r7_29 != r7_2c)
+		{
+			r7_2c = r7_29;
+
+			sub_8003524(r7_26, r7_7, r7_2d);
+
+			if (r7_2d == 2)
+			{
+				draw_channel_list(ChannelList, bChannelCount);
+			}
+			//loc_8007eda
+		}
+		//loc_8007eda
+	} //while (r7_2f != 0)
+	//08007ee4
+	if (r7_2e != 0)
+	{
+		persist_write(ChannelList, FavouriteList, &currentAlarmTime, &UserSettings);
+		//-loc_8007f02
+	}
+	else
+	{
+		//loc_8007efa
+		sub_800b2ac(&currentAlarmTime, &UserSettings);
+	}
+	//loc_8007f02
+	wMainloopEvents |= 0x02;
+
+	return r7_2e;
+}
+
+
+/* 8007f3c - todo */
+void sub_8007f3c(uint8_t* r7_c, uint16_t* r7_8, uint16_t* r7_4)
+{
+	if (*r7_8 < 8750)
+	{
+		*r7_8 = 8750;
+	}
+	//loc_8007f5c
+	if (*r7_8 > 10790)
+	{
+		*r7_8 = 10790;
+	}
+	//loc_8007f70
+	switch (*r7_c)
+	{
+		case 0:
+			*r7_4 = 5;
+			//-8008026
+			break;
+
+		case 1:
+			*r7_4 = 10;
+			//-8008026
+			break;
+
+		case 2:
+			*r7_4 = 100;
+			//-8008026
+			break;
+
+		case 3:
+			if (*r7_4 == 1000)
+			{
+				//8007fb6
+				if (*r7_8 < 9000)
+				{
+					//8007fc2
+					*r7_8 = 8750;
+					//-8008026
+				}
+				//8007FCC
+				else if (*r7_8 < 10000)
+				{
+					//8007fd8
+					*r7_8 = 9000;
+					//-8008026
+				}
+				//8007FE2
+				else if (*r7_8 < 10790)
+				{
+					//8007fee
+					*r7_8 = 10000;
+					//-8008026
+				}
+				else
+				{
+					//8007FF8
+					*r7_8 = 10790;
+					//-8008026
+				}
+			}
+			else
+			{
+				//8008002
+				*r7_4 = 1000;
+			}
+			break;
+
+		case 4:
+			//TODO
+			break;
+
+		default:
+			//loc_800800c
+			*r7_c = 3;
+			*r7_8 = 8750;
+			*r7_4 = 1000;
+			break;
+	}
+	//loc_8008026
+}
+
+
+/* 8008670 - todo */
+int menu_initial_language(void)
+{
+   uint8_t r7_7 = 1;
+   uint8_t r7_6 = UserSettings.b2;
+   uint8_t r7_5 = UserSettings.b2;
+   uint8_t r7_4;
+   uint8_t r7_3;
+   uint8_t r7_2 = UserSettings.b2;
+
+   TouchEvent.bData_0 = 1;
+   KeyEvent.bData_0 = 1;
+
+   draw_initial_menu_page(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, r7_6);
+
+   while (r7_7 != 0)
+   {
+	  //loc_80086b8
+	  r7_4 = 0;
+	  if (KeyEvent.bData_0 == 0)
+	  {
+		 r7_4 = KeyEvent.bData_1;
+		 KeyEvent.bData_0 = 1;
+	  }
+	  //loc_80086d0
+	  r7_3 = 0;
+	  if (TouchEvent.bData_0 == 0)
+	  {
+		 r7_3 = sub_8002e98(TouchEvent.wData_2, TouchEvent.wData_4);
+	  }
+	  //loc_80086f0
+	  if ((r7_3 | r7_4) != 0)
+	  {
+		 switch (r7_3 | r7_4)
+		 {
+			case 2:
+			   //0x08008775
+			   r7_6++;
+			   if (r7_6 == 2) r7_6 = 0;
+			   break;
+
+			case 3:
+			   //0x08008787
+			   r7_6--;
+			   if (r7_6 == 0xff) r7_6 = 1;
+			   break;
+
+			case 4:
+			   //0x08008799
+			   r7_3 = r7_6 + 25;
+//        	   break;
+
+			case 25:
+			case 26:
+			   //0x0800879f
+			   if (r7_2 != (r7_3 - 25))
+			   {
+				  UserSettings.b2 = r7_3 - 25;
+
+				  menu_set_language(UserSettings.b2);
+			   }
+			   //80087CE
+			   r7_7 = 0;
+			   break;
+
+			default:
+			   //loc_80087d4
+			   break;
+		 }
+		 //loc_80087de
+		 TouchEvent.bData_0 = 1;
+		 KeyEvent.bData_0 = 1;
+	  }
+	  //loc_80087ea
+	  if (r7_6 != r7_5)
+	  {
+		 UserSettings.b2 = r7_6;
+
+		 menu_set_language(UserSettings.b2);
+
+		 draw_screen_caption(TEXT_ID_LANGUAGE, &Data_2000004c);
+
+		 r7_5 = r7_6;
+
+		 draw_menu_list(TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, r7_6);
+	  }
+	  //loc_800882c
+   }
+
+   return 0;
 }
 
 

@@ -73,7 +73,7 @@ uint8_t bBackgroundSearchRetry; //20000a54
 uint8_t bBackgroundChannelNr; //20000a55
 uint16_t wMainloopEvents; //20000a56
 uint8_t bCurrentChannelNumber; //20000a58
-uint8_t bData_20000a59; //20000a59
+uint8_t bOldChannelNumber; //20000a59
 int8_t Data_20000a5a; //20000a5a
 Tuner_Values Data_20000a5c; //20000a5c
 uint8_t bMainIrCode;

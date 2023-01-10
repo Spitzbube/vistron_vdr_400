@@ -191,7 +191,7 @@ extern uint8_t bBackgroundSearchRetry; //20000a54
 extern uint8_t bBackgroundChannelNr; //20000a55
 extern uint16_t wMainloopEvents; //20000a56
 extern uint8_t bCurrentChannelNumber; //20000a58
-extern uint8_t bData_20000a59; //20000a59
+extern uint8_t bOldChannelNumber; //20000a59
 extern int8_t Data_20000a5a; //20000a5a
 extern Tuner_Values Data_20000a5c; //20000a5c
 extern uint8_t bMainIrCode;
@@ -239,9 +239,12 @@ extern TIM_HandleTypeDef htim2;
 #define ICON_BACK							7
 
 #define MAIN_LOOP_EVENT_DAB_ACTIVE          (1 << 0)
+#define MAIN_LOOP_EVENT_NEW_CHANNEL         (1 << 1)
 #define MAIN_LOOP_EVENT_FAV_ACTIVE          (1 << 2)
 #define MAIN_LOOP_EVENT_ALARM               (1 << 3)
 #define MAIN_LOOP_EVENT_RTC                 (1 << 4)
+#define MAIN_LOOP_EVENT_MUTE                (1 << 5)
+#define MAIN_LOOP_EVENT_RDS_RESET           (1 << 6)
 #define MAIN_LOOP_EVENT_BACKGROUND_TIME     (1 << 7)
 #define MAIN_LOOP_EVENT_FOREGROUND          (1 << 8)
 #define MAIN_LOOP_EVENT_SLEEP_TIMER         (1 << 9)
@@ -255,6 +258,9 @@ extern TIM_HandleTypeDef htim2;
 #define TEXT_ID_ALARM                       21
 #define TEXT_ID_INFORMATION                 22
 #define TEXT_ID_AUTOMATIC_SEARCH            23
+#define TEXT_ID_MANUAL_SEARCH               24
+#define TEXT_ID_MANUAL_SEARCH_DAB           26
+#define TEXT_ID_MANUAL_SEARCH_FM            27
 #define TEXT_ID_LANGUAGE                    28
 #define TEXT_ID_SLEEP_TIMER                 29
 #define TEXT_ID_AUTO_STANDBY                30
@@ -282,6 +288,9 @@ extern TIM_HandleTypeDef htim2;
 #define TEXT_ID_LANGUAGE_ITEMS              2
 #define TEXT_ID_CHANNEL_LIST_FIRST          TEXT_ID_AUTOMATIC_SEARCH
 #define TEXT_ID_CHANNEL_LIST_ITEMS          3
+#define TEXT_ID_MANUAL_SEARCH_FIRST         TEXT_ID_MANUAL_SEARCH_DAB
+#define TEXT_ID_MANUAL_SEARCH_ITEMS         2
+
 
 /* USER CODE END EC */
 
@@ -308,26 +317,33 @@ void draw_background_clock(RTC_TimeTypeDef);
 void draw_channel_number_box(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_signal_strength_bars(uint16_t r7_6, uint16_t r7_4, int8_t* r7);
 void draw_radio_text(void* r7_4, uint8_t r7_3);
-void sub_8002054(Tuner_Channel* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18);
+void draw_channel_select_page(Tuner_Channel* r7_c, uint8_t r7_b, uint8_t r7_a, void* r7_4, uint8_t r7_18);
 int menu_channel_select_check_touch_fields(uint16_t a, uint16_t b);
 void draw_on_off_icon(uint16_t a, uint16_t b);
-void sub_80023d0(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_channel_select_list(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_scroll_bar(uint8_t r7_7, uint8_t r7_6);
 void draw_snr_indicator(uint16_t r7_e, uint16_t r7_c, Tuner_Values* r7_8, uint8_t r7_7);
 void draw_channel_freq_mux_label(Tuner_Channel* r7_4, uint8_t r7_3);
-void sub_80028b8(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_updated_channel_select_list(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_automatic_search_screen(Tuner_Channel* r7_4, uint8_t r7_3, uint8_t r7_2, uint16_t r7, uint16_t r7_10, void* r7_14, uint16_t r7_18);
 int menu_automatic_search_check_touch_fields(uint16_t a, uint16_t b);
 void draw_progress_bar(uint16_t r7_6, uint16_t r7_4, uint16_t r7_2, uint16_t r7);
 void draw_channel_list(Tuner_Channel* r7_4, uint8_t r7_3);
 void draw_freq_mux_label(uint16_t a);
-void sub_8002cac(uint16_t firstTextId, uint8_t lines, uint8_t focus);
-void sub_8002d70(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
-void sub_8002e0c(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_menu_list(uint16_t firstTextId, uint8_t lines, uint8_t focus);
+void draw_menu_page(uint16_t textId, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
+void draw_initial_menu_page(uint16_t r7_6, uint16_t r7_4, uint8_t r7_3, uint8_t r7_2);
 uint8_t sub_8002e98(uint16_t a, uint16_t b);
 uint8_t menu_list_convert_rc5_code(uint8_t);
 
 void draw_screen_caption(uint16_t textId, sFONT* font);
+void sub_80030bc(Tuner_Channel[], uint8_t b, uint8_t c, uint8_t d, Tuner_Values*);
+void sub_8003158(uint8_t a);
+uint8_t sub_80031bc(uint16_t a, uint16_t b);
+void sub_80032e4(Tuner_Channel[], uint8_t b, uint16_t c, uint8_t d, uint8_t e, Tuner_Values*);
+uint8_t sub_8003392(uint16_t a, uint16_t b);
+void sub_80034fc(Tuner_Values*);
+void sub_8003524(uint16_t a, uint8_t b, uint8_t c);
 void draw_signal_information_screen(Tuner_Channel* a, uint8_t b, Tuner_Values* c);
 void draw_signal_level_line(Tuner_Values* a);
 void draw_signal_quality_line(Tuner_Values* a);
@@ -340,6 +356,7 @@ void draw_alarm_screen(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
 void draw_alarm_time_edit(Alarm_Time* r7_4, uint8_t r7_3, uint8_t r7_2);
 int alarm_screen_check_touch_fields(uint16_t r7_6, uint16_t r7_4);
 void draw_standby_screen(RTC_TimeTypeDef r7_c, RTC_DateTypeDef r7_8, Alarm_Time* r7_4, uint8_t r7_3);
+void draw_background_date(RTC_DateTypeDef);
 void draw_alarm_time(Alarm_Time* a);
 void draw_sleep_timer_screen(uint8_t a);
 void draw_sleep_timer_value(uint8_t r7_7);
@@ -408,14 +425,16 @@ int menu_channel_list(void);
 int menu_settings(void);
 int menu_alarm(void);
 int menu_sw_information(void);
-int sub_8007414(void);
-int sub_80075e9(void);
-int sub_80078c4(void);
-int sub_8007b48(void);
+int menu_manual_search(void);
+int menu_channel_delete(void);
+int menu_manual_search_dab(void);
+int menu_manual_search_fm(void);
+void sub_8007f3c(uint8_t* a, uint16_t* b, uint16_t* c);
 int menu_language(void);
 int menu_sleep_timer(void);
 int menu_auto_standby(void);
 int menu_volume_change(void);
+int menu_initial_language(void);
 int sub_80088cc(void);
 
 int si46xx_set_volume(uint8_t a);

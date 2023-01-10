@@ -27,7 +27,7 @@ void menu_channel_select(void)
       return;
    }
 
-   sub_8002054(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bCurrentVolume);
+   draw_channel_select_page(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bCurrentVolume);
 
    TouchEvent.bData_0 = 1;
    //->loc_800c312
@@ -56,7 +56,7 @@ void menu_channel_select(void)
          case 3:
         	 //800be7c
         	 channel_next();
-        	 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        	 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
         	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 //->800C1E8
         	 break;
@@ -64,7 +64,7 @@ void menu_channel_select(void)
          case 2:
         	 //800beaa
         	 channel_previous();
-        	 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        	 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
         	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 //->800C1E8
         	 break;
@@ -84,7 +84,7 @@ void menu_channel_select(void)
         	 if ((wMainloopEvents & MAIN_LOOP_EVENT_FAV_ACTIVE) == 0)
         	 {
         		 sub_800b610(bCurrentChannelNumber);
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
         		 r7_1a = 1;
         	 }
         	 //800C1CA
@@ -104,7 +104,7 @@ void menu_channel_select(void)
         	 {
         		 bCurrentChannelNumber -= 2; //TODO
 
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 }
         	 //800C1CE
@@ -116,7 +116,7 @@ void menu_channel_select(void)
         	 {
         		 bCurrentChannelNumber -= 1; //TODO
 
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 }
         	 //800C1D2
@@ -127,7 +127,7 @@ void menu_channel_select(void)
         	 if ((r7_18 > 2) && (bCurrentChannelNumber < 2))
         	 {
         		 bCurrentChannelNumber = 2;
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 }
         	 //800C1D6
@@ -138,7 +138,7 @@ void menu_channel_select(void)
         	 if ((r7_18 > 3) && ((bCurrentChannelNumber + 1) < r7_18))
         	 {
         		 bCurrentChannelNumber++;
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 }
         	 //800C1DA
@@ -149,7 +149,7 @@ void menu_channel_select(void)
         	 if ((r7_18 > 4) && ((bCurrentChannelNumber + 2) < r7_18))
         	 {
         		 bCurrentChannelNumber += 2;
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 }
         	 //800C1DE
@@ -176,7 +176,7 @@ void menu_channel_select(void)
         			 bCurrentChannelNumber = 0;
         		 }
         		 //800C118
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
             	 //->800C1E2
         	 }
@@ -198,7 +198,7 @@ void menu_channel_select(void)
         			 bCurrentChannelNumber = 0;
         		 }
         		 //800C17C
-        		 sub_80028b8(r7_14, bCurrentChannelNumber, r7_18);
+        		 draw_updated_channel_select_list(r7_14, bCurrentChannelNumber, r7_18);
             	 channel_set(&r7_14[bCurrentChannelNumber]);
         	 }
         	 //800C1E6
@@ -207,7 +207,7 @@ void menu_channel_select(void)
          case 24:
         	 //800c1a6
         	 menu_volume_change();
-        	 sub_8002054(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bCurrentVolume);
+        	 draw_channel_select_page(r7_14, bCurrentChannelNumber, r7_18, &r7_4, bCurrentVolume);
         	 //800C1E8
         	 break;
 

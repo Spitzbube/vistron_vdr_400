@@ -12,7 +12,7 @@ int menu_language(void)
    uint8_t r7_3;
    uint8_t r7_2 = UserSettings.b2;
 
-   sub_8002d70(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
+   draw_menu_page(TEXT_ID_LANGUAGE, TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -86,7 +86,7 @@ int menu_language(void)
       {
          oldItem = itemIndex;
 
-         sub_8002cac(TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
+         draw_menu_list(TEXT_ID_LANGUAGE_FIRST, TEXT_ID_LANGUAGE_ITEMS, itemIndex);
       }
       //loc_80081d4
    }

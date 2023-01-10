@@ -9,8 +9,8 @@ int menu_channel_list(void)
    funcs r7_4[] = //8012c68
    {
 	  menu_automatic_search, //Automatic search
-	  sub_8007414, //Manual search
-	  sub_80075e9 //Delete channel
+	  menu_manual_search, //Manual search
+	  menu_channel_delete //Delete channel
    };
    uint8_t r7_17 = 0;
    uint8_t r7_16 = 1;
@@ -21,7 +21,7 @@ int menu_channel_list(void)
    uint8_t touchCode;
    uint8_t irCode;
 
-   sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
+   draw_menu_page(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
 
    TouchEvent.bData_0 = 1;
    KeyEvent.bData_0 = 1;
@@ -115,7 +115,7 @@ int menu_channel_list(void)
             TouchEvent.bData_0 = 1;
             KeyEvent.bData_0 = 1;
 
-            sub_8002d70(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
+            draw_menu_page(TEXT_ID_CHANNEL_LIST, TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
          }
       }
       //loc_8006ee8
@@ -123,7 +123,7 @@ int menu_channel_list(void)
       {
          oldItem = itemIndex;
 
-         sub_8002cac(TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
+         draw_menu_list(TEXT_ID_CHANNEL_LIST_FIRST, TEXT_ID_CHANNEL_LIST_ITEMS, itemIndex);
       }
    }
 

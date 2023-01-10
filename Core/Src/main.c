@@ -328,7 +328,7 @@ int main(void)
                }
             }
             //loc_800cc06
-            if ((wMainloopEvents & 0x02) != 0)
+            if ((wMainloopEvents & MAIN_LOOP_EVENT_NEW_CHANNEL) != 0)
             {
                channel_set(&pChannels[bCurrentChannelNumber]);
 
